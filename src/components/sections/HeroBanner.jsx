@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Box, Container, Typography } from "@mui/material";
 import { AnimatePresence, motion } from "framer-motion";
 import heroVideo from "../../assets/hero.mp4";
+import SmartServiceSearch from "../common/SmartServiceSearch";
 
 import EngineeringIcon from "@mui/icons-material/Engineering";
 import FactoryIcon from "@mui/icons-material/Factory";
@@ -76,8 +77,8 @@ const HeroBanner = () => {
     <Box
       sx={{
         position: "relative",
-        minHeight: { xs: "560px", sm: "620px", md: "700px", lg: "750px" },
-        height: { xs: "auto", md: "700px", lg: "750px" },
+        minHeight: { xs: "720px", sm: "740px", md: "760px", lg: "790px" },
+        height: { xs: "auto", md: "760px", lg: "790px" },
         overflow: "hidden"
       }}
     >
@@ -264,6 +265,10 @@ const HeroBanner = () => {
           >
             From Foundation to Furniture
           </MotionTypography>
+
+          <motion.div variants={fadeInUp}>
+            <SmartServiceSearch />
+          </motion.div>
 
           <MotionBox
             variants={fadeInUp}
