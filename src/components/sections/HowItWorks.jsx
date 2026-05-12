@@ -1,0 +1,286 @@
+import React from "react";
+import { Box, Button, Chip, Container, Paper, Typography } from "@mui/material";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import HomeWorkIcon from "@mui/icons-material/HomeWork";
+import StraightenIcon from "@mui/icons-material/Straighten";
+import DesignServicesIcon from "@mui/icons-material/DesignServices";
+import CarpenterIcon from "@mui/icons-material/Carpenter";
+import TaskAltIcon from "@mui/icons-material/TaskAlt";
+import { motion } from "framer-motion";
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 32 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: "easeOut" } }
+};
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.1 }
+  }
+};
+
+const steps = [
+  {
+    step: "01",
+    icon: <WhatsAppIcon />,
+    title: "Free Consultation",
+    role: "Discuss Your Need",
+    desc: "Tell us your requirement for construction, furniture, or interior work.",
+    details: "Call or WhatsApp us to start your project planning."
+  },
+  {
+    step: "02",
+    icon: <StraightenIcon />,
+    title: "Site Visit & Measurement",
+    role: "Space Check",
+    desc: "Our team visits your site, checks the space, and takes accurate measurements.",
+    details: "Proper planning starts with proper site understanding."
+  },
+  {
+    step: "03",
+    icon: <DesignServicesIcon />,
+    title: "Design & Estimate",
+    role: "Clear Planning",
+    desc: "We suggest modern designs, material options, and transparent project costing.",
+    details: "You get a clear idea before work begins."
+  },
+  {
+    step: "04",
+    icon: <CarpenterIcon />,
+    title: "Quality Execution",
+    role: "Skilled Work",
+    desc: "Our experts handle construction, interior finishing, and custom furniture manufacturing.",
+    details: "Premium materials and skilled workmanship on every project."
+  },
+  {
+    step: "05",
+    icon: <TaskAltIcon />,
+    title: "Final Handover",
+    role: "Ready To Use",
+    desc: "We finish the work with proper detailing, checking, and timely handover.",
+    details: "From foundation to furniture, everything is completed with care."
+  }
+];
+
+const services = [
+  "Complete House Construction",
+  "Custom Furniture Manufacturing",
+  "Modern Interior Solutions",
+  "Sofa, Bed, Wardrobe, Modular Kitchen",
+  "Trusted Contractor Services"
+];
+
+const consultationUrl =
+  "https://wa.me/919416856468?text=Hello%20Vishwakarma%20Build%20%26%20Furnish%20CKD%2C%20I%20want%20a%20free%20consultation.";
+
+const HowItWorks = () => {
+  return (
+    <Box
+      component="section"
+      sx={{
+        py: { xs: 8, md: 11 },
+        background: "linear-gradient(135deg, #111111 0%, #0F172A 55%, #111827 100%)",
+        color: "#F8FAFC",
+        position: "relative",
+        overflow: "hidden"
+      }}
+    >
+      <Container maxWidth="lg">
+        <Box
+          component={motion.div}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.22 }}
+          variants={staggerContainer}
+        >
+          <Box component={motion.div} variants={fadeInUp} sx={{ textAlign: "center", mb: { xs: 4, md: 6 } }}>
+            <Chip
+              icon={<HomeWorkIcon />}
+              label="Our Working Process"
+              sx={{
+                bgcolor: "rgba(212,175,55,0.16)",
+                color: "#D4AF37",
+                border: "1px solid rgba(212,175,55,0.28)",
+                mb: 2,
+                "& .MuiChip-icon": { color: "#D4AF37" }
+              }}
+            />
+            <Typography
+              variant="h2"
+              sx={{
+                fontWeight: 900,
+                fontSize: { xs: "2rem", sm: "2.5rem", md: "3.1rem" },
+                color: "#F8FAFC",
+                mb: 1.5
+              }}
+            >
+              From Foundation to Furniture
+            </Typography>
+            <Typography
+              sx={{
+                maxWidth: 760,
+                mx: "auto",
+                color: "rgba(248,250,252,0.72)",
+                fontSize: { xs: "0.98rem", md: "1.08rem" },
+                lineHeight: 1.7
+              }}
+            >
+              A simple and transparent process for premium construction, interiors, and custom furniture work.
+            </Typography>
+          </Box>
+
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(5, 1fr)" },
+              gap: 2.5
+            }}
+          >
+            {steps.map((step) => (
+              <Paper
+                key={step.step}
+                component={motion.div}
+                variants={fadeInUp}
+                elevation={0}
+                sx={{
+                  p: { xs: 2.5, md: 3 },
+                  minHeight: 300,
+                  borderRadius: 3,
+                  background: "#111827",
+                  border: "1px solid rgba(212,175,55,0.36)",
+                  color: "#F8FAFC",
+                  textAlign: "center",
+                  position: "relative",
+                  overflow: "hidden",
+                  transition: "transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease",
+                  "&:hover": {
+                    transform: "translateY(-7px)",
+                    borderColor: "#D4AF37",
+                    boxShadow: "0 18px 42px rgba(0,0,0,0.34)"
+                  }
+                }}
+              >
+                <Typography
+                  sx={{
+                    position: "absolute",
+                    right: 14,
+                    bottom: 8,
+                    color: "rgba(212,175,55,0.1)",
+                    fontWeight: 900,
+                    fontSize: "3.3rem",
+                    lineHeight: 1
+                  }}
+                >
+                  {step.step}
+                </Typography>
+                <Box
+                  sx={{
+                    width: 72,
+                    height: 72,
+                    mx: "auto",
+                    mb: 2,
+                    borderRadius: "50%",
+                    display: "grid",
+                    placeItems: "center",
+                    bgcolor: "rgba(212,175,55,0.12)",
+                    border: "1px solid rgba(212,175,55,0.45)",
+                    color: "#D4AF37",
+                    "& svg": { fontSize: 34 }
+                  }}
+                >
+                  {step.icon}
+                </Box>
+                <Box sx={{ display: "flex", justifyContent: "center", gap: 1, flexWrap: "wrap", mb: 1.5 }}>
+                  <Chip
+                    label={step.role}
+                    size="small"
+                    sx={{ bgcolor: "rgba(248,250,252,0.08)", color: "#F8FAFC", fontWeight: 800 }}
+                  />
+                  <Chip
+                    label={`STEP ${step.step}`}
+                    size="small"
+                    sx={{ bgcolor: "#D4AF37", color: "#111827", fontWeight: 900 }}
+                  />
+                </Box>
+                <Typography sx={{ color: "#F8FAFC", fontWeight: 900, fontSize: "1.08rem", mb: 1 }}>
+                  {step.title}
+                </Typography>
+                <Typography sx={{ color: "rgba(248,250,252,0.72)", fontSize: "0.9rem", lineHeight: 1.55, mb: 1.5 }}>
+                  {step.desc}
+                </Typography>
+                <Typography
+                  sx={{
+                    color: "#D4AF37",
+                    bgcolor: "rgba(212,175,55,0.08)",
+                    border: "1px solid rgba(212,175,55,0.18)",
+                    borderRadius: 2,
+                    p: 1.2,
+                    fontSize: "0.78rem",
+                    lineHeight: 1.45
+                  }}
+                >
+                  {step.details}
+                </Typography>
+              </Paper>
+            ))}
+          </Box>
+
+          <Paper
+            component={motion.div}
+            variants={fadeInUp}
+            elevation={0}
+            sx={{
+              mt: { xs: 4, md: 5 },
+              p: { xs: 3, md: 4 },
+              borderRadius: 3,
+              background: "#111827",
+              border: "1px solid rgba(212,175,55,0.36)",
+              textAlign: "center"
+            }}
+          >
+            <Typography sx={{ color: "#D4AF37", fontWeight: 900, fontSize: { xs: "1.2rem", md: "1.45rem" }, mb: 2 }}>
+              Vishwakarma Build & Furnish CKD
+            </Typography>
+            <Box sx={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 1.2, mb: 3 }}>
+              {services.map((service) => (
+                <Chip
+                  key={service}
+                  label={service}
+                  sx={{
+                    bgcolor: "rgba(212,175,55,0.12)",
+                    border: "1px solid rgba(212,175,55,0.28)",
+                    color: "#F8FAFC",
+                    fontWeight: 700
+                  }}
+                />
+              ))}
+            </Box>
+            <Button
+              href={consultationUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              variant="contained"
+              startIcon={<WhatsAppIcon />}
+              sx={{
+                bgcolor: "#D4AF37",
+                color: "#111827",
+                fontWeight: 900,
+                px: 3.5,
+                py: 1.2,
+                borderRadius: 2,
+                textTransform: "none",
+                "&:hover": { bgcolor: "#B88917" }
+              }}
+            >
+              Get Free Consultation
+            </Button>
+          </Paper>
+        </Box>
+      </Container>
+    </Box>
+  );
+};
+
+export default HowItWorks;
