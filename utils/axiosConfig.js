@@ -3,8 +3,7 @@ import axios from 'axios';
 
 // Create axios instance with default config
 const axiosInstance = axios.create({
-  baseURL: 'http://localhost:4000/api', // Your backend URL
-  // baseURL: 'https://nbnl6p1j-4000.inc1.devtunnels.ms/api',
+  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
