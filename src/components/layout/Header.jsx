@@ -42,18 +42,27 @@ const Header = () => {
     { label: "Contact", icon: <CallIcon />, path: "/contact" },
   ];
 
+  const mobileNavItems = [
+    { label: "Home", icon: <HomeIcon />, path: "/" },
+    { label: "Furniture", icon: <ChairIcon />, path: "/services/furniture-services" },
+    { label: "Construction", icon: <ConstructionIcon />, path: "/services/construction-services" },
+    { label: "Interior", icon: <EngineeringIcon />, path: "/services/interior-services" },
+    { label: "About", icon: <InfoIcon />, path: "/about" },
+    { label: "Contact", icon: <CallIcon />, path: "/contact" },
+  ];
+
   // Get current active route index
-  const getActiveRouteIndex = () => {
+  const getActiveRouteIndex = (items = navItems) => {
     const currentPath = location.pathname;
-    const index = navItems.findIndex(item => item.path === currentPath || currentPath.startsWith(item.path + "/"));
+    const index = items.findIndex(item => item.path === currentPath || currentPath.startsWith(item.path + "/"));
     return index !== -1 ? index : 0;
   };
 
-  const [mobileNavValue, setMobileNavValue] = useState(getActiveRouteIndex());
+  const [mobileNavValue, setMobileNavValue] = useState(getActiveRouteIndex(mobileNavItems));
 
   // Update active state when route changes
   useEffect(() => {
-    setMobileNavValue(getActiveRouteIndex());
+    setMobileNavValue(getActiveRouteIndex(mobileNavItems));
   }, [location.pathname]);
 
   const handleNavigation = (path) => {
@@ -233,24 +242,24 @@ const Header = () => {
             elevation={3}
           >
             <BottomNavigation
+              showLabels
               value={mobileNavValue}
               onChange={(event, newValue) => {
                 setMobileNavValue(newValue);
-                handleNavigation(navItems[newValue].path);
+                handleNavigation(mobileNavItems[newValue].path);
               }}
               sx={{
                 bgcolor: colors.primary,
-                height: "60px",
-                overflowX: "auto",
-                justifyContent: "flex-start",
-                px: 0.5,
-                scrollbarWidth: "none",
-                "&::-webkit-scrollbar": { display: "none" },
+                height: { xs: "64px", sm: "66px" },
+                overflow: "hidden",
+                justifyContent: "space-between",
+                px: 0,
                 '& .MuiBottomNavigationAction-root': {
                   color: 'rgba(255, 255, 255, 0.7)',
-                  flex: "0 0 72px",
-                  minWidth: 72,
-                  maxWidth: 72,
+                  flex: "1 1 0",
+                  minWidth: 0,
+                  maxWidth: "none",
+                  px: 0.2,
                   transition: 'all 0.3s ease',
                   '&:hover': {
                     color: colors.secondary,
@@ -262,21 +271,25 @@ const Header = () => {
                   },
                 },
                 '& .MuiBottomNavigationAction-label': {
-                  fontSize: '11px',
+                  width: "100%",
+                  fontSize: { xs: '9px', sm: '10px' },
+                  lineHeight: 1.1,
+                  whiteSpace: "normal",
+                  overflowWrap: "anywhere",
                   '&.Mui-selected': {
-                    fontSize: '11px',
+                    fontSize: { xs: '9px', sm: '10px' },
                   },
                 },
               }}
             >
-              {navItems.map((item) => (
+              {mobileNavItems.map((item) => (
                 <BottomNavigationAction 
                   key={item.label} 
                   label={item.label} 
                   icon={item.icon}
                   sx={{
                     '& .MuiSvgIcon-root': {
-                      fontSize: '22px',
+                      fontSize: { xs: '20px', sm: '22px' },
                     },
                   }}
                 />

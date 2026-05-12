@@ -18,7 +18,7 @@ import UploadFileIcon from "@mui/icons-material/UploadFile";
 import axiosInstance from "../../utils/axiosConfig";
 
 const phone = "9416856468";
-const quickServices = ["Modular Kitchen", "House Construction", "False Ceiling", "Sofa Set", "Wardrobe"];
+const quickServices = ["Wooden Doors", "Plywood Doors", "Wooden Windows", "Sofa Set", "Wardrobe"];
 const trustItems = ["Free Consultation", "Custom Designs", "Premium Quality", "Affordable Pricing"];
 
 const ContactPage = () => {

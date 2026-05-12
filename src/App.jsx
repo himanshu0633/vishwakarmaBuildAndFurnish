@@ -7,6 +7,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import ScrollToTop from './components/layout/ScrollToTop';
+import FloatingWhatsAppButton from './components/common/FloatingWhatsAppButton';
 
 // Import Pages
 import HomePage from './pages/HomePage';
@@ -111,6 +112,7 @@ function App() {
                 </Box>
 
                 <Footer />
+                <FloatingWhatsAppButton />
               </Box>
             }
           />

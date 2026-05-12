@@ -1,28 +1,78 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Box, Button, Chip, CircularProgress, Container, Paper, Typography } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArticleIcon from "@mui/icons-material/Article";
 import { useNavigate } from "react-router-dom";
 import axiosInstance, { getStaticAssetUrl } from "../../utils/axiosConfig";
+import { businessStructuredData, buildPageUrl, useSeo } from "../utils/seo";
 
 const BlogListPage = () => {
   const navigate = useNavigate();
   const [blogs, setBlogs] = useState([]);
+  const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
+  const searchTopics = useMemo(() => {
+    const serviceTopics = services.flatMap((service) => {
+      const name = service.name || "";
+
+      return [
+        `${name} images Charkhi Dadri`,
+        `latest ${name} design Haryana`,
+        `best ${name} in Charkhi Dadri`
+      ];
+    });
+
+    return [...new Set(serviceTopics.filter(Boolean))].slice(0, 90);
+  }, [services]);
+  const seoKeywords = useMemo(
+    () => [
+      ...searchTopics,
+      "best furniture Charkhi Dadri",
+      "custom furniture Haryana",
+      "Vishwakarma Build Furnish CKD"
+    ],
+    [searchTopics]
+  );
+
+  useSeo({
+    title: "Furniture, Wooden Door & Interior Blogs in Charkhi Dadri",
+    description:
+      "Read Vishwakarma Build & Furnish CKD blogs for all services including images, latest designs, material guidance, custom furniture, interiors and construction work in Charkhi Dadri, Haryana.",
+    path: "/blogs",
+    keywords: seoKeywords,
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      name: "Vishwakarma Build & Furnish Blog",
+      url: buildPageUrl("/blogs"),
+      publisher: businessStructuredData,
+      blogPost: blogs.slice(0, 10).map((blog) => ({
+        "@type": "BlogPosting",
+        headline: blog.title,
+        description: blog.seoDescription || blog.excerpt,
+        url: buildPageUrl(`/blogs/${blog.slug}`)
+      }))
+    }
+  });
 
   useEffect(() => {
-    const fetchBlogs = async () => {
+    const fetchBlogPageData = async () => {
       try {
-        const response = await axiosInstance.get("/blogs");
-        setBlogs(response.data.success ? response.data.data || [] : []);
+        const [blogsResponse, servicesResponse] = await Promise.all([
+          axiosInstance.get("/blogs"),
+          axiosInstance.get("/services")
+        ]);
+
+        setBlogs(blogsResponse.data.success ? blogsResponse.data.data || [] : []);
+        setServices(servicesResponse.data.success ? servicesResponse.data.data || [] : []);
       } catch (error) {
-        console.error("Error fetching blogs:", error);
+        console.error("Error fetching blog page data:", error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchBlogs();
+    fetchBlogPageData();
   }, []);
 
   return (
@@ -34,7 +84,7 @@ const BlogListPage = () => {
             Vishwakarma Build & Furnish Blog
           </Typography>
           <Typography sx={{ maxWidth: 820, mx: "auto", color: "rgba(248,250,252,0.75)", lineHeight: 1.8, fontSize: { xs: "0.95rem", sm: "1rem" } }}>
-            SEO-friendly guides for furniture, construction, interiors, wooden doors, windows, modular kitchens, and custom furniture.
+            Images, latest designs, material guidance, price ideas, and custom work tips for every Vishwakarma Build & Furnish CKD service in Charkhi Dadri, Haryana.
           </Typography>
         </Container>
       </Box>
@@ -62,13 +112,18 @@ const BlogListPage = () => {
                   }}
                 >
                   <Box
+                    component="img"
+                    src={image}
+                    alt={`${blog.title} - ${blog.category || "Furniture"} in Charkhi Dadri Haryana`}
                     sx={{
+                      width: "100%",
                       height: { xs: 190, sm: 220, md: 240 },
-                      background: image
-                        ? `url("${image}") center/cover no-repeat`
-                        : "linear-gradient(135deg, #111827, #1A1A1A)"
+                      display: image ? "block" : "none",
+                      objectFit: "cover",
+                      bgcolor: "#111827"
                     }}
                   />
+                  {!image && <Box sx={{ height: { xs: 190, sm: 220, md: 240 }, background: "linear-gradient(135deg, #111827, #1A1A1A)" }} />}
                   <Box sx={{ p: { xs: 2, sm: 2.5, md: 3 } }}>
                     <Chip label={blog.category || "Guide"} size="small" sx={{ bgcolor: "#D4AF37", color: "#111827", fontWeight: 900, mb: 1.5 }} />
                     <Typography sx={{ fontSize: { xs: "1.12rem", md: "1.3rem" }, lineHeight: 1.25, fontWeight: 900, mb: 1, overflowWrap: "anywhere" }}>{blog.title}</Typography>

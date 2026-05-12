@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Box, Button, Chip, CircularProgress, Container, Paper, Typography } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance, { getStaticAssetUrl } from "../../utils/axiosConfig";
+import { businessStructuredData, buildPageUrl, useSeo } from "../utils/seo";
 
 const BlogDetailPage = () => {
   const { slug } = useParams();
@@ -33,6 +34,63 @@ const BlogDetailPage = () => {
     window.open(`https://wa.me/919416856468?text=${encodeURIComponent(message)}`, "_blank");
   };
 
+  const heroImage = getStaticAssetUrl(blog?.coverImage || blog?.relatedServices?.[0]?.heroImage || blog?.relatedServices?.[0]?.images?.[0] || "");
+  const primaryService = blog?.relatedServices?.filter(Boolean)?.[0];
+  const serviceSearchTopics = useMemo(() => {
+    const serviceName = primaryService?.name || "";
+    const topicSource = serviceName || blog?.title || "";
+
+    return [
+      `${topicSource} images Charkhi Dadri`,
+      `latest ${topicSource} design Haryana`,
+      `best ${topicSource} in Charkhi Dadri`,
+      `${topicSource} price in Charkhi Dadri`,
+      `${topicSource} material and finishing`,
+      `${topicSource} custom work Haryana`
+    ].filter((topic) => topic.trim().length > 24);
+  }, [blog?.title, primaryService?.name]);
+  const seoKeywords = [
+    ...(blog?.tags || []),
+    ...serviceSearchTopics,
+    blog?.title,
+    blog?.category,
+    "Charkhi Dadri",
+    "Haryana",
+    "wooden door images",
+    "latest furniture design"
+  ].filter(Boolean);
+
+  useSeo({
+    title: blog?.seoTitle || blog?.title || "Furniture Blog",
+    description: blog?.seoDescription || blog?.excerpt || "Furniture and interior design guide by Vishwakarma Build & Furnish CKD.",
+    path: slug ? `/blogs/${slug}` : "/blogs",
+    image: heroImage,
+    type: "article",
+    keywords: seoKeywords,
+    structuredData: blog
+      ? {
+          "@context": "https://schema.org",
+          "@type": "BlogPosting",
+          headline: blog.title,
+          description: blog.seoDescription || blog.excerpt,
+          image: heroImage,
+          datePublished: blog.publishedAt,
+          dateModified: blog.updatedAt || blog.publishedAt,
+          mainEntityOfPage: buildPageUrl(`/blogs/${blog.slug}`),
+          author: {
+            "@type": "Organization",
+            name: "Vishwakarma Build & Furnish CKD"
+          },
+          publisher: businessStructuredData,
+          about: (blog.relatedServices || []).filter(Boolean).map((service) => ({
+            "@type": "Service",
+            name: service.name,
+            url: buildPageUrl(`/services/${service.categoryId?.slug || "furniture"}/${service.slug}`)
+          }))
+        }
+      : null
+  });
+
   if (loading) {
     return (
       <Box sx={{ minHeight: "70vh", bgcolor: "#0F172A", display: "grid", placeItems: "center" }}>
@@ -52,7 +110,6 @@ const BlogDetailPage = () => {
     );
   }
 
-  const heroImage = getStaticAssetUrl(blog.coverImage || blog.relatedServices?.[0]?.heroImage || blog.relatedServices?.[0]?.images?.[0] || "");
   const paragraphs = String(blog.content || "").split("\n").map((item) => item.trim()).filter(Boolean);
 
   return (
@@ -75,10 +132,35 @@ const BlogDetailPage = () => {
           <Typography sx={{ maxWidth: 820, color: "rgba(248,250,252,0.78)", lineHeight: 1.75, fontSize: { xs: "0.96rem", md: "1.08rem" } }}>
             {blog.excerpt}
           </Typography>
+          {!!serviceSearchTopics.length && (
+            <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap", mt: 3, maxWidth: 920 }}>
+              {serviceSearchTopics.map((topic) => (
+                <Chip
+                  key={topic}
+                  label={topic}
+                  sx={{
+                    bgcolor: "rgba(248,250,252,0.1)",
+                    color: "rgba(248,250,252,0.88)",
+                    border: "1px solid rgba(212,175,55,0.28)",
+                    maxWidth: "100%",
+                    "& .MuiChip-label": { whiteSpace: "normal", overflowWrap: "anywhere" }
+                  }}
+                />
+              ))}
+            </Box>
+          )}
         </Container>
       </Box>
 
       <Container maxWidth="lg" sx={{ py: { xs: 4, sm: 5, md: 9 }, px: { xs: 2, sm: 3 } }}>
+        {heroImage && (
+          <Box
+            component="img"
+            src={heroImage}
+            alt={`${blog.title} image and design in Charkhi Dadri Haryana`}
+            sx={{ width: 1, height: 1, opacity: 0, position: "absolute", pointerEvents: "none" }}
+          />
+        )}
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "minmax(0, 1fr)", md: "minmax(0, 1fr) 340px" }, gap: { xs: 3, md: 4 } }}>
           <Paper elevation={0} sx={{ bgcolor: "#111827", color: "#F8FAFC", border: "1px solid rgba(212,175,55,0.22)", borderRadius: { xs: 2, md: 3 }, p: { xs: 2.2, sm: 3, md: 5 }, minWidth: 0 }}>
             {paragraphs.map((paragraph, index) => (
@@ -100,6 +182,28 @@ const BlogDetailPage = () => {
           </Paper>
 
           <Box sx={{ display: "grid", gap: 2, alignSelf: "start" }}>
+            {!!serviceSearchTopics.length && (
+              <Paper elevation={0} sx={{ bgcolor: "#111827", color: "#F8FAFC", border: "1px solid rgba(212,175,55,0.28)", borderRadius: 3, p: 3 }}>
+                <Typography sx={{ color: "#D4AF37", fontWeight: 900, mb: 1 }}>Related Searches</Typography>
+                <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                  {serviceSearchTopics.map((topic) => (
+                    <Chip
+                      key={topic}
+                      label={topic}
+                      size="small"
+                      sx={{
+                        bgcolor: "rgba(212,175,55,0.12)",
+                        color: "#F8FAFC",
+                        border: "1px solid rgba(212,175,55,0.24)",
+                        height: "auto",
+                        "& .MuiChip-label": { whiteSpace: "normal", py: 0.8, overflowWrap: "anywhere" }
+                      }}
+                    />
+                  ))}
+                </Box>
+              </Paper>
+            )}
+
             <Paper elevation={0} sx={{ bgcolor: "#111827", color: "#F8FAFC", border: "1px solid rgba(212,175,55,0.28)", borderRadius: 3, p: 3 }}>
               <Typography sx={{ color: "#D4AF37", fontWeight: 900, mb: 1 }}>Need this service?</Typography>
               <Typography sx={{ color: "rgba(248,250,252,0.72)", lineHeight: 1.7, mb: 2 }}>

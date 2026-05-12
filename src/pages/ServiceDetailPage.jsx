@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Box, Button, Chip, CircularProgress, Container, Paper, Typography } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
-import axiosInstance, { logStaticAssetUrl } from "../../utils/axiosConfig";
+import axiosInstance, { getStaticAssetUrl, logStaticAssetUrl } from "../../utils/axiosConfig";
 import { getCategoryName, getServiceFullDescription } from "../utils/catalogSchema";
+import { businessStructuredData, buildPageUrl, useSeo } from "../utils/seo";
 
 const ServiceDetailPage = () => {
   const { categorySlug, serviceSlug } = useParams();
@@ -24,6 +25,50 @@ const ServiceDetailPage = () => {
     fetchService();
   }, [serviceSlug]);
 
+  const serviceImage = getStaticAssetUrl(service?.heroImage || service?.images?.[0] || "");
+  const categorySlugForSeo = service?.categoryId?.slug || categorySlug || "furniture";
+  const categoryName = service?.categoryId?.name || getCategoryName(service?.categoryId);
+
+  useSeo({
+    title: service?.seoTitle || (service?.name ? `Best ${service.name} in Charkhi Dadri` : "Furniture Service in Charkhi Dadri"),
+    description:
+      service?.seoDescription ||
+      (service ? `${service.name} images, latest designs, price guidance and custom work by Vishwakarma Build & Furnish CKD in Charkhi Dadri, Haryana.` : undefined),
+    path: serviceSlug ? `/services/${categorySlugForSeo}/${serviceSlug}` : "/services",
+    image: serviceImage,
+    keywords: [
+      ...(service?.tags || []),
+      service?.name,
+      `${service?.name || "furniture"} images`,
+      `latest ${service?.name || "furniture"} design`,
+      `best ${service?.name || "furniture"} in Charkhi Dadri`,
+      "Haryana"
+    ],
+    structuredData: service
+      ? {
+          "@context": "https://schema.org",
+          "@type": "Service",
+          name: service.name,
+          description: service.seoDescription || getServiceFullDescription(service),
+          image: serviceImage,
+          provider: businessStructuredData,
+          areaServed: ["Charkhi Dadri", "Haryana"],
+          category: categoryName,
+          url: buildPageUrl(`/services/${categorySlugForSeo}/${service.slug}`),
+          offers: service.priceStarting
+            ? {
+                "@type": "Offer",
+                priceSpecification: {
+                  "@type": "PriceSpecification",
+                  priceCurrency: "INR",
+                  description: service.priceStarting
+                }
+              }
+            : undefined
+        }
+      : null
+  });
+
   if (loading) {
     return (
       <Box sx={{ minHeight: "60vh", display: "grid", placeItems: "center", bgcolor: "#111111" }}>
@@ -41,9 +86,9 @@ const ServiceDetailPage = () => {
   return (
     <Box sx={{ bgcolor: "#111111", color: "#F5F5F5", py: { xs: 6, md: 9 } }}>
       <Container>
-        <Chip label={getCategoryName(service.categoryId)} sx={{ bgcolor: "rgba(212,175,55,0.18)", color: "#D4AF37", mb: 2 }} />
+        <Chip label={categoryName} sx={{ bgcolor: "rgba(212,175,55,0.18)", color: "#D4AF37", mb: 2 }} />
         <Typography variant="h1" sx={{ fontWeight: 900, fontSize: { xs: "2.4rem", md: "4rem" }, mb: 2 }}>
-          {service.emoji || "🔧"} {service.name}
+          {service.emoji || ""} {service.name}
         </Typography>
         <Typography sx={{ color: "rgba(245,245,245,0.72)", maxWidth: 850, fontSize: "1.1rem", mb: 3 }}>
           {getServiceFullDescription(service)}
@@ -63,7 +108,7 @@ const ServiceDetailPage = () => {
                   <Box
                     component="img"
                     src={src}
-                    alt={service.name}
+                    alt={`${service.name} images and latest design in Charkhi Dadri Haryana`}
                     onError={(event) => {
                       console.error("[media-url] legacy service detail image failed", {
                         service: service.name,
