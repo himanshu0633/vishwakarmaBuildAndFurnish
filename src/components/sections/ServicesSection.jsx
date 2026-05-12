@@ -49,6 +49,9 @@ const fadeInUp = {
   }
 };
 
+const getCompactCategoryName = (category) =>
+  getCategoryName(category).replace(/\s+Services$/i, "");
+
 /* ================= COMPONENT ================= */
 
 const ServicesSection = () => {
@@ -388,13 +391,15 @@ Phone: ${formData.phone}`;
 
           <Box
             sx={{
-              display: "flex",
-              gap: 1,
-              overflowX: "auto",
-              mb: 4,
-              pb: 1,
-              px: { xs: 0.5, md: 0 },
-              scrollSnapType: "x mandatory",
+              display: { xs: "grid", sm: "flex" },
+              gridTemplateColumns: { xs: "repeat(3, minmax(0, 1fr))", sm: "unset" },
+              justifyContent: { sm: "center" },
+              gap: { xs: 0.85, sm: 1 },
+              overflowX: { xs: "visible", sm: "auto" },
+              mb: { xs: 3.25, md: 4 },
+              pb: { xs: 0, sm: 1 },
+              px: { xs: 0, md: 0 },
+              scrollSnapType: { xs: "none", sm: "x mandatory" },
               "&::-webkit-scrollbar": {
                 height: "6px"
               },
@@ -425,12 +430,26 @@ Phone: ${formData.phone}`;
 
                   sx={{
 
-                    borderRadius: "30px",
-                    px: 2,
-                    py: 1,
-                    minWidth: { xs: 150, md: "auto" },
-                    whiteSpace: "nowrap",
+                    borderRadius: { xs: "14px", sm: "30px" },
+                    px: { xs: 0.75, sm: 2 },
+                    py: { xs: 1, sm: 1 },
+                    minWidth: { xs: 0, sm: 150, md: "auto" },
+                    minHeight: { xs: 76, sm: 0 },
+                    width: { xs: "100%", sm: "auto" },
+                    whiteSpace: { xs: "normal", sm: "nowrap" },
                     scrollSnapAlign: "start",
+                    textTransform: "none",
+                    lineHeight: 1.15,
+                    flexDirection: { xs: "column", sm: "row" },
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: { xs: 0.45, sm: 0 },
+                    border: selectedCategory === i
+                      ? "1px solid rgba(212,175,55,0.95)"
+                      : "1px solid rgba(245,245,245,0.16)",
+                    boxShadow: selectedCategory === i
+                      ? "0 10px 24px rgba(212,175,55,0.22)"
+                      : "none",
 
                     background:
 
@@ -438,23 +457,42 @@ Phone: ${formData.phone}`;
                         ? "linear-gradient(135deg,#D4AF37,#B88917)"
                         : "rgba(245,245,245,0.1)",
 
-                    color: "#F5F5F5",
+                    color: selectedCategory === i ? "#111827" : "#F5F5F5",
+                    fontWeight: 800,
                     
                     "&:hover": {
                       background: selectedCategory === i
                         ? "linear-gradient(135deg,#D4AF37,#B88917)"
                         : "rgba(245,245,245,0.2)",
+                      borderColor: "#D4AF37"
                     }
 
                   }}
 
                 >
 
-                  <Box component="span" sx={{ mr: 1, fontSize: "1.2rem" }}>
+                  <Box
+                    component="span"
+                    sx={{
+                      mr: { xs: 0, sm: 1 },
+                      fontSize: { xs: "1.35rem", sm: "1.2rem" },
+                      lineHeight: 1
+                    }}
+                  >
                     {getCategoryEmoji(cat)}
                   </Box>
 
-                  {getCategoryName(cat)}
+                  <Box
+                    component="span"
+                    sx={{
+                      display: "block",
+                      maxWidth: "100%",
+                      fontSize: { xs: "0.74rem", sm: "0.875rem" },
+                      overflowWrap: "anywhere"
+                    }}
+                  >
+                    {fullScreen ? getCompactCategoryName(cat) : getCategoryName(cat)}
+                  </Box>
 
                 </Button>
 

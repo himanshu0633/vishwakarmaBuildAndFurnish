@@ -25,6 +25,36 @@ const staggerContainer = {
 
 const fallbackFeatures = ["Premium Materials", "Modern Designs", "Custom Sizes"];
 
+const featuredServicePriority = [
+  "wooden doors",
+  "wooden windows",
+  "ply board door",
+  "wooden jali doors",
+  "pvc panels"
+];
+
+const normalizePriorityName = (value = "") =>
+  value
+    .toString()
+    .toLowerCase()
+    .replace(/single[-\s]*double/g, "")
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+const getFeaturedPriorityIndex = (service) => {
+  const name = normalizePriorityName(service?.name);
+  const slug = normalizePriorityName(service?.slug);
+  const index = featuredServicePriority.findIndex(priority =>
+    name === priority || slug.startsWith(priority)
+  );
+
+  return index === -1 ? featuredServicePriority.length : index;
+};
+
+const sortFeaturedServices = (list = []) =>
+  [...list].sort((first, second) => getFeaturedPriorityIndex(first) - getFeaturedPriorityIndex(second));
+
 const FeaturedServices = () => {
   const navigate = useNavigate();
   const [services, setServices] = useState([]);
@@ -36,7 +66,7 @@ const FeaturedServices = () => {
         setLoading(true);
         const response = await axiosInstance.get("/services?featured=true");
         const list = response.data.success ? response.data.data || [] : [];
-        setServices(list);
+        setServices(sortFeaturedServices(list));
       } catch (error) {
         console.error("Error fetching featured services:", error);
       } finally {
