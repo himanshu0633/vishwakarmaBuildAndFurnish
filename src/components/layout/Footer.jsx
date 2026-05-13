@@ -16,6 +16,7 @@ import { colors, branding } from "../../data/constants";
 import iesLogo from "../../assets/logo.png";
 
 const phone = "9416856468";
+const googleMapsLocationUrl = "https://maps.app.goo.gl/V9mPoFxvSJm3hCM69";
 
 const Footer = () => {
   const scrollToTop = () => {
@@ -124,8 +125,8 @@ const Footer = () => {
               <ContactRow icon={<EmailIcon />} href="mailto:info@vishwakarmabuildfurnish.com">
                 info@vishwakarmabuildfurnish.com
               </ContactRow>
-              <ContactRow icon={<LocationOnIcon />} href="https://www.google.com/maps/search/?api=1&query=Charkhi+Dadri+Haryana">
-                Charkhi Dadri, Haryana
+              <ContactRow icon={<LocationOnIcon />} href={googleMapsLocationUrl}>
+                Vishwakarma Build and Furnish, Charkhi Dadri
               </ContactRow>
             </Stack>
             <Box sx={{ mt: 2.5, p: 2, bgcolor: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.24)", borderRadius: 2 }}>

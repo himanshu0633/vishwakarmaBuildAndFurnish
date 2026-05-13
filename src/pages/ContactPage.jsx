@@ -18,6 +18,7 @@ import UploadFileIcon from "@mui/icons-material/UploadFile";
 import axiosInstance from "../../utils/axiosConfig";
 
 const phone = "9416856468";
+const googleMapsEmbedUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3503.219096391534!2d76.28924219999999!3d28.593203299999992!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391285dbfc386d4b%3A0xefc5900fb3ffdd3b!2sVishwakarma%20Build%20and%20Furnish!5e0!3m2!1sen!2sin!4v1778664056745!5m2!1sen!2sin";
 const quickServices = ["Wooden Doors", "Plywood Doors", "Wooden Windows", "Sofa Set", "Wardrobe"];
 const trustItems = ["Free Consultation", "Custom Designs", "Premium Quality", "Affordable Pricing"];
 
@@ -139,7 +140,15 @@ const ContactPage = () => {
           </Paper>
 
           <Paper sx={{ overflow: "hidden", minHeight: 430, bgcolor: "#0F172A", border: "1px solid rgba(212,175,55,0.28)", borderRadius: 3 }}>
-            <Box component="iframe" title="Vishwakarma Build & Furnish Location" src="https://www.google.com/maps?q=Charkhi%20Dadri%20Haryana&output=embed" sx={{ width: "100%", height: "100%", minHeight: 430, border: 0 }} />
+            <Box
+              component="iframe"
+              title="Vishwakarma Build and Furnish Location"
+              src={googleMapsEmbedUrl}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              sx={{ width: "100%", height: "100%", minHeight: 430, border: 0 }}
+            />
           </Paper>
         </Box>
 
