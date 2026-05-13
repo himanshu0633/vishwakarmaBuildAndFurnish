@@ -71,9 +71,10 @@ import {
   Close as CloseIcon
 } from '@mui/icons-material';
 import { useAuth } from './AuthContext';
+import { API_BASE_URL } from '../../utils/axiosConfig';
 
 // API configuration
-const API_URL = 'http://localhost:5000/api';
+const API_URL = API_BASE_URL;
 
 // Auth Context
 const AuthContext = React.createContext();

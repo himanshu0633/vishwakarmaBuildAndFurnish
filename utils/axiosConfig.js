@@ -1,16 +1,21 @@
 // frontend/src/utils/axiosConfig.js
 import axios from 'axios';
 
+export const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  import.meta.env.VITE_TEST_API_URL ||
+  'http://localhost:4000/api';
+
 // Create axios instance with default config
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || 'http://localhost:4000/api',
+  baseURL: API_BASE_URL,
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-export const API_ORIGIN = axiosInstance.defaults.baseURL.replace(/\/api\/?$/, '');
+export const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, '');
 
 export const getStaticAssetUrl = (url = '') => {
   if (!url) return '';
