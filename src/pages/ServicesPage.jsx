@@ -30,6 +30,7 @@ import {
   getServiceDescription,
   getServiceFullDescription
 } from '../utils/catalogSchema';
+import { businessStructuredData, buildPageUrl, useSeo } from '../utils/seo';
 
 // Animation variants
 const fadeInUp = {
@@ -67,6 +68,36 @@ const ServicesPage = () => {
     message: ""
   });
   const navigate = useNavigate();
+
+  useSeo({
+    title: "Construction, Furniture & Interior Services in Charkhi Dadri",
+    description:
+      "Explore Vishwakarma Build & Furnish services for house construction, modular kitchen, wardrobe, doors, windows, plumbing, electrical, paint, tiles, marble and renovation work in Charkhi Dadri, Haryana.",
+    path: "/services",
+    keywords: [
+      "construction services Charkhi Dadri",
+      "interior services Charkhi Dadri",
+      "modular kitchen Charkhi Dadri",
+      "wardrobe maker Charkhi Dadri",
+      "home renovation Haryana"
+    ],
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "Vishwakarma Build & Furnish Services",
+      url: buildPageUrl("/services"),
+      about: businessStructuredData,
+      mainEntity: services.flatMap((category) =>
+        category.services.map((service) => ({
+          "@type": "Service",
+          name: service.name,
+          description: service.fullDescription || service.desc,
+          provider: businessStructuredData,
+          areaServed: businessStructuredData.areaServed
+        }))
+      )
+    }
+  });
 
   const WHATSAPP_CONFIG = {
     number: "8288081878",

@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Box, Chip, CircularProgress, Container, Paper, Typography } from "@mui/material";
 import CollectionsIcon from "@mui/icons-material/Collections";
 import axiosInstance, { getStaticAssetUrl } from "../../utils/axiosConfig";
+import { businessStructuredData, buildPageUrl, useSeo } from "../utils/seo";
 
 const GalleryPage = () => {
   const [items, setItems] = useState([]);
@@ -26,6 +27,41 @@ const GalleryPage = () => {
 
   const categories = useMemo(() => ["All", ...new Set(items.map((item) => item.category).filter(Boolean))], [items]);
   const filteredItems = selectedCategory === "All" ? items : items.filter((item) => item.category === selectedCategory);
+
+  useSeo({
+    title: "Construction, Furniture & Interior Work Gallery in Charkhi Dadri",
+    description:
+      "View Vishwakarma Build & Furnish gallery for modular kitchen, wardrobe, wooden doors, windows, construction, renovation and interior work in Charkhi Dadri, Haryana.",
+    path: "/gallery",
+    keywords: [
+      "construction work gallery Charkhi Dadri",
+      "modular kitchen photos Charkhi Dadri",
+      "wardrobe design Charkhi Dadri",
+      "interior work photos Haryana",
+      "Vishwakarma Build & Furnish gallery"
+    ],
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "ImageGallery",
+      name: "Vishwakarma Build & Furnish Work Gallery",
+      description: "Construction, furniture and interior project photos in Charkhi Dadri, Haryana.",
+      url: buildPageUrl("/gallery"),
+      publisher: businessStructuredData,
+      associatedMedia: items.slice(0, 20).map((item) => ({
+        "@type": "ImageObject",
+        name: item.title || item.category || "Vishwakarma Build & Furnish work",
+        description: item.description || `${item.category || "Construction and interior"} work by Vishwakarma Build & Furnish in Charkhi Dadri, Haryana`,
+        contentUrl: getStaticAssetUrl(item.image)
+      }))
+    }
+  });
+
+  const getGalleryAlt = (item) => {
+    const serviceName = item.title || item.category || "construction and interior work";
+    const category = item.category ? `${item.category} ` : "";
+
+    return `${category}${serviceName} by Vishwakarma Build & Furnish in Charkhi Dadri Haryana`;
+  };
 
   return (
     <Box sx={{ bgcolor: "#111111", color: "#F8FAFC", minHeight: "100vh" }}>
@@ -77,15 +113,33 @@ const GalleryPage = () => {
                       overflow: "hidden",
                       borderRadius: 3,
                       border: "1px solid rgba(212,175,55,0.24)",
-                      background: `linear-gradient(180deg, rgba(17,17,17,0.05), rgba(15,23,42,0.86)), url("${image}") center/cover no-repeat`,
+                      bgcolor: "#0F172A",
                       transition: "0.28s ease",
                       "&:hover": {
                         transform: "translateY(-6px)",
                         borderColor: "#D4AF37",
                         boxShadow: "0 20px 45px rgba(0,0,0,0.35)"
+                      },
+                      "&:hover .gallery-photo": {
+                        transform: "scale(1.06)"
                       }
                     }}
                   >
+                    <Box
+                      component="img"
+                      className="gallery-photo"
+                      src={image}
+                      alt={getGalleryAlt(item)}
+                      loading="lazy"
+                      sx={{
+                        width: "100%",
+                        height: { xs: 260, md: 330 },
+                        display: "block",
+                        objectFit: "cover",
+                        transition: "transform 0.35s ease"
+                      }}
+                    />
+                    <Box sx={{ position: "absolute", inset: 0, background: "linear-gradient(180deg, rgba(17,17,17,0.05), rgba(15,23,42,0.88))" }} />
                     <Box sx={{ position: "absolute", left: 20, right: 20, bottom: 20 }}>
                       <Chip label={item.category} size="small" sx={{ bgcolor: "#D4AF37", color: "#111111", fontWeight: 900, mb: 1 }} />
                       <Typography sx={{ color: "#F8FAFC", fontWeight: 900, fontSize: "1.25rem", textShadow: "0 8px 20px rgba(0,0,0,0.5)" }}>

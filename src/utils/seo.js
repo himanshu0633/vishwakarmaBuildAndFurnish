@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
 
 const SITE_NAME = 'Vishwakarma Build & Furnish CKD';
+const BUSINESS_NAME = 'Vishwakarma Build & Furnish';
 const DEFAULT_DESCRIPTION =
-  'Premium furniture, wooden doors, windows, modular kitchen, interior and construction work in Charkhi Dadri, Haryana.';
+  'House construction, modular kitchen, wardrobe, doors, windows, plumbing, electrical, paint, tiles, marble and interior work in Charkhi Dadri, Haryana.';
 const DEFAULT_IMAGE = '/favicon.svg';
 
 const siteUrl = (import.meta.env.VITE_SITE_URL || window.location.origin).replace(/\/+$/, '');
@@ -106,8 +107,23 @@ export const useSeo = ({
 export const businessStructuredData = {
   '@context': 'https://schema.org',
   '@type': 'HomeAndConstructionBusiness',
-  name: SITE_NAME,
-  areaServed: ['Charkhi Dadri', 'Haryana'],
+  '@id': `${siteUrl}/#localbusiness`,
+  name: BUSINESS_NAME,
+  alternateName: SITE_NAME,
+  description: DEFAULT_DESCRIPTION,
+  image: `${siteUrl}/favicon.svg`,
+  logo: `${siteUrl}/favicon.svg`,
+  priceRange: '₹₹',
+  areaServed: [
+    'Charkhi Dadri',
+    'Bhiwani',
+    'Rohtak',
+    'Kosli',
+    'Mahendragarh',
+    'Jhajjar',
+    'Loharu',
+    'Haryana'
+  ],
   address: {
     '@type': 'PostalAddress',
     addressLocality: 'Charkhi Dadri',
@@ -115,5 +131,43 @@ export const businessStructuredData = {
     addressCountry: 'IN'
   },
   telephone: '+91-9416856468',
-  url: siteUrl
+  url: siteUrl,
+  hasMap: 'https://maps.app.goo.gl/V9mPoFxvSJm3hCM69',
+  openingHoursSpecification: [
+    {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+      opens: '09:00',
+      closes: '19:00'
+    }
+  ],
+  serviceType: [
+    'House Construction',
+    'Interior Design',
+    'Modular Kitchen',
+    'Wardrobe',
+    'Doors and Windows',
+    'Tiles and Marble Work',
+    'Plumbing',
+    'Electrical Work',
+    'Paint Work',
+    'Home Renovation'
+  ]
+};
+
+export const buildServiceSeo = (serviceName = 'Construction Service') => {
+  const cleanName = String(serviceName || 'Construction Service').replace(/\s+/g, ' ').trim();
+
+  return {
+    title: `${cleanName} in Charkhi Dadri | Vishwakarma Build & Furnish`,
+    description: `${cleanName} service in Charkhi Dadri, Haryana by Vishwakarma Build & Furnish. Contact for custom design, quality material, quotation, installation and finishing work.`,
+    keywords: [
+      `${cleanName} Charkhi Dadri`,
+      `${cleanName} Haryana`,
+      `best ${cleanName} in Charkhi Dadri`,
+      `${cleanName} design`,
+      `${cleanName} price`,
+      'Vishwakarma Build & Furnish'
+    ]
+  };
 };

@@ -1,5 +1,6 @@
 import React from "react";
 import { Box, Button, Container, Divider, IconButton, Link, Stack, Typography } from "@mui/material";
+import { Link as RouterLink } from "react-router-dom";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArticleIcon from "@mui/icons-material/Article";
 import ChairIcon from "@mui/icons-material/Chair";
@@ -132,7 +133,7 @@ const Footer = () => {
             <Box sx={{ mt: 2.5, p: 2, bgcolor: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.24)", borderRadius: 2 }}>
               <Typography sx={{ color: "#D4AF37", fontWeight: 900 }}>Business Hours</Typography>
               <Typography sx={{ color: "rgba(248,250,252,0.78)", fontSize: "0.9rem" }}>
-                Monday - Saturday, 9:00 AM - 7:00 PM
+                Monday - Sunday, 7:00 AM - 8:00 PM
               </Typography>
             </Box>
           </Box>
@@ -144,9 +145,20 @@ const Footer = () => {
           <Typography sx={{ color: "rgba(248,250,252,0.58)", fontSize: "0.82rem", textAlign: "center" }}>
             © 2026 Vishwakarma Build & Furnish CKD. All rights reserved.
           </Typography>
-          <Typography sx={{ color: "#D4AF37", fontSize: "0.82rem", fontWeight: 800, textAlign: "center" }}>
-            Complete House Construction • Furniture • Interior Solutions
-          </Typography>
+          <Link
+            component={RouterLink}
+            to="/website-info"
+            underline="none"
+            sx={{
+              color: "#D4AF37",
+              fontSize: "0.82rem",
+              fontWeight: 800,
+              textAlign: "center",
+              "&:hover": { color: "#F8FAFC" }
+            }}
+          >
+            Need a website like this for your business? Know more
+          </Link>
         </Box>
       </Container>
     </Box>

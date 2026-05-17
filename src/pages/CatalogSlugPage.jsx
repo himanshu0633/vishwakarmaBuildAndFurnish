@@ -10,6 +10,7 @@ import {
   getServiceDescription,
   getServiceFullDescription
 } from "../utils/catalogSchema";
+import { buildPageUrl, buildServiceSeo, businessStructuredData, useSeo } from "../utils/seo";
 
 const CatalogSlugPage = () => {
   const { slug } = useParams();
@@ -91,6 +92,49 @@ const CatalogSlugPage = () => {
     ...(service.beforeImages || []),
     ...(service.afterImages || [])
   ];
+
+  const itemName = type === "service" ? item?.name : getCategoryName(item);
+  const serviceSeo = type === "service" ? buildServiceSeo(itemName) : null;
+  const seoPath = slug ? `/services/${slug}` : "/services";
+
+  useSeo({
+    title:
+      type === "service"
+        ? item?.seoTitle || serviceSeo?.title
+        : itemName
+          ? `${itemName} Services in Charkhi Dadri`
+          : "Construction, Furniture & Interior Services in Charkhi Dadri",
+    description:
+      type === "service"
+        ? item?.seoDescription || serviceSeo?.description
+        : item?.description || "Explore construction, furniture, modular kitchen, wardrobe and interior services by Vishwakarma Build & Furnish in Charkhi Dadri, Haryana.",
+    path: seoPath,
+    image: type === "service" ? getStaticAssetUrl(item?.heroImage || item?.images?.[0] || "") : undefined,
+    keywords:
+      type === "service"
+        ? [...(serviceSeo?.keywords || []), ...(item?.tags || [])]
+        : [
+            `${itemName || "services"} Charkhi Dadri`,
+            `${itemName || "services"} Haryana`,
+            "Vishwakarma Build & Furnish",
+            "construction services Charkhi Dadri",
+            "interior services Charkhi Dadri"
+          ],
+    structuredData:
+      type === "service" && item
+        ? {
+            "@context": "https://schema.org",
+            "@type": "Service",
+            name: item.name,
+            description: item.seoDescription || getServiceFullDescription(item),
+            image: getStaticAssetUrl(item.heroImage || item.images?.[0] || ""),
+            provider: businessStructuredData,
+            areaServed: businessStructuredData.areaServed,
+            category: getCategoryName(item.categoryId) || "Construction and Interior",
+            url: buildPageUrl(seoPath)
+          }
+        : null
+  });
 
   const shareMediaOnWhatsApp = (serviceName, mediaUrl) => {
     const message = `Hello Vishwakarma Build & Furnish CKD, I am interested in ${serviceName}. Please share details for this image: ${mediaUrl}`;
@@ -221,7 +265,7 @@ const CatalogSlugPage = () => {
                                     className="gallery-image"
                                     component="img"
                                     src={src}
-                                    alt={`${item.name} ${group.title}`}
+                                    alt={`${item.name} ${group.title} design and work in Charkhi Dadri Haryana`}
                                     onClick={() => setSelectedMedia({ src, title: group.title })}
                                     sx={{
                                       width: "100%",
@@ -419,7 +463,7 @@ const CatalogSlugPage = () => {
               <Box
                 component="img"
                 src={selectedMedia?.src || ""}
-                alt={`${item.name} preview`}
+                alt={`${item.name} ${selectedMedia?.title || "work"} preview in Charkhi Dadri Haryana`}
                 sx={{
                   width: "100%",
                   maxHeight: "78vh",

@@ -3,7 +3,7 @@ import { Box, Button, Chip, CircularProgress, Container, Paper, Typography } fro
 import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance, { getStaticAssetUrl, logStaticAssetUrl } from "../../utils/axiosConfig";
 import { getCategoryName, getServiceFullDescription } from "../utils/catalogSchema";
-import { businessStructuredData, buildPageUrl, useSeo } from "../utils/seo";
+import { buildServiceSeo, businessStructuredData, buildPageUrl, useSeo } from "../utils/seo";
 
 const ServiceDetailPage = () => {
   const { categorySlug, serviceSlug } = useParams();
@@ -28,15 +28,17 @@ const ServiceDetailPage = () => {
   const serviceImage = getStaticAssetUrl(service?.heroImage || service?.images?.[0] || "");
   const categorySlugForSeo = service?.categoryId?.slug || categorySlug || "furniture";
   const categoryName = service?.categoryId?.name || getCategoryName(service?.categoryId);
+  const serviceSeo = buildServiceSeo(service?.name || "Construction Service");
 
   useSeo({
-    title: service?.seoTitle || (service?.name ? `Best ${service.name} in Charkhi Dadri` : "Furniture Service in Charkhi Dadri"),
+    title: service?.seoTitle || (service?.name ? serviceSeo.title : "Construction, Furniture & Interior Service in Charkhi Dadri"),
     description:
       service?.seoDescription ||
-      (service ? `${service.name} images, latest designs, price guidance and custom work by Vishwakarma Build & Furnish CKD in Charkhi Dadri, Haryana.` : undefined),
+      (service ? serviceSeo.description : undefined),
     path: serviceSlug ? `/services/${categorySlugForSeo}/${serviceSlug}` : "/services",
     image: serviceImage,
     keywords: [
+      ...serviceSeo.keywords,
       ...(service?.tags || []),
       service?.name,
       `${service?.name || "furniture"} images`,

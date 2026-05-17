@@ -120,9 +120,34 @@ export const stats = [
 
 // Testimonials Data
 export const testimonials = [
-  { name: "Rajesh Kumar", role: "School Principal", rating: 5, text: "Vishwakarma Build & Furnish helped us organize our annual day perfectly. Got multiple quotes and chose the best event management team!" },
-  { name: "Priya Sharma", role: "Office Manager", rating: 5, text: "Found reliable electricians and office equipment suppliers through this platform. Highly recommended!" },
-  { name: "Amit Singh", role: "Event Organizer", rating: 5, text: "Great platform for finding manpower and security services. Very professional and verified providers." }
+  {
+    name: "Rajesh Kumar",
+    role: "Home Owner, Charkhi Dadri",
+    rating: 5,
+    service: "House Construction",
+    text: "Foundation se finishing tak team ne kaam planned way me complete kiya. Plumbing, electrical, tiles aur paint coordination bahut smooth raha."
+  },
+  {
+    name: "Sunita Devi",
+    role: "Kitchen Renovation Client",
+    rating: 5,
+    service: "Modular Kitchen",
+    text: "Kitchen ka storage aur finishing dono expected se better bane. Measurement, material selection aur installation me team ne clear guidance di."
+  },
+  {
+    name: "Amit Sharma",
+    role: "Interior Work Client",
+    rating: 5,
+    service: "Wardrobe & TV Unit",
+    text: "Wardrobe, TV unit aur doors ka custom work neat finish ke saath mila. Space ke according practical design suggest kiya gaya."
+  },
+  {
+    name: "Pooja Rani",
+    role: "Renovation Client",
+    rating: 4.5,
+    service: "Home Renovation",
+    text: "Old house renovation me bathroom, tiles, paint aur repair work achhe se handle hua. Estimate aur work stages pehle clearly discuss hue."
+  }
 ];
 
 // How It Works Data

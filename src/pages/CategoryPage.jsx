@@ -3,6 +3,7 @@ import { Box, Button, Chip, CircularProgress, Container, Paper, Typography } fro
 import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "../../utils/axiosConfig";
 import { getCategoryEmoji, getCategoryName, getServiceDescription } from "../utils/catalogSchema";
+import { businessStructuredData, buildPageUrl, useSeo } from "../utils/seo";
 
 const CategoryPage = () => {
   const { categorySlug } = useParams();
@@ -24,6 +25,40 @@ const CategoryPage = () => {
     fetchCategory();
   }, [categorySlug]);
 
+  const categoryName = getCategoryName(category);
+
+  useSeo({
+    title: categoryName ? `${categoryName} Services in Charkhi Dadri` : "Services in Charkhi Dadri",
+    description:
+      category?.description ||
+      `${categoryName || "Construction and interior"} services in Charkhi Dadri, Haryana by Vishwakarma Build & Furnish.`,
+    path: categorySlug ? `/services/${categorySlug}` : "/services",
+    keywords: [
+      `${categoryName || "services"} Charkhi Dadri`,
+      `${categoryName || "services"} Haryana`,
+      "Vishwakarma Build & Furnish",
+      "construction company Charkhi Dadri",
+      "interior work Charkhi Dadri"
+    ],
+    structuredData: category
+      ? {
+          "@context": "https://schema.org",
+          "@type": "CollectionPage",
+          name: `${categoryName} Services`,
+          description: category.description,
+          url: buildPageUrl(`/services/${categorySlug}`),
+          about: businessStructuredData,
+          mainEntity: (category.services || []).map((service) => ({
+            "@type": "Service",
+            name: service.name,
+            description: getServiceDescription(service),
+            provider: businessStructuredData,
+            areaServed: businessStructuredData.areaServed
+          }))
+        }
+      : null
+  });
+
   if (loading) {
     return (
       <Box sx={{ minHeight: "60vh", display: "grid", placeItems: "center", bgcolor: "#111111" }}>
@@ -42,7 +77,7 @@ const CategoryPage = () => {
         <Box sx={{ textAlign: "center", mb: 6 }}>
           <Chip label="Services" sx={{ bgcolor: "rgba(212,175,55,0.18)", color: "#D4AF37", mb: 2 }} />
           <Typography variant="h2" sx={{ fontWeight: 900, fontSize: { xs: "2.1rem", md: "3.5rem" } }}>
-            {getCategoryEmoji(category)} {getCategoryName(category)}
+            {getCategoryEmoji(category)} {categoryName}
           </Typography>
           <Typography sx={{ color: "rgba(245,245,245,0.72)", maxWidth: 720, mx: "auto", mt: 2 }}>
             {category.description}

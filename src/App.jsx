@@ -23,6 +23,7 @@ import ServicesPage from './pages/ServicesPage';
 import CategoryPage from './pages/CategoryPage';
 import ServiceDetailPage from './pages/ServiceDetailPage';
 import CatalogSlugPage from './pages/CatalogSlugPage';
+import WebsiteInfo from './pages/WebsiteInfo';
 import LoginPage from './components/admin/Login';
 import NotFoundPage from './pages/NotFoundPage';
 
@@ -107,6 +108,7 @@ function App() {
                     <Route path="/services" element={<ServicesPage />} />
                     <Route path="/services/:slug" element={<CatalogSlugPage />} />
                     <Route path="/services/:categorySlug/:serviceSlug" element={<ServiceDetailPage />} />
+                    <Route path="/website-info" element={<WebsiteInfo />} />
                     <Route path="*" element={<NotFoundPage />} />
                   </Routes>
                 </Box>
