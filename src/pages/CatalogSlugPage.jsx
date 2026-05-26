@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, Button, Chip, CircularProgress, Container, IconButton, Modal, Paper, Typography } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
 import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance, { getStaticAssetUrl, logStaticAssetUrl } from "../../utils/axiosConfig";
@@ -141,6 +142,14 @@ const CatalogSlugPage = () => {
     window.open(`https://wa.me/919416856468?text=${encodeURIComponent(message)}`, "_blank");
   };
 
+  const likeService = async (imageUrl = "") => {
+    await axiosInstance.post("/marketplace/likes", {
+      serviceId: item._id,
+      imageUrl
+    });
+    navigate("/dashboard");
+  };
+
   if (loading) {
     return (
       <Box sx={{ minHeight: "60vh", display: "grid", placeItems: "center", bgcolor: "#111111" }}>
@@ -213,6 +222,14 @@ const CatalogSlugPage = () => {
               </Button>
               <Button variant="outlined" onClick={() => navigate(-1)} sx={{ borderColor: "#D4AF37", color: "#D4AF37", textTransform: "none" }}>
                 Back
+              </Button>
+              <Button
+                variant="outlined"
+                startIcon={<FavoriteIcon />}
+                onClick={() => likeService(heroImage)}
+                sx={{ borderColor: "#D4AF37", color: "#D4AF37", textTransform: "none" }}
+              >
+                Like Service
               </Button>
             </Box>
           </Container>
@@ -294,6 +311,24 @@ const CatalogSlugPage = () => {
                                     }}
                                   >
                                     Share
+                                  </Button>
+                                  <Button
+                                    size="small"
+                                    startIcon={<FavoriteIcon />}
+                                    onClick={() => likeService(mediaItem.url)}
+                                    sx={{
+                                      position: "absolute",
+                                      left: 10,
+                                      bottom: 10,
+                                      bgcolor: "rgba(17,17,17,0.82)",
+                                      color: "#D4AF37",
+                                      border: "1px solid rgba(212,175,55,0.36)",
+                                      textTransform: "none",
+                                      fontWeight: 800,
+                                      "&:hover": { bgcolor: "rgba(15,23,42,0.95)" }
+                                    }}
+                                  >
+                                    Like
                                   </Button>
                                 </>
                               )}
@@ -482,6 +517,13 @@ const CatalogSlugPage = () => {
                   sx={{ color: "#D4AF37", textTransform: "none", fontWeight: 900, justifyContent: "center" }}
                 >
                   Share on WhatsApp
+                </Button>
+                <Button
+                  startIcon={<FavoriteIcon />}
+                  onClick={() => selectedMedia && likeService(selectedMedia.src)}
+                  sx={{ color: "#D4AF37", textTransform: "none", fontWeight: 900, justifyContent: "center" }}
+                >
+                  Like Image
                 </Button>
               </Box>
               <IconButton

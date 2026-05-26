@@ -212,7 +212,7 @@ const BlogsManagement = () => {
             <ArticleIcon /> Blogs Management
           </Typography>
           <Typography sx={{ color: 'rgba(248,250,252,0.7)', mt: 0.5 }}>
-            SEO blogs add/edit karo aur services ke saath connect karo.
+            Add or edit SEO blogs and connect them with services.
           </Typography>
         </Box>
         <Button

@@ -13,6 +13,7 @@ import ImageIcon from "@mui/icons-material/Image";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import PhoneIcon from "@mui/icons-material/Phone";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
+import StorefrontIcon from "@mui/icons-material/Storefront";
 import { colors, branding } from "../../data/constants";
 import iesLogo from "../../assets/logo.png";
 
@@ -32,6 +33,8 @@ const Footer = () => {
     { name: "Interior", icon: <DesignServicesIcon />, link: "/services/interior-services" },
     { name: "Gallery", icon: <ImageIcon />, link: "/gallery" },
     { name: "Blog", icon: <ArticleIcon />, link: "/blogs" },
+    { name: "Partners", icon: <StorefrontIcon />, link: "/partners" },
+    { name: "Become a Partner", icon: <StorefrontIcon />, link: "/partner/register" },
     { name: "Contact", icon: <PhoneIcon />, link: "/contact" }
   ];
 

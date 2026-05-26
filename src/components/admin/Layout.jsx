@@ -34,7 +34,16 @@ import {
   Collections as MediaIcon,
   Article as ArticleIcon,
   Settings as SettingsIcon,
-  AdminPanelSettings as AdminIcon
+  Analytics as AnalyticsIcon,
+  People as PeopleIcon,
+  Storefront as StorefrontIcon,
+  Verified as VerifiedIcon,
+  Favorite as FavoriteIcon,
+  ReceiptLong as ReceiptLongIcon,
+  AccountBalanceWallet as WalletIcon,
+  Reviews as ReviewsIcon,
+  Campaign as CampaignIcon,
+  Assessment as ReportsIcon
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
@@ -65,6 +74,19 @@ const Layout = ({ children }) => {
     { text: 'Blogs', icon: <ArticleIcon />, path: 'blogs' },
     { text: 'Gallery', icon: <MediaIcon />, path: 'gallery' },
     { text: 'Inquiries', icon: <InquiriesIcon />, path: 'inquiries' },
+    { text: 'Marketplace Analytics', icon: <AnalyticsIcon />, path: 'marketplace/analytics' },
+    { text: 'Users', icon: <PeopleIcon />, path: 'marketplace/users' },
+    { text: 'Partners', icon: <StorefrontIcon />, path: 'marketplace/partners' },
+    { text: 'Partner Verification', icon: <VerifiedIcon />, path: 'marketplace/verification' },
+    { text: 'Leads', icon: <CampaignIcon />, path: 'marketplace/leads' },
+    { text: 'Service Likes', icon: <FavoriteIcon />, path: 'marketplace/likes' },
+    { text: 'Bills', icon: <ReceiptLongIcon />, path: 'marketplace/bills' },
+    { text: 'Cashback', icon: <WalletIcon />, path: 'marketplace/cashback' },
+    { text: 'Wallet', icon: <WalletIcon />, path: 'marketplace/wallet' },
+    { text: 'Referrals', icon: <PeopleIcon />, path: 'marketplace/referrals' },
+    { text: 'Partner Reviews', icon: <ReviewsIcon />, path: 'marketplace/reviews' },
+    { text: 'Notifications', icon: <CampaignIcon />, path: 'marketplace/notifications' },
+    { text: 'Reports', icon: <ReportsIcon />, path: 'marketplace/reports' },
   ];
 
   const handleLogout = () => {
@@ -92,7 +114,7 @@ const Layout = ({ children }) => {
       {/* Navigation Menu */}
       <List sx={{ flex: 1, px: 1 }}>
         {menuItems.map((item) => {
-          const isActive = currentPage === item.path;
+          const isActive = currentPage === item.path || (item.path === 'marketplace/analytics' && currentPage === 'marketplace');
           return (
             <ListItem
               key={item.text}

@@ -211,7 +211,7 @@ const GalleryManagement = () => {
             <GalleryIcon /> Gallery Management
           </Typography>
           <Typography sx={{ color: 'rgba(248,250,252,0.7)', mt: 0.5 }}>
-            Category wise photos upload karo; About page aur Gallery page par wahi show hongi.
+            Upload photos by category; the same photos will appear on the About and Gallery pages.
           </Typography>
         </Box>
         <Button

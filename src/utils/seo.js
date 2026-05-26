@@ -2,11 +2,31 @@ import { useEffect } from 'react';
 
 const SITE_NAME = 'Vishwakarma Build & Furnish CKD';
 const BUSINESS_NAME = 'Vishwakarma Build & Furnish';
+const DEFAULT_SITE_URL = 'https://vishwakarmabuildfurnish.com';
 const DEFAULT_DESCRIPTION =
   'House construction, modular kitchen, wardrobe, doors, windows, plumbing, electrical, paint, tiles, marble and interior work in Charkhi Dadri, Haryana.';
 const DEFAULT_IMAGE = '/favicon.svg';
+const MAX_TITLE_LENGTH = 60;
+const MAX_DESCRIPTION_LENGTH = 155;
 
-const siteUrl = (import.meta.env.VITE_SITE_URL || window.location.origin).replace(/\/+$/, '');
+const siteUrl = (import.meta.env.VITE_SITE_URL || DEFAULT_SITE_URL).replace(/\/+$/, '');
+
+const trimToLength = (value, maxLength) => {
+  const text = String(value || '').replace(/\s+/g, ' ').trim();
+  if (text.length <= maxLength) return text;
+
+  const trimmed = text.slice(0, maxLength + 1);
+  const lastSpace = trimmed.lastIndexOf(' ');
+  return `${trimmed.slice(0, lastSpace > 40 ? lastSpace : maxLength).trim()}...`;
+};
+
+const formatTitle = (title) => {
+  const cleanTitle = String(title || SITE_NAME).replace(/\s+/g, ' ').trim();
+  const includesBrand = cleanTitle.includes(BUSINESS_NAME) || cleanTitle.includes(SITE_NAME);
+  const titleWithBrand = includesBrand ? cleanTitle : `${cleanTitle} | ${BUSINESS_NAME}`;
+
+  return trimToLength(titleWithBrand.length <= MAX_TITLE_LENGTH ? titleWithBrand : cleanTitle, MAX_TITLE_LENGTH);
+};
 
 const ensureMeta = (selector, createAttributes) => {
   let element = document.head.querySelector(selector);
@@ -62,10 +82,10 @@ export const useSeo = ({
   structuredData
 }) => {
   useEffect(() => {
-    const fullTitle = title?.includes(SITE_NAME) ? title : `${title || SITE_NAME} | ${SITE_NAME}`;
+    const fullTitle = formatTitle(title);
     const canonicalUrl = buildPageUrl(path);
     const imageUrl = normalizeImage(image);
-    const cleanDescription = String(description || DEFAULT_DESCRIPTION).slice(0, 170);
+    const cleanDescription = trimToLength(description || DEFAULT_DESCRIPTION, MAX_DESCRIPTION_LENGTH);
     const cleanKeywords = Array.isArray(keywords) ? keywords.filter(Boolean).join(', ') : keywords;
 
     document.title = fullTitle;

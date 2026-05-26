@@ -11,6 +11,9 @@ import {
   BottomNavigation,
   BottomNavigationAction,
   Paper,
+  Menu,
+  MenuItem,
+  Avatar,
 } from "@mui/material";
 import HomeIcon from '@mui/icons-material/Home';
 import EngineeringIcon from '@mui/icons-material/Engineering';
@@ -21,8 +24,13 @@ import ConstructionIcon from '@mui/icons-material/Construction';
 import ImageIcon from '@mui/icons-material/Image';
 import CallIcon from '@mui/icons-material/Call';
 import ArticleIcon from '@mui/icons-material/Article';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import StorefrontIcon from '@mui/icons-material/Storefront';
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import LogoutIcon from '@mui/icons-material/Logout';
 import iesLogo from "../../assets/logo.png";
 import { colors, branding } from "../../data/constants";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Header = () => {
   const theme = useTheme();
@@ -30,8 +38,22 @@ const Header = () => {
   const isTablet = useMediaQuery(theme.breakpoints.between("sm", "md"));
   const navigate = useNavigate();
   const location = useLocation();
+  const { user, logout } = useAuth();
+  const [accountAnchor, setAccountAnchor] = useState(null);
 
-  const navItems = [
+  const accountPath = user?.role === "admin"
+    ? "/admin/marketplace"
+    : user?.role === "partner"
+      ? "/partner/dashboard"
+      : "/dashboard";
+
+  const accountLabel = user?.role === "admin"
+    ? "Admin"
+    : user?.role === "partner"
+      ? "Partner"
+      : "Profile";
+
+  const baseNavItems = [
     { label: "Home", icon: <HomeIcon />, path: "/" },
     { label: "About", icon: <InfoIcon />, path: "/about" },
     { label: "Construction", icon: <ConstructionIcon />, path: "/services/construction-services" },
@@ -39,17 +61,27 @@ const Header = () => {
     { label: "Interior", icon: <EngineeringIcon />, path: "/services/interior-services" },
     { label: "Gallery", icon: <ImageIcon />, path: "/gallery" },
     { label: "Blog", icon: <ArticleIcon />, path: "/blogs" },
+    { label: "Partners", icon: <StorefrontIcon />, path: "/partners" },
     { label: "Contact", icon: <CallIcon />, path: "/contact" },
   ];
 
-  const mobileNavItems = [
+  const navItems = user
+    ? [...baseNavItems, { label: accountLabel, icon: <AccountCircleIcon />, path: accountPath, account: true }]
+    : [...baseNavItems, { label: "Login", icon: <AccountCircleIcon />, path: "/login" }];
+
+  const mobileBaseNavItems = [
     { label: "Home", icon: <HomeIcon />, path: "/" },
     { label: "Furniture", icon: <ChairIcon />, path: "/services/furniture-services" },
     { label: "Construction", icon: <ConstructionIcon />, path: "/services/construction-services" },
     { label: "Interior", icon: <EngineeringIcon />, path: "/services/interior-services" },
+    { label: "Partners", icon: <StorefrontIcon />, path: "/partners" },
     { label: "About", icon: <InfoIcon />, path: "/about" },
     { label: "Contact", icon: <CallIcon />, path: "/contact" },
   ];
+
+  const mobileNavItems = user
+    ? [...mobileBaseNavItems.slice(0, 5), { label: accountLabel, icon: <AccountCircleIcon />, path: accountPath }]
+    : [...mobileBaseNavItems.slice(0, 5), { label: "Login", icon: <AccountCircleIcon />, path: "/login" }];
 
   // Get current active route index
   const getActiveRouteIndex = (items = navItems) => {
@@ -67,6 +99,12 @@ const Header = () => {
 
   const handleNavigation = (path) => {
     navigate(path);
+  };
+
+  const handleLogout = () => {
+    logout();
+    setAccountAnchor(null);
+    navigate("/");
   };
 
   // Responsive spacer height
@@ -145,6 +183,28 @@ const Header = () => {
             <Box sx={{ display: "flex", alignItems: "center", gap: { sm: 0.5, lg: 1.5 }, minWidth: 0 }}>
               {navItems.map((item) => {
                 const isActive = location.pathname === item.path;
+                if (item.account && user) {
+                  return (
+                    <Button
+                      key={item.label}
+                      startIcon={<Avatar sx={{ width: 24, height: 24, bgcolor: "#D4AF37", color: "#111111", fontSize: 13, fontWeight: 900 }}>{user.name?.charAt(0) || "U"}</Avatar>}
+                      onClick={(event) => setAccountAnchor(event.currentTarget)}
+                      sx={{
+                        color: colors.light,
+                        border: "1px solid rgba(212,175,55,0.45)",
+                        borderRadius: 1,
+                        fontSize: { md: "0.78rem", lg: "0.9rem" },
+                        fontWeight: 900,
+                        textTransform: "none",
+                        px: { md: 1, lg: 1.4 },
+                        "&:hover": { color: colors.secondary, backgroundColor: "rgba(212,175,55,0.1)" }
+                      }}
+                    >
+                      {item.label}
+                    </Button>
+                  );
+                }
+
                 return (
                   <Button
                     key={item.label}
@@ -167,6 +227,29 @@ const Header = () => {
                   </Button>
                 );
               })}
+              <Menu
+                anchorEl={accountAnchor}
+                open={Boolean(accountAnchor)}
+                onClose={() => setAccountAnchor(null)}
+                PaperProps={{
+                  sx: {
+                    mt: 1,
+                    bgcolor: "#F8FAFC",
+                    color: "#111827",
+                    border: "1px solid rgba(212,175,55,0.35)",
+                    minWidth: 220
+                  }
+                }}
+              >
+                <MenuItem onClick={() => { navigate(accountPath); setAccountAnchor(null); }}>
+                  <DashboardIcon sx={{ mr: 1, color: "#B88917" }} />
+                  {accountLabel} Dashboard
+                </MenuItem>
+                <MenuItem onClick={handleLogout} sx={{ color: "#B91C1C", fontWeight: 800 }}>
+                  <LogoutIcon sx={{ mr: 1 }} />
+                  Logout
+                </MenuItem>
+              </Menu>
             </Box>
           )}
         </Toolbar>

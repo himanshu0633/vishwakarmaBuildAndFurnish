@@ -373,9 +373,9 @@ const serviceAliasGroups = [
       'putty paint work',
       'color coating',
       'premium paint finish',
-      'पेन्ट work',
-      'painting ka kaam',
-      'rang rogan',
+      'paint work',
+      'painting service',
+      'color finishing',
       'color work',
       'wall color',
       'paintig work',
@@ -595,7 +595,7 @@ const SmartServiceSearch = () => {
     };
 
     recognition.onerror = () => {
-      setVoiceError('Mic permission allow karo, phir dobara try karo.');
+      setVoiceError('Please allow microphone permission and try again.');
       setListening(false);
     };
 

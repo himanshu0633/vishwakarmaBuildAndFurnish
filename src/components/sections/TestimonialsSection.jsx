@@ -96,7 +96,7 @@ const TestimonialsSection = () => {
                     lineHeight: 1.75
                   }}
                 >
-                  Charkhi Dadri aur nearby Haryana areas me construction, renovation, modular kitchen,
+                  Construction, renovation, modular kitchen, and furnishing services in Charkhi Dadri and nearby Haryana areas.
                   wardrobe aur interior finishing ke real project experiences.
                 </Typography>
               </Box>

@@ -125,28 +125,28 @@ export const testimonials = [
     role: "Home Owner, Charkhi Dadri",
     rating: 5,
     service: "House Construction",
-    text: "Foundation se finishing tak team ne kaam planned way me complete kiya. Plumbing, electrical, tiles aur paint coordination bahut smooth raha."
+    text: "The team completed the work from foundation to finishing with proper planning. Plumbing, electrical, tiles, and paint coordination were handled smoothly."
   },
   {
     name: "Sunita Devi",
     role: "Kitchen Renovation Client",
     rating: 5,
     service: "Modular Kitchen",
-    text: "Kitchen ka storage aur finishing dono expected se better bane. Measurement, material selection aur installation me team ne clear guidance di."
+    text: "The kitchen storage and finishing were better than expected. The team gave clear guidance on measurement, material selection, and installation."
   },
   {
     name: "Amit Sharma",
     role: "Interior Work Client",
     rating: 5,
     service: "Wardrobe & TV Unit",
-    text: "Wardrobe, TV unit aur doors ka custom work neat finish ke saath mila. Space ke according practical design suggest kiya gaya."
+    text: "The custom wardrobe, TV unit, and door work were delivered with a neat finish. Practical designs were suggested according to the available space."
   },
   {
     name: "Pooja Rani",
     role: "Renovation Client",
     rating: 4.5,
     service: "Home Renovation",
-    text: "Old house renovation me bathroom, tiles, paint aur repair work achhe se handle hua. Estimate aur work stages pehle clearly discuss hue."
+    text: "The old house renovation, including bathroom, tiles, paint, and repair work, was handled well. Estimate and work stages were discussed clearly in advance."
   }
 ];
 

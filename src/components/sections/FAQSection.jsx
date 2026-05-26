@@ -15,194 +15,64 @@ import { motion } from "framer-motion";
 
 const faqs = [
   {
-    question: "Vishwakarma Build & Furnish kya services provide karta hai?",
+    question: "What services does Vishwakarma Build & Furnish provide?",
     answer:
-      "Vishwakarma Build & Furnish Charkhi Dadri me house construction, interior design, modular kitchen, wardrobe, doors, windows, tiles, marble, plumbing, electrical, paint work aur complete home renovation services provide karta hai."
+      "Vishwakarma Build & Furnish provides house construction, interior design, modular kitchens, wardrobes, doors, windows, tile and marble work, plumbing, electrical work, painting, and complete home renovation services in Charkhi Dadri."
   },
   {
-    question: "Kya aap Charkhi Dadri me construction service dete ho?",
+    question: "Do you provide construction services in Charkhi Dadri?",
     answer:
-      "Haan, hum Charkhi Dadri aur nearby Haryana areas me complete house construction, renovation, finishing aur interior work provide karte hain."
+      "Yes. We provide complete house construction, renovation, finishing, and interior work in Charkhi Dadri and nearby Haryana areas."
   },
   {
-    question: "Aap kis-kis area me service dete ho?",
+    question: "Which areas do you serve?",
     answer:
-      "Hum Charkhi Dadri, Bhiwani, Rohtak, Kosli, Mahendragarh, Jhajjar, Loharu aur nearby Haryana areas me construction, interior aur furnishing services provide karte hain."
+      "We serve Charkhi Dadri, Bhiwani, Rohtak, Kosli, Mahendragarh, Jhajjar, Loharu, and nearby areas in Haryana."
   },
   {
-    question: "Kya aap complete house construction ka kaam lete ho?",
+    question: "Do you handle complete house construction?",
     answer:
-      "Haan, hum planning se lekar final finishing tak complete house construction ka kaam karte hain, jisme structure, plumbing, electrical, tiles, marble, paint aur interior work include ho sakta hai."
+      "Yes. We can manage complete house construction from planning to final finishing, including structure, plumbing, electrical, tiles, marble, paint, and interior work."
   },
   {
-    question: "Kya aap home renovation ka kaam bhi karte ho?",
+    question: "Do you provide home renovation services?",
     answer:
-      "Haan, hum old house renovation, room renovation, kitchen renovation, bathroom renovation, flooring, painting, furniture work aur complete interior upgrade ka kaam karte hain."
+      "Yes. We handle old house renovation, room renovation, kitchen renovation, bathroom renovation, flooring, painting, furniture work, and complete interior upgrades."
   },
   {
-    question: "Kya aap modular kitchen banate ho?",
+    question: "Do you build modular kitchens?",
     answer:
-      "Haan, hum Charkhi Dadri me custom modular kitchen design aur installation service provide karte hain, jisme smart storage, durable material aur modern finishing options available hote hain."
+      "Yes. We provide custom modular kitchen design and installation with smart storage, durable materials, and modern finish options."
   },
   {
-    question: "Modular kitchen banwane me kitna time lagta hai?",
+    question: "How long does a modular kitchen take?",
     answer:
-      "Modular kitchen ka time size, design, material aur site condition par depend karta hai. Measurement aur design final hone ke baad timeline clearly discuss kar di jati hai."
+      "The timeline depends on kitchen size, design, material selection, and site conditions. We share a clear timeline after measurement and design finalization."
   },
   {
-    question: "Kya aap wardrobe custom size me banate ho?",
+    question: "Do you make custom-size wardrobes?",
     answer:
-      "Haan, hum bedroom, dressing area aur storage space ke liye custom wardrobe design karte hain. Sliding wardrobe, hinged wardrobe aur premium finish options available ho sakte hain."
+      "Yes. We design custom wardrobes for bedrooms, dressing areas, and storage spaces, including sliding, hinged, and premium finish options."
   },
   {
-    question: "Kya aap plumbing, electrical aur paint work bhi karte ho?",
+    question: "Do you provide plumbing, electrical, and paint work?",
     answer:
-      "Haan, hum plumbing, electrical aur paint work provide karte hain, jisme pipe fitting, leakage repair, wiring, switch board fitting, lighting setup, wall putty, repainting aur finishing work include ho sakta hai."
+      "Yes. We provide pipe fitting, leakage repair, wiring, switchboard fitting, lighting setup, wall putty, repainting, and finishing work."
   },
   {
-    question: "Kya aap doors aur windows ka custom work karte ho?",
+    question: "Do you make custom doors and windows?",
     answer:
-      "Haan, hum doors, windows, frames aur related furnishing work custom size, design aur material requirement ke according karte hain."
+      "Yes. We make doors, windows, frames, and related furnishing work according to custom size, design, and material requirements."
   },
   {
-    question: "Kya aap tiles aur marble work provide karte ho?",
+    question: "Do you provide tile and marble work?",
     answer:
-      "Haan, hum floor tiles, wall tiles, bathroom tiles, kitchen tiles, marble flooring aur finishing work provide karte hain."
+      "Yes. We provide floor tiles, wall tiles, bathroom tiles, kitchen tiles, marble flooring, and finishing work."
   },
   {
-    question: "Kya aap plumbing service bhi dete ho?",
+    question: "Do you provide free quotations?",
     answer:
-      "Haan, hum bathroom plumbing, kitchen plumbing, pipe fitting, leakage repair, sanitary fitting aur renovation plumbing work provide karte hain."
-  },
-  {
-    question: "Kya aap electrical work bhi karte ho?",
-    answer:
-      "Haan, hum home wiring, switch board fitting, lighting setup, fan fitting, electrical repair aur new construction electrical work provide karte hain."
-  },
-  {
-    question: "Kya aap paint work provide karte ho?",
-    answer:
-      "Haan, hum interior paint, exterior paint, wall putty, texture paint, repainting aur finishing paint work provide karte hain."
-  },
-  {
-    question: "Kya aap bathroom renovation karte ho?",
-    answer:
-      "Haan, hum bathroom renovation, tiles fitting, plumbing, sanitary fitting, waterproofing aur complete bathroom finishing work karte hain."
-  },
-  {
-    question: "Kya aap kitchen renovation bhi karte ho?",
-    answer:
-      "Haan, hum old kitchen renovation, modular kitchen setup, storage improvement, tiles work, plumbing aur electrical fitting ke saath complete kitchen upgrade karte hain."
-  },
-  {
-    question: "Kya aap commercial shop ya office interior bhi karte ho?",
-    answer:
-      "Haan, hum home ke saath shop, office aur commercial space ke interior, furnishing, paint, electrical aur renovation work ke liye bhi service provide karte hain."
-  },
-  {
-    question: "Kya aap free quotation dete ho?",
-    answer:
-      "Haan, aap apni requirement call ya WhatsApp par share kar sakte hain. Requirement aur site details ke according quotation discuss kiya ja sakta hai."
-  },
-  {
-    question: "Kya site visit available hai?",
-    answer:
-      "Haan, project requirement ke according site visit available ho sakti hai. Site visit me measurement, work scope, material aur estimate discuss kiya jata hai."
-  },
-  {
-    question: "Estimate lene ke liye kya details chahiye hoti hain?",
-    answer:
-      "Estimate ke liye aapko service type, location, photos, measurements, material preference aur budget range share karni hoti hai."
-  },
-  {
-    question: "Kya WhatsApp par estimate mil sakta hai?",
-    answer:
-      "Haan, aap photos, measurements aur requirement WhatsApp par bhej sakte hain. Uske basis par initial discussion aur approximate estimate diya ja sakta hai."
-  },
-  {
-    question: "Kya aap labour with material aur only labour dono options dete ho?",
-    answer:
-      "Haan, project requirement ke according labour with material aur only labour dono options discuss kiye ja sakte hain."
-  },
-  {
-    question: "Kaam start karne se pehle design ya plan discuss hota hai kya?",
-    answer:
-      "Haan, work start karne se pehle requirement, measurement, design idea, material, budget aur timeline clearly discuss ki jati hai."
-  },
-  {
-    question: "Payment kaise hoti hai?",
-    answer:
-      "Payment project scope, quotation aur work stages ke according decide hoti hai. Final payment terms quotation ke time clear kar diye jate hain."
-  },
-  {
-    question: "Kya aap small repair work bhi karte ho?",
-    answer:
-      "Haan, plumbing repair, electrical repair, paint touch-up, door/window repair, tiles repair aur minor renovation work ke liye bhi contact kar sakte hain."
-  },
-  {
-    question: "Kya aap material selection me help karte ho?",
-    answer:
-      "Haan, hum budget aur requirement ke according tiles, marble, plywood, laminate, hardware, paint aur other finishing material selection me guidance de sakte hain."
-  },
-  {
-    question: "Kya aap waterproofing ka kaam karte ho?",
-    answer:
-      "Haan, bathroom, roof, walls aur leakage areas ke liye waterproofing aur repair work requirement ke according provide kiya ja sakta hai."
-  },
-  {
-    question: "Kya aap false ceiling ka kaam karte ho?",
-    answer:
-      "Haan, room, hall, office aur shop ke liye false ceiling, lighting setup aur interior finishing work discuss kiya ja sakta hai."
-  },
-  {
-    question: "Kya aap furniture work bhi karte ho?",
-    answer:
-      "Haan, hum wardrobe, TV unit, kitchen storage, cabinet, doors, shelves aur custom furniture/furnishing work provide karte hain."
-  },
-  {
-    question: "Kya aap TV unit banate ho?",
-    answer:
-      "Haan, hum custom TV unit design aur installation karte hain, jo room size, wall space aur storage requirement ke according banaya ja sakta hai."
-  },
-  {
-    question: "Kya aap bed aur storage furniture bhi banate ho?",
-    answer:
-      "Haan, requirement ke according bed, storage bed, side table, cabinets aur custom furniture work discuss kiya ja sakta hai."
-  },
-  {
-    question: "Kya aap ghar ke complete finishing work ka package dete ho?",
-    answer:
-      "Haan, hum construction ke baad plumbing, electrical, tiles, paint, doors, windows, kitchen, wardrobe aur interior finishing ka complete work package discuss kar sakte hain."
-  },
-  {
-    question: "Kya aap renovation ke liye old structure inspect karte ho?",
-    answer:
-      "Haan, renovation se pehle site condition, old structure, leakage, wiring, plumbing aur finishing requirement check ki ja sakti hai."
-  },
-  {
-    question: "Kya aap new home interior design karte ho?",
-    answer:
-      "Haan, new home ke liye modular kitchen, wardrobe, TV unit, paint, lighting, doors, windows aur furnishing work ke saath interior setup provide kiya ja sakta hai."
-  },
-  {
-    question: "Kya aap low budget me bhi kaam karte ho?",
-    answer:
-      "Haan, hum customer ke budget aur requirement ke according practical material aur design options suggest karte hain."
-  },
-  {
-    question: "Kya premium interior work available hai?",
-    answer:
-      "Haan, premium finish, modern design, high-quality material aur customized interior work ke options requirement ke according available ho sakte hain."
-  },
-  {
-    question: "Kya aap work completion ke baad support dete ho?",
-    answer:
-      "Haan, work complete hone ke baad bhi agar koi related issue ya query hoti hai to aap contact kar sakte hain."
-  },
-  {
-    question: "Vishwakarma Build & Furnish ko contact kaise karein?",
-    answer:
-      "Aap Vishwakarma Build & Furnish ko call ya WhatsApp ke through contact kar sakte hain. Website par enquiry form fill karke bhi service request bhej sakte hain."
+      "Yes. You can share your requirement by call or WhatsApp. We discuss the quotation based on your requirement and site details."
   }
 ];
 
@@ -212,18 +82,16 @@ const fadeInUp = {
 };
 
 const featuredQuestions = [
-  "Vishwakarma Build & Furnish kya services provide karta hai?",
-  "Kya aap Charkhi Dadri me construction service dete ho?",
-  "Aap kis-kis area me service dete ho?",
-  "Kya aap complete house construction ka kaam lete ho?",
-  "Kya aap home renovation ka kaam bhi karte ho?",
-  "Kya aap modular kitchen banate ho?",
-  "Kya aap wardrobe custom size me banate ho?",
-  "Kya aap plumbing, electrical aur paint work bhi karte ho?",
-  "Kya aap tiles aur marble work provide karte ho?",
-  "Kya aap free quotation dete ho?",
-  "Kya WhatsApp par estimate mil sakta hai?",
-  "Kaam start karne se pehle design ya plan discuss hota hai kya?"
+  "What services does Vishwakarma Build & Furnish provide?",
+  "Do you provide construction services in Charkhi Dadri?",
+  "Which areas do you serve?",
+  "Do you handle complete house construction?",
+  "Do you provide home renovation services?",
+  "Do you build modular kitchens?",
+  "Do you make custom-size wardrobes?",
+  "Do you provide plumbing, electrical, and paint work?",
+  "Do you provide tile and marble work?",
+  "Do you provide free quotations?"
 ];
 
 const FAQSection = () => {

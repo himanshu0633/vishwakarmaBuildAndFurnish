@@ -20,9 +20,9 @@ const HomePage = () => {
   const [selectedService, setSelectedService] = useState(null);
 
   useSeo({
-    title: "Vishwakarma Build & Furnish | Construction & Interior Services in Charkhi Dadri",
+    title: "Construction & Interior Services in Charkhi Dadri",
     description:
-      "Vishwakarma Build & Furnish provides house construction, modular kitchen, wardrobe, doors, windows, plumbing, electrical, paint, tiles and marble work services in Charkhi Dadri, Haryana.",
+      "Vishwakarma Build & Furnish offers construction, modular kitchen, plywood door, wooden door, furniture, paint, tiles and marble work in Charkhi Dadri.",
     path: "/",
     keywords: [
       "construction company in Charkhi Dadri",
