@@ -25,7 +25,6 @@ import ServiceDetailPage from './pages/ServiceDetailPage';
 import CatalogSlugPage from './pages/CatalogSlugPage';
 import WebsiteInfo from './pages/WebsiteInfo';
 import LoginPage from './pages/LoginPage';
-import NotFoundPage from './pages/NotFoundPage';
 import PartnerRegisterPage from './pages/PartnerRegisterPage';
 import PartnerDashboard from './pages/PartnerDashboard';
 import PartnersPage from './pages/PartnersPage';
@@ -42,6 +41,7 @@ import ReviewsPage from './pages/user-dashboard/ReviewsPage';
 import NotificationsPage from './pages/user-dashboard/NotificationsPage';
 
 // Import Admin Components
+
 import AdminLogin from './components/admin/Login';
 import AdminTenders from './components/admin/AdminTenders';
 import AdminLayout from './components/admin/Layout';
@@ -69,7 +69,7 @@ const AdminRouter = () => {
   }
 
   if (!user) {
-    return <Navigate to="/admin/login" replace />;
+    return <Navigate to="/" replace />;
   }
 
   if (user.role !== 'admin') {
@@ -90,6 +90,7 @@ const AdminRouter = () => {
         <Route path="marketplace/:moduleId" element={<MarketplaceDashboard />} />
         <Route path="/tenders" element={<AdminTenders />} />
         <Route path="/" element={<Navigate to="dashboard" replace />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AdminLayout>
   );
@@ -107,7 +108,7 @@ const ProtectedRoute = ({ children, roles }) => {
   }
 
   if (!user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/loginuser" replace />;
   }
 
   if (roles && !roles.includes(user.role)) {
@@ -125,8 +126,8 @@ function App() {
         <Routes>
 
           {/* Login Pages - No Header/Footer */}
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/loginuser" element={<LoginPage />} />
+          <Route path="/admin/loginhide" element={<AdminLogin />} />
 
           {/* Admin Protected Routes */}
           <Route path="/admin/*" element={<AdminRouter />} />
@@ -169,7 +170,7 @@ function App() {
                     </Route>
                     <Route path="/partner/register" element={<PartnerRegisterPage />} />
                     <Route path="/partner/dashboard" element={<ProtectedRoute roles={['partner', 'admin']}><PartnerDashboard /></ProtectedRoute>} />
-                    <Route path="*" element={<NotFoundPage />} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </Box>
 
