@@ -496,7 +496,7 @@ const getServiceScore = (query, service) => {
 };
 
 const openWhatsApp = (query) => {
-  const message = `Hello Vishwakarma Build & Furnish CKD, I want to discuss this requirement with your experts: ${query}`;
+  const message = `Hello Vishwakarma Build & Furnish, I want to discuss this requirement with your experts: ${query}`;
   window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank', 'noopener,noreferrer');
 };
 

@@ -138,7 +138,7 @@ const CatalogSlugPage = () => {
   });
 
   const shareMediaOnWhatsApp = (serviceName, mediaUrl) => {
-    const message = `Hello Vishwakarma Build & Furnish CKD, I am interested in ${serviceName}. Please share details for this image: ${mediaUrl}`;
+    const message = `Hello Vishwakarma Build & Furnish, I am interested in ${serviceName}. Please share details for this image: ${mediaUrl}`;
     window.open(`https://wa.me/919416856468?text=${encodeURIComponent(message)}`, "_blank");
   };
 
@@ -213,7 +213,7 @@ const CatalogSlugPage = () => {
             <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
               <Button
                 variant="contained"
-                href={`https://wa.me/919416856468?text=${encodeURIComponent(`Hello Vishwakarma Build & Furnish CKD, I want a quote for ${item.name}.`)}`}
+                href={`https://wa.me/919416856468?text=${encodeURIComponent(`Hello Vishwakarma Build & Furnish, I want a quote for ${item.name}.`)}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 sx={{ bgcolor: "#D4AF37", color: "#111111", fontWeight: 900, textTransform: "none", "&:hover": { bgcolor: "#B88917" } }}
@@ -223,14 +223,14 @@ const CatalogSlugPage = () => {
               <Button variant="outlined" onClick={() => navigate(-1)} sx={{ borderColor: "#D4AF37", color: "#D4AF37", textTransform: "none" }}>
                 Back
               </Button>
-              <Button
+              {/* <Button
                 variant="outlined"
                 startIcon={<FavoriteIcon />}
                 onClick={() => likeService(heroImage)}
                 sx={{ borderColor: "#D4AF37", color: "#D4AF37", textTransform: "none" }}
               >
                 Like Service
-              </Button>
+              </Button> */}
             </Box>
           </Container>
         </Box>

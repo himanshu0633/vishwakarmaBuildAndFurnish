@@ -13,6 +13,7 @@ import {
 } from "@mui/material";
 import {
   CloudUpload as UploadIcon,
+  Download as DownloadIcon,
   Collections as MediaIcon,
   Image as ImageIcon,
   Movie as VideoIcon,
@@ -81,9 +82,12 @@ const ServiceMediaManagement = () => {
   const [selectedCategoryId, setSelectedCategoryId] = useState("");
   const [selectedServiceId, setSelectedServiceId] = useState("");
   const [files, setFiles] = useState(emptyFiles);
+  const [mediaUrls, setMediaUrls] = useState("");
+  const [urlResults, setUrlResults] = useState(null);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [loadingServices, setLoadingServices] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [urlUploading, setUrlUploading] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
   const selectedCategory = useMemo(
@@ -97,6 +101,10 @@ const ServiceMediaManagement = () => {
   );
 
   const selectedCount = Object.values(files).reduce((total, list) => total + list.length, 0);
+  const parsedUrls = useMemo(
+    () => mediaUrls.split(/[,\n]/).map(url => url.trim()).filter(Boolean),
+    [mediaUrls]
+  );
 
   const fetchCategories = async () => {
     try {
@@ -144,6 +152,8 @@ const ServiceMediaManagement = () => {
   useEffect(() => {
     setSelectedServiceId("");
     setFiles(emptyFiles);
+    setMediaUrls("");
+    setUrlResults(null);
     fetchServicesByCategory(selectedCategoryId);
   }, [selectedCategoryId]);
 
@@ -193,6 +203,59 @@ const ServiceMediaManagement = () => {
       });
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleUrlUpload = async () => {
+    if (!selectedCategoryId) {
+      setSnackbar({ open: true, message: "Select category first", severity: "error" });
+      return;
+    }
+
+    if (!selectedServiceId) {
+      setSnackbar({ open: true, message: "Select service first", severity: "error" });
+      return;
+    }
+
+    if (parsedUrls.length === 0) {
+      setSnackbar({ open: true, message: "Paste at least one image or video URL", severity: "error" });
+      return;
+    }
+
+    if (parsedUrls.length > 10) {
+      setSnackbar({ open: true, message: "You can add a maximum of 10 URLs at once", severity: "error" });
+      return;
+    }
+
+    try {
+      setUrlUploading(true);
+      setUrlResults(null);
+      const response = await axiosInstance.post(`/services/${selectedServiceId}/media-url`, {
+        urls: parsedUrls
+      });
+
+      const results = response.data?.results || { images: [], videos: [], failed: [] };
+      const addedCount = (results.images?.length || 0) + (results.videos?.length || 0);
+      setUrlResults(results);
+      setSnackbar({
+        open: true,
+        message: `${addedCount} media downloaded, ${results.failed?.length || 0} failed`,
+        severity: addedCount ? "success" : "warning"
+      });
+
+      if (addedCount) {
+        setMediaUrls("");
+      }
+
+      await fetchServicesByCategory(selectedCategoryId);
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || "URL download failed",
+        severity: "error"
+      });
+    } finally {
+      setUrlUploading(false);
     }
   };
 
@@ -279,6 +342,8 @@ const ServiceMediaManagement = () => {
             onChange={(e) => {
               setSelectedServiceId(e.target.value);
               setFiles(emptyFiles);
+              setMediaUrls("");
+              setUrlResults(null);
             }}
             sx={inputStyles}
           >
@@ -374,6 +439,80 @@ const ServiceMediaManagement = () => {
         >
           {uploading ? "Uploading..." : `Upload ${selectedCount || ""}`.trim()}
         </Button>
+
+        <Paper
+          sx={{
+            mt: 3,
+            p: 2,
+            background: "rgba(15,23,42,0.72)",
+            border: "1px solid rgba(212,175,55,0.18)",
+            borderRadius: 2
+          }}
+        >
+          <Typography sx={{ color: "#F5F5F5", fontWeight: 800, mb: 0.5 }}>
+            Paste Image / Video URLs
+          </Typography>
+          <Typography sx={{ color: "rgba(245,245,245,0.58)", fontSize: "0.85rem", mb: 1.5 }}>
+            You can add up to 10 direct image/video URLs at once. Separate them with commas or new lines.
+          </Typography>
+          <TextField
+            fullWidth
+            multiline
+            minRows={4}
+            label="Image / Video URLs"
+            value={mediaUrls}
+            disabled={!selectedServiceId || urlUploading}
+            onChange={(event) => {
+              setMediaUrls(event.target.value);
+              setUrlResults(null);
+            }}
+            placeholder="https://example.com/photo1.jpg, https://example.com/video1.mp4"
+            sx={inputStyles}
+          />
+          <Box sx={{ display: "flex", gap: 1.5, alignItems: "center", flexWrap: "wrap", mt: 1.5 }}>
+            <Button
+              startIcon={<DownloadIcon />}
+              variant="contained"
+              disabled={!selectedServiceId || urlUploading || parsedUrls.length === 0 || parsedUrls.length > 10}
+              onClick={handleUrlUpload}
+              sx={{
+                background: "linear-gradient(135deg, #D4AF37, #B88917)",
+                color: "#111111",
+                fontWeight: 800,
+                textTransform: "none",
+                "&:disabled": {
+                  color: "rgba(17,17,17,0.45)",
+                  background: "rgba(212,175,55,0.35)"
+                }
+              }}
+            >
+              {urlUploading ? "Downloading..." : "Download & Save URLs"}
+            </Button>
+            <Typography sx={{ color: parsedUrls.length > 10 ? "#F87171" : "rgba(245,245,245,0.7)", fontSize: "0.9rem" }}>
+              {parsedUrls.length}/10 URLs
+            </Typography>
+          </Box>
+
+          {urlResults && (
+            <Box sx={{ mt: 2, display: "grid", gap: 1 }}>
+              <Alert severity={(urlResults.images?.length || 0) + (urlResults.videos?.length || 0) ? "success" : "warning"}>
+                {(urlResults.images?.length || 0)} images, {(urlResults.videos?.length || 0)} videos saved. {(urlResults.failed?.length || 0)} failed.
+              </Alert>
+              {!!urlResults.failed?.length && (
+                <Paper sx={{ p: 1.5, background: "rgba(127,29,29,0.28)", border: "1px solid rgba(248,113,113,0.3)" }}>
+                  <Typography sx={{ color: "#FCA5A5", fontWeight: 800, mb: 1 }}>
+                    These URLs were not downloaded:
+                  </Typography>
+                  {urlResults.failed.map((item, index) => (
+                    <Typography key={`${item.url}-${index}`} sx={{ color: "rgba(254,226,226,0.9)", fontSize: "0.85rem", overflowWrap: "anywhere", mb: 0.6 }}>
+                      {item.url} - {item.reason}
+                    </Typography>
+                  ))}
+                </Paper>
+              )}
+            </Box>
+          )}
+        </Paper>
       </Paper>
 
       <Typography variant="h6" sx={{ color: "#D4AF37", fontWeight: 800, mb: 2 }}>

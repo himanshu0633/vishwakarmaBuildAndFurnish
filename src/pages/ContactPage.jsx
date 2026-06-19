@@ -1,10 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Alert,
   Box,
   Button,
   Chip,
   Container,
+  MenuItem,
   Paper,
   Snackbar,
   TextField,
@@ -22,26 +23,76 @@ const googleMapsEmbedUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!
 const quickServices = ["Wooden Doors", "Plywood Doors", "Wooden Windows", "Sofa Set", "Wardrobe"];
 const trustItems = ["Free Consultation", "Custom Designs", "Premium Quality", "Affordable Pricing"];
 
+const createCaptcha = () => {
+  const left = Math.floor(Math.random() * 8) + 2;
+  const right = Math.floor(Math.random() * 8) + 2;
+  return { question: `${left} + ${right}`, answer: String(left + right) };
+};
+
 const ContactPage = () => {
   const [formData, setFormData] = useState({
     name: "",
     phoneNumber: "",
+    categoryRequired: "",
     serviceRequired: "",
     message: "",
     budget: "",
-    location: ""
+    location: "",
+    captchaAnswer: ""
   });
+  const [categories, setCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
+  const [captcha, setCaptcha] = useState(() => createCaptcha());
   const [uploadName, setUploadName] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        setLoadingCategories(true);
+        const response = await axiosInstance.get("/categories");
+        setCategories(response.data?.data || []);
+      } catch (error) {
+        setSnackbar({ open: true, message: "Services could not be loaded. Please refresh the page.", severity: "error" });
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
+  const selectedCategory = useMemo(
+    () => categories.find(category => category.name === formData.categoryRequired),
+    [categories, formData.categoryRequired]
+  );
+
+  const serviceOptions = selectedCategory?.services || [];
+
   const handleChange = (event) => {
-    setFormData(prev => ({ ...prev, [event.target.name]: event.target.value }));
+    const { name, value } = event.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+      ...(name === "categoryRequired" ? { serviceRequired: "" } : {})
+    }));
+  };
+
+  const refreshCaptcha = () => {
+    setCaptcha(createCaptcha());
+    setFormData(prev => ({ ...prev, captchaAnswer: "" }));
   };
 
   const handleSubmit = async () => {
-    if (!formData.name.trim() || !/^[0-9]{10}$/.test(formData.phoneNumber.trim()) || !formData.serviceRequired.trim()) {
-      setSnackbar({ open: true, message: "Name, valid phone number, and service required are mandatory", severity: "error" });
+    if (!formData.name.trim() || !/^[0-9]{10}$/.test(formData.phoneNumber.trim()) || !formData.categoryRequired || !formData.serviceRequired) {
+      setSnackbar({ open: true, message: "Name, valid phone number, category, and service required are mandatory", severity: "error" });
+      return;
+    }
+
+    if (formData.captchaAnswer.trim() !== captcha.answer) {
+      setSnackbar({ open: true, message: "Captcha answer is incorrect. Please try again.", severity: "error" });
+      refreshCaptcha();
       return;
     }
 
@@ -58,18 +109,20 @@ const ContactPage = () => {
         customerName: formData.name.trim(),
         phone: formData.phoneNumber.trim(),
         serviceName: formData.serviceRequired.trim(),
-        categoryName: "Contact",
+        categoryName: formData.categoryRequired.trim(),
         address: formData.location.trim() || "Not provided",
         message
       });
 
-      const whatsappText = `Hello Vishwakarma Build & Furnish CKD,%0AName: ${encodeURIComponent(formData.name)}%0APhone: ${encodeURIComponent(formData.phoneNumber)}%0AService: ${encodeURIComponent(formData.serviceRequired)}%0AMessage: ${encodeURIComponent(message || "I want a free quote.")}`;
+      const whatsappText = `Hello Vishwakarma Build & Furnish,%0AName: ${encodeURIComponent(formData.name)}%0APhone: ${encodeURIComponent(formData.phoneNumber)}%0ACategory: ${encodeURIComponent(formData.categoryRequired)}%0AService: ${encodeURIComponent(formData.serviceRequired)}%0AMessage: ${encodeURIComponent(message || "I want a free quote.")}`;
       window.open(`https://wa.me/91${phone}?text=${whatsappText}`, "_blank");
       setSnackbar({ open: true, message: "Quote request submitted successfully", severity: "success" });
-      setFormData({ name: "", phoneNumber: "", serviceRequired: "", message: "", budget: "", location: "" });
+      setFormData({ name: "", phoneNumber: "", categoryRequired: "", serviceRequired: "", message: "", budget: "", location: "", captchaAnswer: "" });
       setUploadName("");
+      setCaptcha(createCaptcha());
     } catch (error) {
       setSnackbar({ open: true, message: error.response?.data?.message || "Submission failed", severity: "error" });
+      refreshCaptcha();
     } finally {
       setSubmitting(false);
     }
@@ -124,13 +177,59 @@ const ContactPage = () => {
             <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr" }, gap: 2 }}>
               <TextField name="name" label="Name" value={formData.name} onChange={handleChange} fullWidth sx={fieldSx} />
               <TextField name="phoneNumber" label="Phone Number" value={formData.phoneNumber} onChange={handleChange} fullWidth sx={fieldSx} />
-              <TextField name="serviceRequired" label="Service Required" value={formData.serviceRequired} onChange={handleChange} fullWidth sx={fieldSx} />
+              <TextField
+                select
+                name="categoryRequired"
+                label="Category Required"
+                value={formData.categoryRequired}
+                onChange={handleChange}
+                fullWidth
+                disabled={loadingCategories}
+                sx={fieldSx}
+              >
+                <MenuItem value="">{loadingCategories ? "Loading categories..." : "Select Category"}</MenuItem>
+                {categories.map(category => (
+                  <MenuItem key={category._id || category.name} value={category.name}>
+                    {category.name}
+                  </MenuItem>
+                ))}
+              </TextField>
+              <TextField
+                select
+                name="serviceRequired"
+                label="Service Required"
+                value={formData.serviceRequired}
+                onChange={handleChange}
+                fullWidth
+                disabled={!formData.categoryRequired}
+                sx={fieldSx}
+              >
+                <MenuItem value="">{formData.categoryRequired ? "Select Service" : "Select category first"}</MenuItem>
+                {serviceOptions.map(service => (
+                  <MenuItem key={service._id || service.name} value={service.name}>
+                    {service.name}
+                  </MenuItem>
+                ))}
+              </TextField>
               <TextField name="budget" label="Budget (Optional)" value={formData.budget} onChange={handleChange} fullWidth sx={fieldSx} />
               <TextField name="location" label="Location (Optional)" value={formData.location} onChange={handleChange} fullWidth sx={fieldSx} />
               <Button component="label" startIcon={<UploadFileIcon />} variant="outlined" sx={{ minHeight: 56, borderColor: "#D4AF37", color: "#D4AF37", textTransform: "none" }}>
                 Upload Image
                 <input hidden type="file" accept="image/*" onChange={(event) => setUploadName(event.target.files?.[0]?.name || "")} />
               </Button>
+              <Box sx={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 1 }}>
+                <TextField
+                  name="captchaAnswer"
+                  label={`Captcha: ${captcha.question} = ?`}
+                  value={formData.captchaAnswer}
+                  onChange={handleChange}
+                  fullWidth
+                  sx={fieldSx}
+                />
+                <Button onClick={refreshCaptcha} variant="outlined" sx={{ minHeight: 56, borderColor: "#D4AF37", color: "#D4AF37", textTransform: "none", px: 2 }}>
+                  Refresh
+                </Button>
+              </Box>
             </Box>
             {uploadName && <Typography sx={{ color: "rgba(248,250,252,0.68)", mt: 1 }}>{uploadName}</Typography>}
             <TextField name="message" label="Message" value={formData.message} onChange={handleChange} fullWidth multiline rows={4} sx={{ ...fieldSx, mt: 2 }} />

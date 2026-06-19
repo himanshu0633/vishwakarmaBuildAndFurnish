@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 
-const SITE_NAME = 'Vishwakarma Build & Furnish CKD';
+const SITE_NAME = 'Vishwakarma Build & Furnish ';
 const BUSINESS_NAME = 'Vishwakarma Build & Furnish';
 const DEFAULT_SITE_URL = 'https://vishwakarmabuildfurnish.com';
 const DEFAULT_DESCRIPTION =

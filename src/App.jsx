@@ -1,7 +1,35 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { CircularProgress, Box } from '@mui/material';
+import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+
+const theme = createTheme({
+  typography: {
+    fontFamily: '"Poppins", "Montserrat", "Arial", sans-serif',
+    h1: {
+      fontFamily: '"Montserrat", "Poppins", "Arial", sans-serif'
+    },
+    h2: {
+      fontFamily: '"Montserrat", "Poppins", "Arial", sans-serif'
+    },
+    h3: {
+      fontFamily: '"Montserrat", "Poppins", "Arial", sans-serif'
+    },
+    h4: {
+      fontFamily: '"Montserrat", "Poppins", "Arial", sans-serif'
+    },
+    h5: {
+      fontFamily: '"Montserrat", "Poppins", "Arial", sans-serif'
+    },
+    h6: {
+      fontFamily: '"Montserrat", "Poppins", "Arial", sans-serif'
+    },
+    button: {
+      fontFamily: '"Poppins", "Montserrat", "Arial", sans-serif'
+    }
+  }
+});
 
 // Import Components - Fixed paths
 import Header from './components/layout/Header';
@@ -120,9 +148,10 @@ const ProtectedRoute = ({ children, roles }) => {
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <ScrollToTop />
+    <ThemeProvider theme={theme}>
+      <Router>
+        <AuthProvider>
+          <ScrollToTop />
         <Routes>
 
           {/* Login Pages - No Header/Footer */}
@@ -183,6 +212,7 @@ function App() {
         </Routes>
       </AuthProvider>
     </Router>
+    </ThemeProvider>
   );
 }
 

@@ -59,11 +59,30 @@ const counters = [
 ];
 
 const processSteps = [
-  "Consultation",
-  "Planning & Design",
-  "Material Selection",
-  "Manufacturing / Construction",
-  "Finishing & Delivery"
+  {
+    title: "Consultation & Planning",
+    desc: "Initial discussion to understand your specific requirements, design preferences, and layout planning."
+  },
+  {
+    title: "Written Agreement",
+    desc: "Everything we promise is provided in writing. We offer a formal agreement signed according to terms and conditions."
+  },
+  {
+    title: "No Hidden Charges",
+    desc: "Clear and transparent project costing. You will know exactly how much money is required, with absolutely zero hidden fees."
+  },
+  {
+    title: "Guaranteed Timeline",
+    desc: "We define and specify the exact number of days required to complete the work, ensuring timely delivery."
+  },
+  {
+    title: "Premium Execution",
+    desc: "Execution of construction, interiors, or furniture using high-quality materials and expert workmanship."
+  },
+  {
+    title: "After-Sales Service",
+    desc: "We stand by our work. We provide dedicated and reliable after-sales service and maintenance support."
+  }
 ];
 
 const reviews = [
@@ -159,7 +178,7 @@ const AboutPage = () => {
   }, []);
 
   const handleWhatsApp = () => {
-    const message = "Hello Vishwakarma Build & Furnish CKD, I want to discuss my construction/interior/furniture project.";
+    const message = "Hello Vishwakarma Build & Furnish, I want to discuss my construction/interior/furniture project.";
     window.open(`https://wa.me/91${phone}?text=${encodeURIComponent(message)}`, "_blank");
   };
 
@@ -215,7 +234,7 @@ const AboutPage = () => {
             <SectionKicker>Who We Are</SectionKicker>
             <SectionTitle>Trusted Workmanship Since 2003</SectionTitle>
             <BodyText>
-              Vishwakarma Build & Furnish CKD has been serving Charkhi Dadri and nearby areas since 2003. Founded by Sunil Jangra, our company specializes in construction work, interior solutions, and custom furniture manufacturing.
+              Vishwakarma Build & Furnish has been serving Charkhi Dadri and nearby areas since 2003. Founded by Sunil Jangra, our company specializes in construction work, interior solutions, and custom furniture manufacturing.
             </BodyText>
             <BodyText>
               We undertake both government and private projects with complete professionalism and quality workmanship. From home construction to luxury interiors and customized furniture, our team delivers reliable solutions tailored to every client's requirements.
@@ -311,12 +330,38 @@ const AboutPage = () => {
       </Section>
 
       <Section>
-        <CenterHeader title="Our Working Process" subtitle="A clear and practical workflow for every construction, interior, and furniture project." />
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(5, 1fr)" }, gap: 2 }}>
+        <CenterHeader title="Our Working Process" subtitle="A clear, written, and reliable workflow for every construction, interior, and furniture project." />
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }, gap: 3 }}>
           {processSteps.map((step, index) => (
-            <Paper key={step} elevation={0} sx={{ p: 2.5, bgcolor: "#0F172A", color: "#F8FAFC", border: "1px solid rgba(212,175,55,0.28)", borderRadius: 2, minHeight: 150 }}>
-              <Typography sx={{ color: "#D4AF37", fontWeight: 900, fontSize: "1.6rem", mb: 1 }}>{String(index + 1).padStart(2, "0")}</Typography>
-              <Typography sx={{ fontWeight: 900, lineHeight: 1.35 }}>{step}</Typography>
+            <Paper
+              key={step.title}
+              elevation={0}
+              sx={{
+                p: 3,
+                bgcolor: "#0F172A",
+                color: "#F8FAFC",
+                border: "1px solid rgba(212,175,55,0.28)",
+                borderRadius: 2.5,
+                minHeight: 180,
+                display: "flex",
+                flexDirection: "column",
+                transition: "0.25s ease",
+                "&:hover": {
+                  borderColor: "#D4AF37",
+                  transform: "translateY(-4px)",
+                  boxShadow: "0 12px 30px rgba(0,0,0,0.3)"
+                }
+              }}
+            >
+              <Typography sx={{ color: "#D4AF37", fontWeight: 900, fontSize: "1.6rem", mb: 1.5 }}>
+                {String(index + 1).padStart(2, "0")}
+              </Typography>
+              <Typography sx={{ fontWeight: 900, fontSize: "1.25rem", mb: 1, color: "#F8FAFC" }}>
+                {step.title}
+              </Typography>
+              <Typography sx={{ color: "rgba(248,250,252,0.72)", fontSize: "0.92rem", lineHeight: 1.6 }}>
+                {step.desc}
+              </Typography>
             </Paper>
           ))}
         </Box>
@@ -402,7 +447,7 @@ const BodyText = ({ children }) => (
 
 const CenterHeader = ({ title, subtitle }) => (
   <Box sx={{ textAlign: "center", mb: { xs: 4, md: 5 } }}>
-    <SectionKicker>Vishwakarma Build & Furnish CKD</SectionKicker>
+    <SectionKicker>Vishwakarma Build & Furnish</SectionKicker>
     <Typography sx={{ fontSize: { xs: "2rem", md: "3rem" }, lineHeight: 1.12, fontWeight: 900, mb: 1.5 }}>
       {title}
     </Typography>

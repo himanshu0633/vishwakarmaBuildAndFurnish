@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   Alert,
-  Autocomplete,
   Box,
   Button,
   Chip,
@@ -12,6 +11,8 @@ import {
   DialogTitle,
   FormControlLabel,
   IconButton,
+  MenuItem,
+  Pagination,
   Paper,
   Snackbar,
   Switch,
@@ -42,8 +43,12 @@ const emptyForm = {
   excerpt: '',
   content: '',
   coverImage: '',
+  blogImage: '',
+  blogImages: [],
+  categoryId: '',
   category: 'Furniture',
   relatedServices: [],
+  faq: '',
   seoTitle: '',
   seoDescription: '',
   tags: '',
@@ -56,21 +61,52 @@ const BlogsManagement = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [blogs, setBlogs] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
   const [openDialog, setOpenDialog] = useState(false);
   const [editingBlog, setEditingBlog] = useState(null);
   const [formData, setFormData] = useState(emptyForm);
+  const [imagePage, setImagePage] = useState(1);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
 
   useEffect(() => {
     fetchBlogs();
+    fetchCategories();
     fetchServices();
   }, []);
 
   const activeServices = useMemo(
     () => services.filter((service) => service.isActive !== false),
     [services]
+  );
+
+  const filteredServices = useMemo(
+    () => activeServices.filter((service) => {
+      if (!formData.categoryId) return true;
+      return (service.categoryId?._id || service.categoryId) === formData.categoryId;
+    }),
+    [activeServices, formData.categoryId]
+  );
+
+  const selectedPrimaryService = useMemo(
+    () => activeServices.find((service) => service._id === formData.relatedServices[0]),
+    [activeServices, formData.relatedServices]
+  );
+
+  const selectedServiceImages = useMemo(() => {
+    if (!selectedPrimaryService) return [];
+    return Array.from(new Set([
+      selectedPrimaryService.heroImage,
+      ...(selectedPrimaryService.images || []),
+      ...(selectedPrimaryService.beforeImages || []),
+      ...(selectedPrimaryService.afterImages || [])
+    ].filter(Boolean)));
+  }, [selectedPrimaryService]);
+
+  const pagedServiceImages = useMemo(
+    () => selectedServiceImages.slice((imagePage - 1) * 10, imagePage * 10),
+    [selectedServiceImages, imagePage]
   );
 
   const fetchBlogs = async () => {
@@ -87,6 +123,15 @@ const BlogsManagement = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await axiosInstance.get('/categories?includeInactive=true');
+      setCategories(response.data.success ? response.data.data || [] : []);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
     }
   };
 
@@ -107,8 +152,12 @@ const BlogsManagement = () => {
         excerpt: blog.excerpt || '',
         content: blog.content || '',
         coverImage: blog.coverImage || '',
-        category: blog.category || 'Furniture',
+        blogImage: blog.blogImage || '',
+        blogImages: (blog.blogImages?.length ? blog.blogImages : [blog.blogImage]).filter(Boolean).slice(0, 9),
+        categoryId: blog.categoryId?._id || blog.categoryId || blog.relatedServices?.[0]?.categoryId?._id || blog.relatedServices?.[0]?.categoryId || '',
+        category: blog.category || blog.categoryId?.name || 'Furniture',
         relatedServices: (blog.relatedServices || []).map((service) => service?._id || service).filter(Boolean),
+        faq: (blog.faq || []).map((item) => `${item.question || ''}|${item.answer || ''}`).join('\n'),
         seoTitle: blog.seoTitle || '',
         seoDescription: blog.seoDescription || '',
         tags: (blog.tags || []).join(', '),
@@ -121,6 +170,7 @@ const BlogsManagement = () => {
       setFormData(emptyForm);
     }
 
+    setImagePage(1);
     setOpenDialog(true);
   };
 
@@ -138,6 +188,9 @@ const BlogsManagement = () => {
 
     const payload = {
       ...formData,
+      blogImages: formData.blogImages.slice(0, 9),
+      blogImage: formData.blogImages[0] || formData.blogImage,
+      category: categories.find((category) => category._id === formData.categoryId)?.name || formData.category,
       order: Number(formData.order) || 0,
       tags: formData.tags,
       relatedServices: formData.relatedServices
@@ -171,6 +224,10 @@ const BlogsManagement = () => {
     try {
       const payload = {
         ...blog,
+        categoryId: blog.categoryId?._id || blog.categoryId || '',
+        blogImage: blog.blogImage || '',
+        blogImages: (blog.blogImages?.length ? blog.blogImages : [blog.blogImage]).filter(Boolean).slice(0, 9),
+        faq: (blog.faq || []).map((item) => `${item.question || ''}|${item.answer || ''}`).join('\n'),
         relatedServices: (blog.relatedServices || []).map((service) => service?._id || service).filter(Boolean),
         tags: blog.tags || [],
         [field]: !blog[field]
@@ -201,8 +258,6 @@ const BlogsManagement = () => {
       setSnackbar({ open: true, message: 'Failed to deactivate blog', severity: 'error' });
     }
   };
-
-  const selectedServices = activeServices.filter((service) => formData.relatedServices.includes(service._id));
 
   return (
     <Box sx={{ p: { xs: 2, md: 3 }, bgcolor: '#111111', minHeight: '100vh', color: '#F8FAFC' }}>
@@ -244,7 +299,7 @@ const BlogsManagement = () => {
             </TableHead>
             <TableBody>
               {blogs.map((blog) => {
-                const image = getStaticAssetUrl(blog.coverImage || blog.relatedServices?.[0]?.heroImage || blog.relatedServices?.[0]?.images?.[0] || '');
+                const image = getStaticAssetUrl(blog.coverImage || blog.blogImages?.[0] || blog.blogImage || blog.relatedServices?.[0]?.heroImage || blog.relatedServices?.[0]?.images?.[0] || '');
 
                 return (
                   <TableRow key={blog._id} hover sx={{ '&:hover': { bgcolor: 'rgba(212,175,55,0.06)' } }}>
@@ -308,23 +363,138 @@ const BlogsManagement = () => {
           <TextField label="Title" value={formData.title} onChange={(event) => setFormData({ ...formData, title: event.target.value })} fullWidth sx={inputSx} />
           <TextField label="Excerpt" value={formData.excerpt} onChange={(event) => setFormData({ ...formData, excerpt: event.target.value })} fullWidth multiline minRows={2} sx={inputSx} />
           <TextField label="Content" value={formData.content} onChange={(event) => setFormData({ ...formData, content: event.target.value })} fullWidth multiline minRows={8} sx={inputSx} />
-          <TextField label="Cover Image URL" value={formData.coverImage} onChange={(event) => setFormData({ ...formData, coverImage: event.target.value })} fullWidth sx={inputSx} />
+          <TextField label="Cover Image URL (Optional)" value={formData.coverImage} onChange={(event) => setFormData({ ...formData, coverImage: event.target.value })} fullWidth sx={inputSx} />
           <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: '1fr 1fr' }, gap: 2 }}>
-            <TextField label="Category" value={formData.category} onChange={(event) => setFormData({ ...formData, category: event.target.value })} fullWidth sx={inputSx} />
+            <TextField
+              select
+              label="Category"
+              value={formData.categoryId}
+              onChange={(event) => {
+                const category = categories.find((item) => item._id === event.target.value);
+                setFormData({
+                  ...formData,
+                  categoryId: event.target.value,
+                  category: category?.name || 'Furniture',
+                  relatedServices: [],
+                  blogImage: '',
+                  blogImages: []
+                });
+                setImagePage(1);
+              }}
+              fullWidth
+              sx={inputSx}
+            >
+              <MenuItem value="">Select Category</MenuItem>
+              {categories.map((category) => (
+                <MenuItem key={category._id} value={category._id}>{category.name}</MenuItem>
+              ))}
+            </TextField>
             <TextField label="Order" type="number" value={formData.order} onChange={(event) => setFormData({ ...formData, order: event.target.value })} fullWidth sx={inputSx} />
           </Box>
-          <Autocomplete
-            multiple
-            options={activeServices}
-            value={selectedServices}
-            getOptionLabel={(option) => option.name || ''}
-            isOptionEqualToValue={(option, value) => option._id === value._id}
-            onChange={(_, value) => setFormData({ ...formData, relatedServices: value.map((service) => service._id) })}
-            renderInput={(params) => <TextField {...params} label="Related Services" placeholder="Search active services" sx={inputSx} />}
+          <TextField
+            select
+            label="Service"
+            value={formData.relatedServices[0] || ''}
+            onChange={(event) => {
+              const service = activeServices.find((item) => item._id === event.target.value);
+              const fallbackImage = service?.heroImage || service?.images?.[0] || '';
+              setFormData({
+                ...formData,
+                relatedServices: event.target.value ? [event.target.value] : [],
+                blogImage: fallbackImage,
+                blogImages: fallbackImage ? [fallbackImage] : [],
+                coverImage: formData.coverImage || fallbackImage
+              });
+              setImagePage(1);
+            }}
+            fullWidth
+            disabled={!formData.categoryId}
+            sx={inputSx}
+          >
+            <MenuItem value="">{formData.categoryId ? 'Select Service' : 'Select category first'}</MenuItem>
+            {filteredServices.map((service) => (
+              <MenuItem key={service._id} value={service._id}>{service.name}</MenuItem>
+            ))}
+          </TextField>
+          {!!selectedServiceImages.length && (
+            <Paper sx={{ p: 2, bgcolor: '#0F172A', border: '1px solid rgba(212,175,55,0.22)', borderRadius: 2 }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 1, flexWrap: 'wrap', mb: 1 }}>
+                <Typography sx={{ color: '#D4AF37', fontWeight: 900 }}>Select Blog Images From Service</Typography>
+                <Chip label={`${formData.blogImages.length}/9 selected`} size="small" sx={{ bgcolor: 'rgba(212,175,55,0.16)', color: '#D4AF37', fontWeight: 800 }} />
+              </Box>
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: 'repeat(2, 1fr)', sm: 'repeat(3, 1fr)', md: 'repeat(4, 1fr)' }, gap: 1.5 }}>
+                {pagedServiceImages.map((image) => {
+                  const imageUrl = getStaticAssetUrl(image);
+                  const selected = formData.blogImages.includes(image);
+                  return (
+                    <Box
+                      key={image}
+                      onClick={() => {
+                        const nextImages = selected
+                          ? formData.blogImages.filter((item) => item !== image)
+                          : [...formData.blogImages, image].slice(0, 9);
+
+                        if (!selected && formData.blogImages.length >= 9) {
+                          setSnackbar({ open: true, message: 'You can select a maximum of 9 images', severity: 'warning' });
+                          return;
+                        }
+
+                        setFormData({
+                          ...formData,
+                          blogImages: nextImages,
+                          blogImage: nextImages[0] || '',
+                          coverImage: formData.coverImage || nextImages[0] || image
+                        });
+                      }}
+                      sx={{
+                        cursor: 'pointer',
+                        border: selected ? '3px solid #D4AF37' : '1px solid rgba(212,175,55,0.22)',
+                        borderRadius: 1.5,
+                        overflow: 'hidden',
+                        bgcolor: '#111827',
+                        position: 'relative'
+                      }}
+                    >
+                      <Box component="img" src={imageUrl} alt="Service media" sx={{ width: 1, aspectRatio: '16 / 10', objectFit: 'cover', display: 'block' }} />
+                      {selected && (
+                        <Chip
+                          label={formData.blogImages.indexOf(image) + 1}
+                          size="small"
+                          sx={{ position: 'absolute', top: 8, right: 8, bgcolor: '#D4AF37', color: '#111827', fontWeight: 900 }}
+                        />
+                      )}
+                    </Box>
+                  );
+                })}
+              </Box>
+              {selectedServiceImages.length > 10 && (
+                <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
+                  <Pagination
+                    count={Math.ceil(selectedServiceImages.length / 10)}
+                    page={imagePage}
+                    onChange={(_, page) => setImagePage(page)}
+                    sx={{
+                      '& .MuiPaginationItem-root': { color: '#F8FAFC' },
+                      '& .Mui-selected': { bgcolor: '#D4AF37 !important', color: '#111827', fontWeight: 900 }
+                    }}
+                  />
+                </Box>
+              )}
+            </Paper>
+          )}
+          <TextField
+            label="FAQ (one per line: Question|Answer)"
+            value={formData.faq}
+            onChange={(event) => setFormData({ ...formData, faq: event.target.value })}
+            fullWidth
+            multiline
+            minRows={3}
+            placeholder="Leave blank to auto-generate common FAQs"
+            sx={inputSx}
           />
           <TextField label="SEO Title" value={formData.seoTitle} onChange={(event) => setFormData({ ...formData, seoTitle: event.target.value })} fullWidth sx={inputSx} />
           <TextField label="SEO Description" value={formData.seoDescription} onChange={(event) => setFormData({ ...formData, seoDescription: event.target.value })} fullWidth multiline minRows={2} sx={inputSx} />
-          <TextField label="Tags (comma separated)" value={formData.tags} onChange={(event) => setFormData({ ...formData, tags: event.target.value })} fullWidth sx={inputSx} />
+          <TextField label="Tags (comma separated, optional)" value={formData.tags} onChange={(event) => setFormData({ ...formData, tags: event.target.value })} fullWidth placeholder="Leave blank for improved auto tags" sx={inputSx} />
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
             <FormControlLabel control={<Switch checked={formData.featured} onChange={(event) => setFormData({ ...formData, featured: event.target.checked })} />} label="Featured" />
             <FormControlLabel control={<Switch checked={formData.isActive} onChange={(event) => setFormData({ ...formData, isActive: event.target.checked })} />} label="Active" />

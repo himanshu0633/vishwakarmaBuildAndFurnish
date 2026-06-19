@@ -90,7 +90,7 @@ const FeaturedServices = () => {
   };
 
   const handleQuote = (service) => {
-    const message = `Hello Vishwakarma Build & Furnish CKD, I want a quote for ${service.name}.`;
+    const message = `Hello Vishwakarma Build & Furnish, I want a quote for ${service.name}.`;
     window.open(`https://wa.me/919416856468?text=${encodeURIComponent(message)}`, "_blank");
   };
 

@@ -60,28 +60,30 @@ const Header = () => {
     { label: "Furniture", icon: <ChairIcon />, path: "/services/furniture-services" },
     { label: "Interior", icon: <EngineeringIcon />, path: "/services/interior-services" },
     { label: "Gallery", icon: <ImageIcon />, path: "/gallery" },
-    { label: "Blog", icon: <ArticleIcon />, path: "/blogs" },
-    { label: "Partners", icon: <StorefrontIcon />, path: "/partners" },
+    // { label: "Blog", icon: <ArticleIcon />, path: "/blogs" },
+    // { label: "Partners", icon: <StorefrontIcon />, path: "/partners" },
     { label: "Contact", icon: <CallIcon />, path: "/contact" },
   ];
 
   const navItems = user
     ? [...baseNavItems, { label: accountLabel, icon: <AccountCircleIcon />, path: accountPath, account: true }]
-    : [...baseNavItems, { label: "Login", icon: <AccountCircleIcon />, path: "/login" }];
+    : baseNavItems;
+    // : [...baseNavItems, { label: "Login", icon: <AccountCircleIcon />, path: "/login" }];
 
   const mobileBaseNavItems = [
     { label: "Home", icon: <HomeIcon />, path: "/" },
     { label: "Furniture", icon: <ChairIcon />, path: "/services/furniture-services" },
     { label: "Construction", icon: <ConstructionIcon />, path: "/services/construction-services" },
     { label: "Interior", icon: <EngineeringIcon />, path: "/services/interior-services" },
-    { label: "Partners", icon: <StorefrontIcon />, path: "/partners" },
+    // { label: "Partners", icon: <StorefrontIcon />, path: "/partners" },
     { label: "About", icon: <InfoIcon />, path: "/about" },
     { label: "Contact", icon: <CallIcon />, path: "/contact" },
   ];
 
   const mobileNavItems = user
     ? [...mobileBaseNavItems.slice(0, 5), { label: accountLabel, icon: <AccountCircleIcon />, path: accountPath }]
-    : [...mobileBaseNavItems.slice(0, 5), { label: "Login", icon: <AccountCircleIcon />, path: "/login" }];
+    : mobileBaseNavItems.slice(0, 5);
+    // : [...mobileBaseNavItems.slice(0, 5), { label: "Login", icon: <AccountCircleIcon />, path: "/login" }];
 
   // Get current active route index
   const getActiveRouteIndex = (items = navItems) => {
@@ -109,9 +111,9 @@ const Header = () => {
 
   // Responsive spacer height
   const getSpacerHeight = () => {
-    if (isMobile) return "92px";  // Mobile header + announcement height
-    if (isTablet) return "100px";  // Tablet header + announcement height
-    return "108px";                 // Desktop header + announcement height
+    if (isMobile) return "104px";  // Mobile header + announcement height
+    if (isTablet) return "112px";  // Tablet header + announcement height
+    return "144px";                 // Desktop header + announcement height
   };
 
   return (
@@ -128,15 +130,15 @@ const Header = () => {
       >
         <Toolbar sx={{
           justifyContent: "space-between",
-          py: 1,
-          minHeight: { xs: "56px", sm: "64px", md: "72px" },
+          py: { xs: 1.1, sm: 1.25, md: 1.4 },
+          minHeight: { xs: "68px", sm: "76px", md: "108px" },
           px: { xs: 2, sm: 3, md: 4 }
         }}>
           <Box
             sx={{
               display: "flex",
               alignItems: "center",
-              gap: { xs: 1, sm: 1.5 },
+              gap: { xs: 1.2, sm: 1.6, md: 2 },
               cursor: "pointer"
             }}
             onClick={() => handleNavigation("/")}
@@ -146,10 +148,11 @@ const Header = () => {
               src={iesLogo}
               alt="IES Logo"
               sx={{
-                height: { xs: 32, sm: 36, md: 42 },
-                width: { xs: 32, sm: 36, md: 42 },
+                height: { xs: 48, sm: 56, md: 88 },
+                width: { xs: 48, sm: 56, md: 88 },
                 objectFit: "contain",
-                borderRadius: 1
+                borderRadius: 1.2,
+                flexShrink: 0
               }}
             />
             <Box>
@@ -160,7 +163,7 @@ const Header = () => {
                   letterSpacing: "1px",
                   lineHeight: 1.2,
                   color: colors.light,
-                  fontSize: { xs: "0.9rem", sm: "1rem", md: "1.25rem" }
+                  fontSize: { xs: "0.95rem", sm: "1.08rem", md: "1.35rem" }
                 }}
               >
                 {branding.name}
@@ -169,7 +172,7 @@ const Header = () => {
                 variant="caption"
                 sx={{
                   color: colors.secondary,
-                  fontSize: { xs: "0.65rem", sm: "0.7rem", md: "0.75rem" },
+                  fontSize: { xs: "0.68rem", sm: "0.75rem", md: "0.82rem" },
                   display: { xs: "none", sm: "block" }
                 }}
               >
@@ -299,7 +302,7 @@ const Header = () => {
           >
             <Box component="span">Premium Deal Alert</Box>
             Every project is customized, so pricing depends on the quality, design, and scope of work selected by the client. We give you the best deal in every service.
-            <Box component="span">Vishwakarma Build & Furnish CKD</Box>
+            <Box component="span">Vishwakarma Build & Furnish</Box>
           </Typography>
         </Box>
       </AppBar>

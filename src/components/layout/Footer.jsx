@@ -33,8 +33,8 @@ const Footer = () => {
     { name: "Interior", icon: <DesignServicesIcon />, link: "/services/interior-services" },
     { name: "Gallery", icon: <ImageIcon />, link: "/gallery" },
     { name: "Blog", icon: <ArticleIcon />, link: "/blogs" },
-    { name: "Partners", icon: <StorefrontIcon />, link: "/partners" },
-    { name: "Become a Partner", icon: <StorefrontIcon />, link: "/partner/register" },
+    // { name: "Partners", icon: <StorefrontIcon />, link: "/partners" },
+    // { name: "Become a Partner", icon: <StorefrontIcon />, link: "/partner/register" },
     { name: "Contact", icon: <PhoneIcon />, link: "/contact" }
   ];
 
@@ -146,7 +146,7 @@ const Footer = () => {
 
         <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "space-between", alignItems: "center", gap: 2 }}>
           <Typography sx={{ color: "rgba(248,250,252,0.58)", fontSize: "0.82rem", textAlign: "center" }}>
-            © 2026 Vishwakarma Build & Furnish CKD. All rights reserved.
+            © 2026 Vishwakarma Build & Furnish. All rights reserved.
           </Typography>
           <Link
             component={RouterLink}

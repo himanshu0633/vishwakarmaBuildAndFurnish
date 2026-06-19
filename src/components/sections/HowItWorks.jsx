@@ -41,26 +41,26 @@ const steps = [
   {
     step: "03",
     icon: <DesignServicesIcon />,
-    title: "Design & Estimate",
+    title: "Design & Written Estimate",
     role: "Clear Planning",
-    desc: "We suggest modern designs, material options, and transparent project costing.",
-    details: "You get a clear idea before work begins."
+    desc: "We provide modern designs, material options, and transparent costing with zero hidden charges.",
+    details: "Clear pricing transparency before starting."
   },
   {
     step: "04",
     icon: <CarpenterIcon />,
-    title: "Quality Execution",
-    role: "Skilled Work",
-    desc: "Our experts handle construction, interior finishing, and custom furniture manufacturing.",
-    details: "Premium materials and skilled workmanship on every project."
+    title: "Agreement & Execution",
+    role: "Written Contract",
+    desc: "We sign a formal agreement detailing the exact timeline (number of days) and cost before execution.",
+    details: "Everything promised is provided in writing."
   },
   {
     step: "05",
     icon: <TaskAltIcon />,
-    title: "Final Handover",
-    role: "Ready To Use",
-    desc: "We finish the work with proper detailing, checking, and timely handover.",
-    details: "From foundation to furniture, everything is completed with care."
+    title: "Handover & After-Sales",
+    role: "Long-term Support",
+    desc: "Meticulous finishing check for timely handover, backed by reliable after-sales service.",
+    details: "We provide dedicated after-sales support."
   }
 ];
 
@@ -146,7 +146,8 @@ const HowItWorks = () => {
                 elevation={0}
                 sx={{
                   p: { xs: 2.5, md: 3 },
-                  minHeight: 300,
+                  height: "100%",
+                  minHeight: { xs: 340, md: 370 },
                   borderRadius: 3,
                   background: "#111827",
                   border: "1px solid rgba(212,175,55,0.36)",
@@ -154,6 +155,8 @@ const HowItWorks = () => {
                   textAlign: "center",
                   position: "relative",
                   overflow: "hidden",
+                  display: "flex",
+                  flexDirection: "column",
                   transition: "transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease",
                   "&:hover": {
                     transform: "translateY(-7px)",
@@ -170,59 +173,65 @@ const HowItWorks = () => {
                     color: "rgba(212,175,55,0.1)",
                     fontWeight: 900,
                     fontSize: "3.3rem",
-                    lineHeight: 1
+                    lineHeight: 1,
+                    zIndex: 0
                   }}
                 >
                   {step.step}
                 </Typography>
-                <Box
-                  sx={{
-                    width: 72,
-                    height: 72,
-                    mx: "auto",
-                    mb: 2,
-                    borderRadius: "50%",
-                    display: "grid",
-                    placeItems: "center",
-                    bgcolor: "rgba(212,175,55,0.12)",
-                    border: "1px solid rgba(212,175,55,0.45)",
-                    color: "#D4AF37",
-                    "& svg": { fontSize: 34 }
-                  }}
-                >
-                  {step.icon}
+                <Box sx={{ position: "relative", zIndex: 1, display: "flex", flexDirection: "column", height: "100%", width: "100%" }}>
+                  <Box
+                    sx={{
+                      width: 72,
+                      height: 72,
+                      mx: "auto",
+                      mb: 2,
+                      borderRadius: "50%",
+                      display: "grid",
+                      placeItems: "center",
+                      bgcolor: "rgba(212,175,55,0.12)",
+                      border: "1px solid rgba(212,175,55,0.45)",
+                      color: "#D4AF37",
+                      "& svg": { fontSize: 34 }
+                    }}
+                  >
+                    {step.icon}
+                  </Box>
+                  <Box sx={{ display: "flex", justifyContent: "center", gap: 1, flexWrap: "wrap", mb: 1.5 }}>
+                    <Chip
+                      label={step.role}
+                      size="small"
+                      sx={{ bgcolor: "rgba(248,250,252,0.08)", color: "#F8FAFC", fontWeight: 800 }}
+                    />
+                    <Chip
+                      label={`STEP ${step.step}`}
+                      size="small"
+                      sx={{ bgcolor: "#D4AF37", color: "#111827", fontWeight: 900 }}
+                    />
+                  </Box>
+                  <Box sx={{ minHeight: 52, display: "flex", alignItems: "center", justifyContent: "center", mb: 1 }}>
+                    <Typography sx={{ color: "#F8FAFC", fontWeight: 900, fontSize: "1.08rem", lineHeight: 1.25 }}>
+                      {step.title}
+                    </Typography>
+                  </Box>
+                  <Typography sx={{ color: "rgba(248,250,252,0.72)", fontSize: "0.9rem", lineHeight: 1.55, mb: 2.5 }}>
+                    {step.desc}
+                  </Typography>
+                  <Typography
+                    sx={{
+                      color: "#D4AF37",
+                      bgcolor: "rgba(212,175,55,0.08)",
+                      border: "1px solid rgba(212,175,55,0.18)",
+                      borderRadius: 2,
+                      p: 1.2,
+                      fontSize: "0.78rem",
+                      lineHeight: 1.45,
+                      mt: "auto"
+                    }}
+                  >
+                    {step.details}
+                  </Typography>
                 </Box>
-                <Box sx={{ display: "flex", justifyContent: "center", gap: 1, flexWrap: "wrap", mb: 1.5 }}>
-                  <Chip
-                    label={step.role}
-                    size="small"
-                    sx={{ bgcolor: "rgba(248,250,252,0.08)", color: "#F8FAFC", fontWeight: 800 }}
-                  />
-                  <Chip
-                    label={`STEP ${step.step}`}
-                    size="small"
-                    sx={{ bgcolor: "#D4AF37", color: "#111827", fontWeight: 900 }}
-                  />
-                </Box>
-                <Typography sx={{ color: "#F8FAFC", fontWeight: 900, fontSize: "1.08rem", mb: 1 }}>
-                  {step.title}
-                </Typography>
-                <Typography sx={{ color: "rgba(248,250,252,0.72)", fontSize: "0.9rem", lineHeight: 1.55, mb: 1.5 }}>
-                  {step.desc}
-                </Typography>
-                <Typography
-                  sx={{
-                    color: "#D4AF37",
-                    bgcolor: "rgba(212,175,55,0.08)",
-                    border: "1px solid rgba(212,175,55,0.18)",
-                    borderRadius: 2,
-                    p: 1.2,
-                    fontSize: "0.78rem",
-                    lineHeight: 1.45
-                  }}
-                >
-                  {step.details}
-                </Typography>
               </Paper>
             ))}
           </Box>
@@ -241,7 +250,7 @@ const HowItWorks = () => {
             }}
           >
             <Typography sx={{ color: "#D4AF37", fontWeight: 900, fontSize: { xs: "1.2rem", md: "1.45rem" }, mb: 2 }}>
-              Vishwakarma Build & Furnish CKD
+              Vishwakarma Build & Furnish
             </Typography>
             <Box sx={{ display: "flex", justifyContent: "center", flexWrap: "wrap", gap: 1.2, mb: 3 }}>
               {services.map((service) => (

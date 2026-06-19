@@ -73,6 +73,9 @@ const BlogSection = () => {
                   border: "1px solid rgba(212,175,55,0.28)",
                   borderRadius: 3,
                   overflow: "hidden",
+                  display: "flex",
+                  flexDirection: "column",
+                  height: "100%",
                   "&:hover": {
                     borderColor: "#D4AF37",
                     transform: "translateY(-6px)",
@@ -97,22 +100,24 @@ const BlogSection = () => {
                     }}
                   />
                 </Box>
-                <Box sx={{ p: 3 }}>
-                  <Chip
-                    label={blog.category || "Guide"}
-                    size="small"
-                    sx={{ bgcolor: "rgba(212,175,55,0.92)", color: "#111827", fontWeight: 900, mb: 1.5 }}
-                  />
-                  <Typography sx={{ fontSize: "1.25rem", fontWeight: 900, mb: 1 }}>
-                    {blog.title}
-                  </Typography>
-                  <Typography sx={{ color: "rgba(248,250,252,0.72)", lineHeight: 1.65, mb: 2 }}>
-                    {blog.excerpt}
-                  </Typography>
+                <Box sx={{ p: 3, display: "flex", flexDirection: "column", flexGrow: 1 }}>
+                  <Box>
+                    <Chip
+                      label={blog.category || "Guide"}
+                      size="small"
+                      sx={{ bgcolor: "rgba(212,175,55,0.92)", color: "#111827", fontWeight: 900, mb: 1.5 }}
+                    />
+                    <Typography sx={{ fontSize: "1.25rem", fontWeight: 900, mb: 1 }}>
+                      {blog.title}
+                    </Typography>
+                    <Typography sx={{ color: "rgba(248,250,252,0.72)", lineHeight: 1.65, mb: 2 }}>
+                      {blog.excerpt}
+                    </Typography>
+                  </Box>
                   <Button
                     endIcon={<ArrowForwardIcon />}
                     onClick={() => navigate(`/blogs/${blog.slug}`)}
-                    sx={{ color: "#D4AF37", fontWeight: 900, textTransform: "none", px: 0 }}
+                    sx={{ color: "#D4AF37", fontWeight: 900, textTransform: "none", px: 0, mt: "auto", width: "fit-content" }}
                   >
                     Read More
                   </Button>

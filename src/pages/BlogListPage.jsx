@@ -37,7 +37,7 @@ const BlogListPage = () => {
   useSeo({
     title: "Furniture, Wooden Door & Interior Blogs in Charkhi Dadri",
     description:
-      "Read Vishwakarma Build & Furnish CKD blogs for all services including images, latest designs, material guidance, custom furniture, interiors and construction work in Charkhi Dadri, Haryana.",
+      "Read Vishwakarma Build & Furnish blogs for all services including images, latest designs, material guidance, custom furniture, interiors and construction work in Charkhi Dadri, Haryana.",
     path: "/blogs",
     keywords: seoKeywords,
     structuredData: {
@@ -84,7 +84,7 @@ const BlogListPage = () => {
             Vishwakarma Build & Furnish Blog
           </Typography>
           <Typography sx={{ maxWidth: 820, mx: "auto", color: "rgba(248,250,252,0.75)", lineHeight: 1.8, fontSize: { xs: "0.95rem", sm: "1rem" } }}>
-            Images, latest designs, material guidance, price ideas, and custom work tips for every Vishwakarma Build & Furnish CKD service in Charkhi Dadri, Haryana.
+            Images, latest designs, material guidance, price ideas, and custom work tips for every Vishwakarma Build & Furnish service in Charkhi Dadri, Haryana.
           </Typography>
         </Container>
       </Box>
@@ -108,7 +108,10 @@ const BlogListPage = () => {
                     color: "#F8FAFC",
                     border: "1px solid rgba(212,175,55,0.28)",
                     borderRadius: { xs: 2, sm: 3 },
-                    overflow: "hidden"
+                    overflow: "hidden",
+                    display: "flex",
+                    flexDirection: "column",
+                    height: "100%"
                   }}
                 >
                   <Box
@@ -124,16 +127,18 @@ const BlogListPage = () => {
                     }}
                   />
                   {!image && <Box sx={{ height: { xs: 190, sm: 220, md: 240 }, background: "linear-gradient(135deg, #111827, #1A1A1A)" }} />}
-                  <Box sx={{ p: { xs: 2, sm: 2.5, md: 3 } }}>
-                    <Chip label={blog.category || "Guide"} size="small" sx={{ bgcolor: "#D4AF37", color: "#111827", fontWeight: 900, mb: 1.5 }} />
-                    <Typography sx={{ fontSize: { xs: "1.12rem", md: "1.3rem" }, lineHeight: 1.25, fontWeight: 900, mb: 1, overflowWrap: "anywhere" }}>{blog.title}</Typography>
-                    <Typography sx={{ color: "rgba(248,250,252,0.72)", lineHeight: 1.65, mb: 2, fontSize: { xs: "0.92rem", md: "1rem" } }}>{blog.excerpt}</Typography>
+                  <Box sx={{ p: { xs: 2, sm: 2.5, md: 3 }, display: "flex", flexDirection: "column", flexGrow: 1 }}>
+                    <Box>
+                      <Chip label={blog.category || "Guide"} size="small" sx={{ bgcolor: "#D4AF37", color: "#111827", fontWeight: 900, mb: 1.5 }} />
+                      <Typography sx={{ fontSize: { xs: "1.12rem", md: "1.3rem" }, lineHeight: 1.25, fontWeight: 900, mb: 1, overflowWrap: "anywhere" }}>{blog.title}</Typography>
+                      <Typography sx={{ color: "rgba(248,250,252,0.72)", lineHeight: 1.65, mb: 2, fontSize: { xs: "0.92rem", md: "1rem" } }}>{blog.excerpt}</Typography>
+                    </Box>
                     <Button
                       fullWidth
                       variant="contained"
                       endIcon={<ArrowForwardIcon />}
                       onClick={() => navigate(`/blogs/${blog.slug}`)}
-                      sx={{ bgcolor: "#D4AF37", color: "#111827", fontWeight: 900, textTransform: "none", "&:hover": { bgcolor: "#B88917" } }}
+                      sx={{ bgcolor: "#D4AF37", color: "#111827", fontWeight: 900, textTransform: "none", "&:hover": { bgcolor: "#B88917" }, mt: "auto" }}
                     >
                       Read Article
                     </Button>

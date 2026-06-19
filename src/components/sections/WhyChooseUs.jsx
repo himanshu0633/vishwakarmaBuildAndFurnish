@@ -41,6 +41,21 @@ const features = [
     icon: "💰",
     title: "Affordable Pricing",
     desc: "Premium services at competitive pricing with complete transparency and customer satisfaction."
+  },
+  {
+    icon: "📝",
+    title: "Written Agreement",
+    desc: "Everything we promise is provided in writing. We offer a formal agreement signed according to terms and conditions."
+  },
+  {
+    icon: "🛡️",
+    title: "No Hidden Charges",
+    desc: "Complete budget transparency. What we quote is what you pay—absolutely zero surprise fees or hidden costs."
+  },
+  {
+    icon: "🛠️",
+    title: "After-Sales Service",
+    desc: "Our support continues even after handover. We provide reliable after-sales maintenance and service."
   }
 ];
 
@@ -94,22 +109,15 @@ const WhyChooseUs = () => {
           <Box
             sx={{
               display: "grid",
-              gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(6, 1fr)" },
+              gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(4, 1fr)" },
               gap: 3
             }}
           >
-            {features.map((feature, index) => (
+            {features.map((feature) => (
               <Box
                 key={feature.title}
                 component={motion.div}
                 variants={fadeInUp}
-                sx={{
-                  gridColumn: {
-                    xs: "auto",
-                    sm: index === 4 ? "1 / -1" : "auto",
-                    md: index < 3 ? "span 2" : index === 3 ? "2 / span 2" : "4 / span 2"
-                  }
-                }}
               >
                 <Paper
                   elevation={0}

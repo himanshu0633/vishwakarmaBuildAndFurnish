@@ -249,7 +249,7 @@ const HeroBanner = () => {
               textShadow: "0 12px 34px rgba(0,0,0,0.48)"
             }}
           >
-            VISHWAKARMA BUILD & FURNISH CKD
+            Vishwakarma Build & Furnish
           </MotionTypography>
 
           <MotionTypography

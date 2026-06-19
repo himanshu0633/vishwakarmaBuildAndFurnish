@@ -148,14 +148,16 @@ const TestimonialsSection = () => {
                     elevation={0}
                     sx={{
                       height: "100%",
-                      minHeight: { xs: 300, md: 320 },
-                      p: { xs: 2.5, md: 3 },
+                      minHeight: { xs: 200, md: 230 },
+                      p: { xs: 2.2, md: 2.6 },
                       borderRadius: 2,
                       bgcolor: index === 0 ? "rgba(212,175,55,0.12)" : "rgba(248,250,252,0.055)",
                       color: "#F8FAFC",
                       border: index === 0 ? "1px solid rgba(212,175,55,0.58)" : "1px solid rgba(212,175,55,0.22)",
                       position: "relative",
                       overflow: "hidden",
+                      display: "flex",
+                      flexDirection: "column",
                       transition: "transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease",
                       "&:hover": {
                         transform: "translateY(-6px)",
@@ -167,18 +169,19 @@ const TestimonialsSection = () => {
                     <FormatQuoteIcon
                       sx={{
                         position: "absolute",
-                        top: 18,
-                        right: 18,
-                        color: "rgba(212,175,55,0.2)",
-                        fontSize: { xs: 44, md: 56 },
+                        top: 14,
+                        right: 14,
+                        color: "rgba(212,175,55,0.15)",
+                        fontSize: { xs: 38, md: 46 },
                         transform: "rotate(180deg)"
                       }}
                     />
 
-                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", gap: 2, mb: 2.5 }}>
+                    <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 2, mb: 1.8 }}>
                       <Chip
                         icon={<HomeRepairServiceIcon />}
                         label={testimonial.service}
+                        size="small"
                         sx={{
                           bgcolor: "rgba(15,23,42,0.64)",
                           color: "#F8FAFC",
@@ -187,9 +190,9 @@ const TestimonialsSection = () => {
                           "& .MuiChip-icon": { color: "#D4AF37" }
                         }}
                       />
-                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.6, color: "#D4AF37", flexShrink: 0 }}>
-                        <VerifiedIcon sx={{ fontSize: 19 }} />
-                        <Typography sx={{ fontSize: "0.8rem", fontWeight: 800 }}>Verified</Typography>
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, color: "#D4AF37", flexShrink: 0 }}>
+                        <VerifiedIcon sx={{ fontSize: 17 }} />
+                        <Typography sx={{ fontSize: "0.78rem", fontWeight: 800 }}>Verified</Typography>
                       </Box>
                     </Box>
 
@@ -201,7 +204,7 @@ const TestimonialsSection = () => {
                       emptyIcon={<StarBorderIcon fontSize="small" />}
                       sx={{
                         color: "#D4AF37",
-                        mb: 2,
+                        mb: 1.4,
                         "& .MuiRating-iconFilled": { color: "#D4AF37" }
                       }}
                     />
@@ -209,9 +212,9 @@ const TestimonialsSection = () => {
                     <Typography
                       sx={{
                         color: "rgba(248,250,252,0.9)",
-                        fontSize: { xs: "0.98rem", md: "1.04rem" },
-                        lineHeight: 1.75,
-                        mb: 3
+                        fontSize: { xs: "0.94rem", md: "1rem" },
+                        lineHeight: 1.6,
+                        mb: 2.2
                       }}
                     >
                       "{testimonial.text}"
@@ -220,11 +223,11 @@ const TestimonialsSection = () => {
                     <Box
                       sx={{
                         mt: "auto",
-                        pt: 2.5,
+                        pt: 1.8,
                         borderTop: "1px solid rgba(212,175,55,0.18)",
                         display: "flex",
                         alignItems: "center",
-                        gap: 1.8
+                        gap: 1.5
                       }}
                     >
                       <Avatar

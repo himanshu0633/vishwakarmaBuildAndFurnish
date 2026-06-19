@@ -30,12 +30,16 @@ const BlogDetailPage = () => {
   }, [slug]);
 
   const handleWhatsApp = () => {
-    const message = `Hello Vishwakarma Build & Furnish CKD, I read this blog and want consultation: ${blog?.title}`;
+    const message = `Hello Vishwakarma Build & Furnish, I read this blog and want consultation: ${blog?.title}`;
     window.open(`https://wa.me/919416856468?text=${encodeURIComponent(message)}`, "_blank");
   };
 
-  const heroImage = getStaticAssetUrl(blog?.coverImage || blog?.relatedServices?.[0]?.heroImage || blog?.relatedServices?.[0]?.images?.[0] || "");
+  const selectedBlogImages = (blog?.blogImages?.length ? blog.blogImages : [blog?.blogImage]).filter(Boolean).slice(0, 9);
+  const heroImage = getStaticAssetUrl(blog?.coverImage || selectedBlogImages[0] || blog?.relatedServices?.[0]?.heroImage || blog?.relatedServices?.[0]?.images?.[0] || "");
   const primaryService = blog?.relatedServices?.filter(Boolean)?.[0];
+  const blogGalleryImages = selectedBlogImages.length
+    ? selectedBlogImages
+    : [blog?.coverImage || primaryService?.heroImage || primaryService?.images?.[0]].filter(Boolean);
   const serviceSearchTopics = useMemo(() => {
     const serviceName = primaryService?.name || "";
     const topicSource = serviceName || blog?.title || "";
@@ -62,7 +66,7 @@ const BlogDetailPage = () => {
 
   useSeo({
     title: blog?.seoTitle || blog?.title || "Furniture Blog",
-    description: blog?.seoDescription || blog?.excerpt || "Furniture and interior design guide by Vishwakarma Build & Furnish CKD.",
+    description: blog?.seoDescription || blog?.excerpt || "Furniture and interior design guide by Vishwakarma Build & Furnish.",
     path: slug ? `/blogs/${slug}` : "/blogs",
     image: heroImage,
     type: "article",
@@ -79,13 +83,21 @@ const BlogDetailPage = () => {
           mainEntityOfPage: buildPageUrl(`/blogs/${blog.slug}`),
           author: {
             "@type": "Organization",
-            name: "Vishwakarma Build & Furnish CKD"
+            name: "Vishwakarma Build & Furnish"
           },
           publisher: businessStructuredData,
           about: (blog.relatedServices || []).filter(Boolean).map((service) => ({
             "@type": "Service",
             name: service.name,
             url: buildPageUrl(`/services/${service.categoryId?.slug || "furniture"}/${service.slug}`)
+          })),
+          mainEntity: (blog.faq || []).filter((item) => item.question || item.answer).map((item) => ({
+            "@type": "Question",
+            name: item.question,
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: item.answer
+            }
           }))
         }
       : null
@@ -163,6 +175,39 @@ const BlogDetailPage = () => {
         )}
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "minmax(0, 1fr)", md: "minmax(0, 1fr) 340px" }, gap: { xs: 3, md: 4 } }}>
           <Paper elevation={0} sx={{ bgcolor: "#111827", color: "#F8FAFC", border: "1px solid rgba(212,175,55,0.22)", borderRadius: { xs: 2, md: 3 }, p: { xs: 2.2, sm: 3, md: 5 }, minWidth: 0 }}>
+            {!!blogGalleryImages.length && (
+              <Box sx={{ mb: 3.5 }}>
+                <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }, gap: 1.5 }}>
+                  {blogGalleryImages.slice(0, 9).map((image, index) => (
+                    <Box
+                      key={`${image}-${index}`}
+                      component="img"
+                      src={getStaticAssetUrl(image)}
+                      alt={`${blog.title} ${primaryService?.name || ''} ${index + 1}`}
+                      sx={{ width: 1, aspectRatio: "4 / 3", objectFit: "cover", borderRadius: 2, border: "1px solid rgba(212,175,55,0.28)", display: "block" }}
+                    />
+                  ))}
+                </Box>
+              </Box>
+            )}
+            {primaryService && (
+              <Box sx={{ mb: 4, p: { xs: 2.5, md: 3.5 }, bgcolor: "rgba(212,175,55,0.1)", border: "1px solid rgba(212,175,55,0.28)", borderRadius: 2.5, textAlign: "center" }}>
+                <Typography sx={{ color: "#F8FAFC", fontWeight: 900, fontSize: { xs: "1.2rem", md: "1.6rem" }, mb: 1 }}>
+                  Explore {primaryService.name}
+                </Typography>
+                <Typography sx={{ color: "rgba(248,250,252,0.72)", lineHeight: 1.7, mb: 2 }}>
+                  View more to explore this service's designs, images, and complete details.
+                </Typography>
+                <Button
+                  variant="contained"
+                  endIcon={<ArrowForwardIcon />}
+                  onClick={() => navigate(`/services/${primaryService.categoryId?.slug || "furniture"}/${primaryService.slug}`)}
+                  sx={{ bgcolor: "#D4AF37", color: "#111827", fontWeight: 900, textTransform: "none", "&:hover": { bgcolor: "#B88917" } }}
+                >
+                  View More
+                </Button>
+              </Box>
+            )}
             {paragraphs.map((paragraph, index) => (
               <Typography
                 key={`${paragraph}-${index}`}
@@ -179,6 +224,21 @@ const BlogDetailPage = () => {
                 {paragraph}
               </Typography>
             ))}
+            {!!blog.faq?.length && (
+              <Box sx={{ mt: 4 }}>
+                <Typography sx={{ color: "#D4AF37", fontWeight: 900, fontSize: { xs: "1.35rem", md: "1.8rem" }, mb: 2 }}>
+                  Frequently Asked Questions
+                </Typography>
+                <Box sx={{ display: "grid", gap: 1.5 }}>
+                  {blog.faq.filter((item) => item.question || item.answer).map((item, index) => (
+                    <Paper key={`${item.question}-${index}`} elevation={0} sx={{ bgcolor: "#0F172A", color: "#F8FAFC", border: "1px solid rgba(212,175,55,0.18)", borderRadius: 2, p: 2 }}>
+                      <Typography sx={{ color: "#F8FAFC", fontWeight: 900, mb: 0.8 }}>{item.question}</Typography>
+                      <Typography sx={{ color: "rgba(248,250,252,0.74)", lineHeight: 1.75 }}>{item.answer}</Typography>
+                    </Paper>
+                  ))}
+                </Box>
+              </Box>
+            )}
           </Paper>
 
           <Box sx={{ display: "grid", gap: 2, alignSelf: "start" }}>
@@ -231,7 +291,7 @@ const BlogDetailPage = () => {
                     <Button
                       key={service._id}
                       endIcon={<ArrowForwardIcon />}
-                      onClick={() => navigate(`/services/${service.slug}`)}
+                      onClick={() => navigate(`/services/${service.categoryId?.slug || "furniture"}/${service.slug}`)}
                       sx={{
                         justifyContent: "space-between",
                         gap: 1,
