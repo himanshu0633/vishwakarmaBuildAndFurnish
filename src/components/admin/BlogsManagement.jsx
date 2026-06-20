@@ -49,6 +49,10 @@ const emptyForm = {
   category: 'Furniture',
   relatedServices: [],
   faq: '',
+  priceRange: '',
+  benefits: '',
+  process: '',
+  localAreas: '',
   seoTitle: '',
   seoDescription: '',
   tags: '',
@@ -158,6 +162,10 @@ const BlogsManagement = () => {
         category: blog.category || blog.categoryId?.name || 'Furniture',
         relatedServices: (blog.relatedServices || []).map((service) => service?._id || service).filter(Boolean),
         faq: (blog.faq || []).map((item) => `${item.question || ''}|${item.answer || ''}`).join('\n'),
+        priceRange: blog.priceRange || '',
+        benefits: (blog.benefits || []).join(', '),
+        process: (blog.process || []).map((item) => `${item.title || ''}|${item.description || ''}`).join('\n'),
+        localAreas: (blog.localAreas || []).join(', '),
         seoTitle: blog.seoTitle || '',
         seoDescription: blog.seoDescription || '',
         tags: (blog.tags || []).join(', '),
@@ -228,6 +236,10 @@ const BlogsManagement = () => {
         blogImage: blog.blogImage || '',
         blogImages: (blog.blogImages?.length ? blog.blogImages : [blog.blogImage]).filter(Boolean).slice(0, 9),
         faq: (blog.faq || []).map((item) => `${item.question || ''}|${item.answer || ''}`).join('\n'),
+        priceRange: blog.priceRange || '',
+        benefits: blog.benefits || [],
+        process: (blog.process || []).map((item) => `${item.title || ''}|${item.description || ''}`).join('\n'),
+        localAreas: blog.localAreas || [],
         relatedServices: (blog.relatedServices || []).map((service) => service?._id || service).filter(Boolean),
         tags: blog.tags || [],
         [field]: !blog[field]
@@ -490,6 +502,44 @@ const BlogsManagement = () => {
             multiline
             minRows={3}
             placeholder="Leave blank to auto-generate common FAQs"
+            sx={inputSx}
+          />
+          <TextField
+            label="Price Range"
+            value={formData.priceRange}
+            onChange={(event) => setFormData({ ...formData, priceRange: event.target.value })}
+            fullWidth
+            placeholder="Example: Starts from Rs. 1,200/sq ft or Custom quote after measurement"
+            sx={inputSx}
+          />
+          <TextField
+            label="Benefits (comma separated)"
+            value={formData.benefits}
+            onChange={(event) => setFormData({ ...formData, benefits: event.target.value })}
+            fullWidth
+            multiline
+            minRows={2}
+            placeholder="Leave blank to auto-generate benefits"
+            sx={inputSx}
+          />
+          <TextField
+            label="Process (one per line: Step Title|Description)"
+            value={formData.process}
+            onChange={(event) => setFormData({ ...formData, process: event.target.value })}
+            fullWidth
+            multiline
+            minRows={3}
+            placeholder="Leave blank to auto-generate process"
+            sx={inputSx}
+          />
+          <TextField
+            label="Local Areas (comma separated)"
+            value={formData.localAreas}
+            onChange={(event) => setFormData({ ...formData, localAreas: event.target.value })}
+            fullWidth
+            multiline
+            minRows={2}
+            placeholder="Charkhi Dadri, Bhiwani, Mahendragarh, Rewari, Rohtak, Jhajjar, nearby villages"
             sx={inputSx}
           />
           <TextField label="SEO Title" value={formData.seoTitle} onChange={(event) => setFormData({ ...formData, seoTitle: event.target.value })} fullWidth sx={inputSx} />

@@ -72,6 +72,7 @@ const Layout = ({ children }) => {
     { text: 'Services', icon: <ServicesIcon />, path: 'services' },
     { text: 'Service Media', icon: <MediaIcon />, path: 'service-media' },
     { text: 'Blogs', icon: <ArticleIcon />, path: 'blogs' },
+    { text: 'About Page', icon: <BusinessIcon />, path: 'about-page' },
     { text: 'Gallery', icon: <MediaIcon />, path: 'gallery' },
     { text: 'Inquiries', icon: <InquiriesIcon />, path: 'inquiries' },
     { text: 'Marketplace Analytics', icon: <AnalyticsIcon />, path: 'marketplace/analytics' },

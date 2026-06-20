@@ -97,6 +97,14 @@ const CatalogSlugPage = () => {
   const itemName = type === "service" ? item?.name : getCategoryName(item);
   const serviceSeo = type === "service" ? buildServiceSeo(itemName) : null;
   const seoPath = slug ? `/services/${slug}` : "/services";
+  const seoServiceImages = type === "service"
+    ? [
+        item?.heroImage,
+        ...(item?.images || []),
+        ...(item?.beforeImages || []),
+        ...(item?.afterImages || [])
+      ].filter(Boolean).slice(0, 12).map((image) => getStaticAssetUrl(image))
+    : [];
 
   useSeo({
     title:
@@ -125,14 +133,43 @@ const CatalogSlugPage = () => {
       type === "service" && item
         ? {
             "@context": "https://schema.org",
-            "@type": "Service",
-            name: item.name,
-            description: item.seoDescription || getServiceFullDescription(item),
-            image: getStaticAssetUrl(item.heroImage || item.images?.[0] || ""),
-            provider: businessStructuredData,
-            areaServed: businessStructuredData.areaServed,
-            category: getCategoryName(item.categoryId) || "Construction and Interior",
-            url: buildPageUrl(seoPath)
+            "@graph": [
+              {
+                "@type": "Service",
+                "@id": `${buildPageUrl(seoPath)}#service`,
+                name: item.name,
+                description: item.seoDescription || getServiceFullDescription(item),
+                image: seoServiceImages,
+                provider: businessStructuredData,
+                areaServed: businessStructuredData.areaServed,
+                category: getCategoryName(item.categoryId) || "Construction and Interior",
+                url: buildPageUrl(seoPath)
+              },
+              {
+                "@type": "ImageGallery",
+                "@id": `${buildPageUrl(seoPath)}#images`,
+                name: `${item.name} Images`,
+                image: seoServiceImages.map((imageUrl, index) => ({
+                  "@type": "ImageObject",
+                  contentUrl: imageUrl,
+                  url: imageUrl,
+                  name: `${item.name} image ${index + 1}`,
+                  caption: `${item.name} design and work in Charkhi Dadri Haryana`
+                }))
+              },
+              {
+                "@type": "FAQPage",
+                "@id": `${buildPageUrl(seoPath)}#faq`,
+                mainEntity: (item.faq || []).filter((faqItem) => faqItem.question || faqItem.answer).map((faqItem) => ({
+                  "@type": "Question",
+                  name: faqItem.question,
+                  acceptedAnswer: {
+                    "@type": "Answer",
+                    text: faqItem.answer
+                  }
+                }))
+              }
+            ]
           }
         : null
   });

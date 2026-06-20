@@ -153,7 +153,7 @@ const ContactPage = () => {
           {[
             { icon: <PhoneIcon />, title: "Phone", text: `+91 ${phone}`, href: `tel:+91${phone}` },
             { icon: <WhatsAppIcon />, title: "WhatsApp", text: "Chat on WhatsApp", href: `https://wa.me/91${phone}` },
-            { icon: <EmailIcon />, title: "Email", text: "info@vishwakarmabuildfurnish.com", href: "mailto:info@vishwakarmabuildfurnish.com" },
+            { icon: <EmailIcon />, title: "Email", text: "info@vishwakarmabuildandfurnish.in", href: "mailto:info@vishwakarmabuildandfurnish.in" },
             { icon: <LocationOnIcon />, title: "Location", text: "Charkhi Dadri, Haryana", href: "https://www.google.com/maps/search/?api=1&query=Charkhi+Dadri+Haryana" }
           ].map(card => (
             <Paper

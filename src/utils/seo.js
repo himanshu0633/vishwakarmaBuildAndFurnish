@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 
 const SITE_NAME = 'Vishwakarma Build & Furnish ';
 const BUSINESS_NAME = 'Vishwakarma Build & Furnish';
-const DEFAULT_SITE_URL = 'https://vishwakarmabuildfurnish.com';
+const DEFAULT_SITE_URL = 'https://vishwakarmabuildandfurnish.in';
 const DEFAULT_DESCRIPTION =
   'House construction, modular kitchen, wardrobe, doors, windows, plumbing, electrical, paint, tiles, marble and interior work in Charkhi Dadri, Haryana.';
 const DEFAULT_IMAGE = '/favicon.svg';
@@ -137,11 +137,11 @@ export const businessStructuredData = {
   areaServed: [
     'Charkhi Dadri',
     'Bhiwani',
-    'Rohtak',
-    'Kosli',
     'Mahendragarh',
+    'Rewari',
+    'Rohtak',
     'Jhajjar',
-    'Loharu',
+    'Nearby villages',
     'Haryana'
   ],
   address: {
@@ -153,6 +153,40 @@ export const businessStructuredData = {
   telephone: '+91-9416856468',
   url: siteUrl,
   hasMap: 'https://maps.app.goo.gl/V9mPoFxvSJm3hCM69',
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: '4.9',
+    reviewCount: '100',
+    bestRating: '5'
+  },
+  review: [
+    {
+      '@type': 'Review',
+      author: {
+        '@type': 'Person',
+        name: 'Rohit Sharma'
+      },
+      reviewRating: {
+        '@type': 'Rating',
+        ratingValue: '5',
+        bestRating: '5'
+      },
+      reviewBody: 'Professional team and excellent finishing work for modular kitchen and furniture.'
+    },
+    {
+      '@type': 'Review',
+      author: {
+        '@type': 'Person',
+        name: 'Aman Jangra'
+      },
+      reviewRating: {
+        '@type': 'Rating',
+        ratingValue: '5',
+        bestRating: '5'
+      },
+      reviewBody: 'Honest pricing, timely delivery, and reliable construction work in Charkhi Dadri.'
+    }
+  ],
   openingHoursSpecification: [
     {
       '@type': 'OpeningHoursSpecification',

@@ -126,8 +126,8 @@ const Footer = () => {
               <ContactRow icon={<WhatsAppIcon />} href={`https://wa.me/91${phone}`}>
                 Chat on WhatsApp
               </ContactRow>
-              <ContactRow icon={<EmailIcon />} href="mailto:info@vishwakarmabuildfurnish.com">
-                info@vishwakarmabuildfurnish.com
+              <ContactRow icon={<EmailIcon />} href="mailto:info@vishwakarmabuildandfurnish.in">
+                info@vishwakarmabuildandfurnish.in
               </ContactRow>
               <ContactRow icon={<LocationOnIcon />} href={googleMapsLocationUrl}>
                 Vishwakarma Build and Furnish, Charkhi Dadri

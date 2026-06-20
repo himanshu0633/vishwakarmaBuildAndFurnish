@@ -81,6 +81,7 @@ import InquiriesManagement from './components/admin/InquiriesManagement';
 import BlogsManagement from './components/admin/BlogsManagement';
 import GalleryManagement from './components/admin/GalleryManagement';
 import MarketplaceDashboard from './components/admin/MarketplaceDashboard';
+import AboutContentManagement from './components/admin/AboutContentManagement';
 
 import './App.css';
 
@@ -112,6 +113,7 @@ const AdminRouter = () => {
         <Route path="services" element={<ServicesManagement />} />
         <Route path="service-media" element={<ServiceMediaManagement />} />
         <Route path="blogs" element={<BlogsManagement />} />
+        <Route path="about-page" element={<AboutContentManagement />} />
         <Route path="gallery" element={<GalleryManagement />} />
         <Route path="inquiries" element={<InquiriesManagement />} />
         <Route path="marketplace" element={<Navigate to="/admin/marketplace/analytics" replace />} />

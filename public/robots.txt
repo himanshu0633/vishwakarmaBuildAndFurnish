@@ -3,6 +3,8 @@ Allow: /
 
 Disallow: /admin/
 Disallow: /admin/login
+Disallow: /admin/loginhide
 Disallow: /login
+Disallow: /loginuser
 
-Sitemap: https://vishwakarmabuildfurnish.com/sitemap.xml
+Sitemap: https://vishwakarmabuildandfurnish.in/sitemap.xml

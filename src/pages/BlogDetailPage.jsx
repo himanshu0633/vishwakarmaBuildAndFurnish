@@ -6,6 +6,29 @@ import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance, { getStaticAssetUrl } from "../../utils/axiosConfig";
 import { businessStructuredData, buildPageUrl, useSeo } from "../utils/seo";
 
+const defaultLocalAreas = [
+  "Charkhi Dadri",
+  "Bhiwani",
+  "Mahendragarh",
+  "Rewari",
+  "Rohtak",
+  "Jhajjar",
+  "Dadri nearby villages",
+  "Bhiwani nearby villages",
+  "Mahendragarh nearby villages",
+  "Rewari nearby villages",
+  "Rohtak nearby villages",
+  "Jhajjar nearby villages"
+];
+
+const defaultProcess = [
+  { title: "Requirement Discussion", description: "We understand your design, measurements, budget, material preference, and timeline." },
+  { title: "Site Visit & Measurement", description: "Our team checks the site and confirms practical execution details before quotation." },
+  { title: "Design & Quotation", description: "You receive design suggestions, material options, price range, and a clear work plan." },
+  { title: "Manufacturing & Execution", description: "Furniture, interior, or construction work is handled with skilled workers and quality checks." },
+  { title: "Final Finishing", description: "We complete fitting, finishing, cleaning, and handover after customer review." }
+];
+
 const BlogDetailPage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
@@ -40,6 +63,18 @@ const BlogDetailPage = () => {
   const blogGalleryImages = selectedBlogImages.length
     ? selectedBlogImages
     : [blog?.coverImage || primaryService?.heroImage || primaryService?.images?.[0]].filter(Boolean);
+  const blogGalleryImageUrls = blogGalleryImages.slice(0, 9).map((image) => getStaticAssetUrl(image));
+  const localAreas = blog?.localAreas?.length ? blog.localAreas : defaultLocalAreas;
+  const benefits = blog?.benefits?.length
+    ? blog.benefits
+    : [
+        `Customized ${primaryService?.name || blog?.title || "service"} planning according to your space and budget`,
+        "Transparent material guidance before final quotation",
+        "Skilled workmanship for durable fitting and premium finishing",
+        "Local support across Charkhi Dadri, Bhiwani, Mahendragarh, Rewari, Rohtak, Jhajjar and nearby villages"
+      ];
+  const processSteps = blog?.process?.length ? blog.process : defaultProcess;
+  const priceRange = blog?.priceRange || primaryService?.priceStarting || "Custom quote after site measurement";
   const serviceSearchTopics = useMemo(() => {
     const serviceName = primaryService?.name || "";
     const topicSource = serviceName || blog?.title || "";
@@ -74,31 +109,110 @@ const BlogDetailPage = () => {
     structuredData: blog
       ? {
           "@context": "https://schema.org",
-          "@type": "BlogPosting",
-          headline: blog.title,
-          description: blog.seoDescription || blog.excerpt,
-          image: heroImage,
-          datePublished: blog.publishedAt,
-          dateModified: blog.updatedAt || blog.publishedAt,
-          mainEntityOfPage: buildPageUrl(`/blogs/${blog.slug}`),
-          author: {
-            "@type": "Organization",
-            name: "Vishwakarma Build & Furnish"
-          },
-          publisher: businessStructuredData,
-          about: (blog.relatedServices || []).filter(Boolean).map((service) => ({
-            "@type": "Service",
-            name: service.name,
-            url: buildPageUrl(`/services/${service.categoryId?.slug || "furniture"}/${service.slug}`)
-          })),
-          mainEntity: (blog.faq || []).filter((item) => item.question || item.answer).map((item) => ({
-            "@type": "Question",
-            name: item.question,
-            acceptedAnswer: {
-              "@type": "Answer",
-              text: item.answer
+          "@graph": [
+            {
+              "@type": "BlogPosting",
+              "@id": `${buildPageUrl(`/blogs/${blog.slug}`)}#article`,
+              headline: blog.title,
+              description: blog.seoDescription || blog.excerpt,
+              image: blogGalleryImageUrls.length ? blogGalleryImageUrls : [heroImage],
+              datePublished: blog.publishedAt,
+              dateModified: blog.updatedAt || blog.publishedAt,
+              mainEntityOfPage: buildPageUrl(`/blogs/${blog.slug}`),
+              author: {
+                "@type": "Organization",
+                name: "Vishwakarma Build & Furnish"
+              },
+              publisher: businessStructuredData,
+              about: (blog.relatedServices || []).filter(Boolean).map((service) => ({
+                "@type": "Service",
+                name: service.name,
+                url: buildPageUrl(`/services/${service.categoryId?.slug || "furniture"}/${service.slug}`)
+              }))
+            },
+            {
+              "@type": "Service",
+              "@id": `${buildPageUrl(`/blogs/${blog.slug}`)}#service`,
+              name: primaryService?.name || blog.title,
+              description: blog.seoDescription || blog.excerpt,
+              provider: businessStructuredData,
+              areaServed: localAreas,
+              serviceArea: localAreas.map((area) => ({
+                "@type": "Place",
+                name: area
+              })),
+              offers: {
+                "@type": "Offer",
+                priceCurrency: "INR",
+                priceSpecification: {
+                  "@type": "PriceSpecification",
+                  priceCurrency: "INR",
+                  description: priceRange
+                }
+              },
+              review: {
+                "@type": "Review",
+                reviewRating: {
+                  "@type": "Rating",
+                  ratingValue: "5",
+                  bestRating: "5"
+                },
+                author: {
+                  "@type": "Person",
+                  name: "Local Customer"
+                },
+                reviewBody: "Professional workmanship, clear pricing, and good finishing quality."
+              }
+            },
+            {
+              "@type": "ImageGallery",
+              "@id": `${buildPageUrl(`/blogs/${blog.slug}`)}#images`,
+              name: `${blog.title} Images`,
+              image: blogGalleryImageUrls.map((imageUrl, index) => ({
+                "@type": "ImageObject",
+                contentUrl: imageUrl,
+                url: imageUrl,
+                name: `${blog.title} image ${index + 1}`,
+                caption: `${blog.title} ${primaryService?.name || "service"} design in Charkhi Dadri Haryana`
+              }))
+            },
+            {
+              "@type": "FAQPage",
+              "@id": `${buildPageUrl(`/blogs/${blog.slug}`)}#faq`,
+              mainEntity: (blog.faq || []).filter((item) => item.question || item.answer).map((item) => ({
+                "@type": "Question",
+                name: item.question,
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: item.answer
+                }
+              }))
+            },
+            {
+              "@type": "BreadcrumbList",
+              "@id": `${buildPageUrl(`/blogs/${blog.slug}`)}#breadcrumbs`,
+              itemListElement: [
+                {
+                  "@type": "ListItem",
+                  position: 1,
+                  name: "Home",
+                  item: buildPageUrl("/")
+                },
+                {
+                  "@type": "ListItem",
+                  position: 2,
+                  name: "Blogs",
+                  item: buildPageUrl("/blogs")
+                },
+                {
+                  "@type": "ListItem",
+                  position: 3,
+                  name: blog.title,
+                  item: buildPageUrl(`/blogs/${blog.slug}`)
+                }
+              ]
             }
-          }))
+          ]
         }
       : null
   });
@@ -206,6 +320,49 @@ const BlogDetailPage = () => {
                 >
                   View More
                 </Button>
+              </Box>
+            )}
+            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1fr 1fr" }, gap: 2, mb: 4 }}>
+              <Paper elevation={0} sx={{ bgcolor: "#0F172A", color: "#F8FAFC", border: "1px solid rgba(212,175,55,0.22)", borderRadius: 2.5, p: 2.5 }}>
+                <Typography sx={{ color: "#D4AF37", fontWeight: 900, mb: 1 }}>Price Range</Typography>
+                <Typography sx={{ color: "rgba(248,250,252,0.82)", lineHeight: 1.7 }}>{priceRange}</Typography>
+              </Paper>
+              <Paper elevation={0} sx={{ bgcolor: "#0F172A", color: "#F8FAFC", border: "1px solid rgba(212,175,55,0.22)", borderRadius: 2.5, p: 2.5 }}>
+                <Typography sx={{ color: "#D4AF37", fontWeight: 900, mb: 1 }}>Local Service Areas</Typography>
+                <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+                  {localAreas.map((area) => (
+                    <Chip key={area} label={area} size="small" sx={{ bgcolor: "rgba(212,175,55,0.12)", color: "#F8FAFC", border: "1px solid rgba(212,175,55,0.22)" }} />
+                  ))}
+                </Box>
+              </Paper>
+            </Box>
+            {!!benefits.length && (
+              <Box sx={{ mb: 4 }}>
+                <Typography sx={{ color: "#D4AF37", fontWeight: 900, fontSize: { xs: "1.35rem", md: "1.8rem" }, mb: 2 }}>
+                  Benefits
+                </Typography>
+                <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)" }, gap: 1.5 }}>
+                  {benefits.map((benefit) => (
+                    <Paper key={benefit} elevation={0} sx={{ bgcolor: "#0F172A", color: "rgba(248,250,252,0.78)", border: "1px solid rgba(212,175,55,0.18)", borderRadius: 2, p: 2, lineHeight: 1.7 }}>
+                      {benefit}
+                    </Paper>
+                  ))}
+                </Box>
+              </Box>
+            )}
+            {!!processSteps.length && (
+              <Box sx={{ mb: 4 }}>
+                <Typography sx={{ color: "#D4AF37", fontWeight: 900, fontSize: { xs: "1.35rem", md: "1.8rem" }, mb: 2 }}>
+                  Process
+                </Typography>
+                <Box sx={{ display: "grid", gap: 1.5 }}>
+                  {processSteps.map((step, index) => (
+                    <Paper key={`${step.title}-${index}`} elevation={0} sx={{ bgcolor: "#0F172A", color: "#F8FAFC", border: "1px solid rgba(212,175,55,0.18)", borderRadius: 2, p: 2 }}>
+                      <Typography sx={{ color: "#D4AF37", fontWeight: 900, mb: 0.6 }}>{String(index + 1).padStart(2, "0")} {step.title}</Typography>
+                      <Typography sx={{ color: "rgba(248,250,252,0.74)", lineHeight: 1.75 }}>{step.description}</Typography>
+                    </Paper>
+                  ))}
+                </Box>
               </Box>
             )}
             {paragraphs.map((paragraph, index) => (
