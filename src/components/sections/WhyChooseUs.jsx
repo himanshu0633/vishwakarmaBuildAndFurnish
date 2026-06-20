@@ -107,10 +107,11 @@ const WhyChooseUs = () => {
             </Typography>
           </Box>
 
+          {/* DESKTOP/TABLET GRID VIEW */}
           <Box
             sx={{
-              display: "grid",
-              gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(4, 1fr)" },
+              display: { xs: "none", md: "grid" },
+              gridTemplateColumns: { sm: "repeat(2, 1fr)", md: "repeat(4, 1fr)" },
               gap: 3
             }}
           >
@@ -168,7 +169,124 @@ const WhyChooseUs = () => {
             ))}
           </Box>
 
-          <Box component={motion.div} variants={fadeInUp} sx={{ textAlign: "center", mt: { xs: 4, md: 5 } }}>
+          {/* MOBILE TIMELINE VIEW */}
+          <Box
+            sx={{
+              display: { xs: "flex", md: "none" },
+              flexDirection: "column",
+              position: "relative",
+              gap: 2.5,
+              pl: 4,
+              py: 1
+            }}
+          >
+            {/* Timeline Vertical Line */}
+            <Box
+              sx={{
+                position: "absolute",
+                left: "12px",
+                top: "16px",
+                bottom: "16px",
+                width: "2px",
+                bgcolor: "rgba(212, 175, 55, 0.28)",
+                zIndex: 0
+              }}
+            />
+
+            {features.map((feature) => (
+              <Box
+                key={feature.title}
+                component={motion.div}
+                variants={fadeInUp}
+                sx={{
+                  position: "relative",
+                  width: "100%"
+                }}
+              >
+                {/* Horizontal Connector Line */}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    left: "-20px",
+                    top: "50%",
+                    width: "20px",
+                    height: "2px",
+                    bgcolor: "rgba(212, 175, 55, 0.28)",
+                    transform: "translateY(-50%)",
+                    zIndex: 0
+                  }}
+                />
+
+                {/* Timeline Dot Node */}
+                <Box
+                  sx={{
+                    position: "absolute",
+                    left: "-25px",
+                    top: "50%",
+                    width: "10px",
+                    height: "10px",
+                    borderRadius: "50%",
+                    bgcolor: "#D4AF37",
+                    border: "2px solid #0F172A",
+                    transform: "translateY(-50%)",
+                    zIndex: 1,
+                    boxShadow: "0 0 8px #D4AF37"
+                  }}
+                />
+
+                {/* Timeline Card */}
+                <Paper
+                  elevation={0}
+                  sx={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 2,
+                    p: 2.25,
+                    borderRadius: 3,
+                    background: "#111827",
+                    border: "1px solid rgba(212,175,55,0.22)",
+                    color: "#F8FAFC"
+                  }}
+                >
+                  <Box
+                    sx={{
+                      width: 50,
+                      height: 50,
+                      borderRadius: "50%",
+                      display: "grid",
+                      placeItems: "center",
+                      bgcolor: "rgba(212,175,55,0.08)",
+                      border: "1px solid rgba(212,175,55,0.45)",
+                      fontSize: "1.5rem",
+                      lineHeight: 1,
+                      flexShrink: 0
+                    }}
+                  >
+                    {feature.icon}
+                  </Box>
+                  <Box sx={{ display: "flex", flexDirection: "column", gap: 0.35 }}>
+                    <Typography sx={{ fontWeight: 900, fontSize: "1.05rem", color: "#F8FAFC", lineHeight: 1.25 }}>
+                      {feature.title}
+                    </Typography>
+                    <Typography sx={{ color: "rgba(248,250,252,0.72)", fontSize: "0.85rem", lineHeight: 1.45 }}>
+                      {feature.desc}
+                    </Typography>
+                  </Box>
+                </Paper>
+              </Box>
+            ))}
+          </Box>
+
+          {/* CALL TO ACTION */}
+          <Box 
+            component={motion.div} 
+            variants={fadeInUp} 
+            sx={{ 
+              textAlign: "center", 
+              mt: { xs: 4, md: 5 },
+              width: "100%"
+            }}
+          >
             <Button
               href={consultationUrl}
               target="_blank"
@@ -181,8 +299,9 @@ const WhyChooseUs = () => {
                 fontWeight: 900,
                 px: 3.5,
                 py: 1.25,
-                borderRadius: 2,
+                borderRadius: 2.5,
                 textTransform: "none",
+                width: { xs: "100%", sm: "auto" },
                 boxShadow: "0 12px 30px rgba(212,175,55,0.24)",
                 "&:hover": {
                   bgcolor: "#B88917",

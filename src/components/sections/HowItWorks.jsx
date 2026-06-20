@@ -6,6 +6,7 @@ import StraightenIcon from "@mui/icons-material/Straighten";
 import DesignServicesIcon from "@mui/icons-material/DesignServices";
 import CarpenterIcon from "@mui/icons-material/Carpenter";
 import TaskAltIcon from "@mui/icons-material/TaskAlt";
+import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import { motion } from "framer-motion";
 
 const fadeInUp = {
@@ -131,10 +132,11 @@ const HowItWorks = () => {
             </Typography>
           </Box>
 
+          {/* DESKTOP/TABLET GRID VIEW */}
           <Box
             sx={{
-              display: "grid",
-              gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(5, 1fr)" },
+              display: { xs: "none", md: "grid" },
+              gridTemplateColumns: { sm: "repeat(2, 1fr)", lg: "repeat(5, 1fr)" },
               gap: 2.5
             }}
           >
@@ -236,11 +238,123 @@ const HowItWorks = () => {
             ))}
           </Box>
 
+          {/* MOBILE TIMELINE VIEW */}
+          <Box
+            sx={{
+              display: { xs: "flex", md: "none" },
+              flexDirection: "column",
+              position: "relative",
+              gap: 4,
+              pl: 0.5,
+              py: 1
+            }}
+          >
+            {/* Timeline Vertical Line */}
+            <Box
+              sx={{
+                position: "absolute",
+                left: "24px",
+                top: "24px",
+                bottom: "24px",
+                width: "2px",
+                bgcolor: "rgba(212, 175, 55, 0.28)",
+                zIndex: 0
+              }}
+            />
+
+            {steps.map((step) => (
+              <Box
+                key={step.step}
+                component={motion.div}
+                variants={fadeInUp}
+                sx={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 2.5,
+                  position: "relative",
+                  zIndex: 1
+                }}
+              >
+                {/* Timeline Icon */}
+                <Box
+                  sx={{
+                    width: 50,
+                    height: 50,
+                    borderRadius: "50%",
+                    display: "grid",
+                    placeItems: "center",
+                    bgcolor: "#111827",
+                    border: "2px solid #D4AF37",
+                    color: "#D4AF37",
+                    flexShrink: 0,
+                    boxShadow: "0 0 12px rgba(212,175,55,0.2)",
+                    "& svg": { fontSize: 24 }
+                  }}
+                >
+                  {step.icon}
+                </Box>
+
+                {/* Timeline Content */}
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "flex-start",
+                    gap: 0.5,
+                    pt: 0.25
+                  }}
+                >
+                  {/* Step Pill */}
+                  <Box
+                    sx={{
+                      bgcolor: "#D4AF37",
+                      color: "#111111",
+                      px: 1.25,
+                      py: 0.35,
+                      borderRadius: "4px",
+                      fontSize: "9px",
+                      fontWeight: 900,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px"
+                    }}
+                  >
+                    STEP {step.step}
+                  </Box>
+
+                  {/* Title */}
+                  <Typography
+                    sx={{
+                      fontWeight: 800,
+                      fontSize: "1.15rem",
+                      color: "#F8FAFC",
+                      lineHeight: 1.2
+                    }}
+                  >
+                    {step.role}
+                  </Typography>
+
+                  {/* Description */}
+                  <Typography
+                    sx={{
+                      color: "rgba(248, 250, 252, 0.72)",
+                      fontSize: "0.9rem",
+                      lineHeight: 1.55
+                    }}
+                  >
+                    {step.desc}
+                  </Typography>
+                </Box>
+              </Box>
+            ))}
+          </Box>
+
+          {/* DESKTOP CALL TO ACTION */}
           <Paper
             component={motion.div}
             variants={fadeInUp}
             elevation={0}
             sx={{
+              display: { xs: "none", md: "block" },
               mt: { xs: 4, md: 5 },
               p: { xs: 3, md: 4 },
               borderRadius: 3,
@@ -285,6 +399,69 @@ const HowItWorks = () => {
             >
               Get Free Consultation
             </Button>
+          </Paper>
+
+          {/* MOBILE CALL TO ACTION */}
+          <Paper
+            component="a"
+            href={consultationUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            elevation={0}
+            sx={{
+              display: { xs: "flex", md: "none" },
+              alignItems: "center",
+              gap: 2,
+              p: 2.25,
+              mt: 4,
+              borderRadius: 3,
+              bgcolor: "#111827",
+              border: "1px solid rgba(212,175,55,0.36)",
+              textDecoration: "none",
+              transition: "border-color 0.28s ease, box-shadow 0.28s ease",
+              "&:hover": {
+                borderColor: "#D4AF37",
+                boxShadow: "0 8px 24px rgba(212,175,55,0.15)"
+              }
+            }}
+          >
+            <Box
+              sx={{
+                width: 48,
+                height: 48,
+                borderRadius: 2,
+                display: "grid",
+                placeItems: "center",
+                bgcolor: "rgba(212,175,55,0.12)",
+                border: "1px solid rgba(212,175,55,0.35)",
+                color: "#D4AF37",
+                flexShrink: 0
+              }}
+            >
+              <CalendarTodayIcon sx={{ fontSize: 22 }} />
+            </Box>
+            <Box sx={{ display: "flex", flexDirection: "column", gap: 0.25 }}>
+              <Typography
+                sx={{
+                  color: "#F8FAFC",
+                  fontSize: "0.92rem",
+                  fontWeight: 600,
+                  lineHeight: 1.2
+                }}
+              >
+                Ready to start your project?
+              </Typography>
+              <Typography
+                sx={{
+                  color: "#D4AF37",
+                  fontSize: "0.92rem",
+                  fontWeight: 900,
+                  lineHeight: 1.2
+                }}
+              >
+                Get a Free Consultation
+              </Typography>
+            </Box>
           </Paper>
         </Box>
       </Container>

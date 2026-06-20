@@ -73,13 +73,17 @@ const BlogSection = () => {
                   border: "1px solid rgba(212,175,55,0.28)",
                   borderRadius: 3,
                   overflow: "hidden",
+                  position: { xs: "sticky", md: "relative" },
+                  top: { xs: "96px", md: "auto" },
+                  zIndex: { xs: index + 1, md: "auto" },
+                  boxShadow: { xs: "0 -8px 24px rgba(0,0,0,0.5)", md: "none" },
                   display: "flex",
                   flexDirection: "column",
                   height: "100%",
                   "&:hover": {
                     borderColor: "#D4AF37",
-                    transform: "translateY(-6px)",
-                    boxShadow: "0 20px 44px rgba(0,0,0,0.34)"
+                    transform: { xs: "none", md: "translateY(-6px)" },
+                    boxShadow: { xs: "0 -8px 24px rgba(0,0,0,0.6)", md: "0 20px 44px rgba(0,0,0,0.34)" }
                   },
                   "&:hover .blog-card-image": {
                     transform: "scale(1.06)"

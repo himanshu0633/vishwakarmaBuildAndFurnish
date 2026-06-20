@@ -150,7 +150,7 @@ const FeaturedServices = () => {
               alignItems: "stretch"
             }}
           >
-            {services.map((service) => {
+            {services.map((service, index) => {
               const heroImage = getHeroImage(service);
               const categoryName = getCategoryName(service.categoryId) || "Service";
               const features = service.features?.length ? service.features.slice(0, 3) : fallbackFeatures;
@@ -165,7 +165,10 @@ const FeaturedServices = () => {
                     minHeight: { xs: 430, md: 460 },
                     borderRadius: 3,
                     overflow: "hidden",
-                    position: "relative",
+                    position: { xs: "sticky", md: "relative" },
+                    top: { xs: "96px", md: "auto" },
+                    zIndex: { xs: index + 1, md: "auto" },
+                    boxShadow: { xs: "0 -8px 24px rgba(0,0,0,0.5)", md: "none" },
                     display: "flex",
                     flexDirection: "column",
                     justifyContent: "flex-end",
@@ -176,9 +179,9 @@ const FeaturedServices = () => {
                     color: "#F8FAFC",
                     transition: "transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease",
                     "&:hover": {
-                      transform: "translateY(-8px)",
+                      transform: { xs: "none", md: "translateY(-8px)" },
                       borderColor: "#D4AF37",
-                      boxShadow: "0 22px 50px rgba(0,0,0,0.36)"
+                      boxShadow: { xs: "0 -8px 24px rgba(0,0,0,0.6)", md: "0 22px 50px rgba(0,0,0,0.36)" }
                     },
                     "&:hover .featured-card-media": {
                       transform: "scale(1.05)"
