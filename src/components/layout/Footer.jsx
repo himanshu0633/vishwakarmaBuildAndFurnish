@@ -83,7 +83,7 @@ const Footer = () => {
               </Box>
             </Box>
             <Typography sx={{ color: "rgba(248,250,252,0.72)", lineHeight: 1.75, mb: 2.5 }}>
-              Premium house construction, custom furniture manufacturing, and modern interior solutions in Charkhi Dadri, Haryana.
+              Premium house construction, custom furniture manufacturing, and modern interior solutions in Charkhi Dadri, Haryana. Serving Charkhi Dadri, Rohtak, Bhiwani, and nearby regions in Haryana.
             </Typography>
             <Stack direction="row" spacing={1.2} flexWrap="wrap">
               <Button href={`tel:+91${phone}`} startIcon={<PhoneIcon />} variant="contained" sx={goldButtonSx}>

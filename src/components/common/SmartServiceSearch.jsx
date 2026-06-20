@@ -4,10 +4,39 @@ import MicIcon from '@mui/icons-material/Mic';
 import MicOffIcon from '@mui/icons-material/MicOff';
 import SearchIcon from '@mui/icons-material/Search';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import DoorSlidingIcon from '@mui/icons-material/DoorSliding';
+import CropOriginalIcon from '@mui/icons-material/CropOriginal';
+import GridOnIcon from '@mui/icons-material/GridOn';
+import LayersIcon from '@mui/icons-material/Layers';
 import { useNavigate } from 'react-router-dom';
 import axiosInstance from '../../../utils/axiosConfig';
 
 const phone = '919416856468';
+
+const defaultSuggestions = [
+  "Wooden Jali Door",
+  "Dressing Mirror",
+  "Tiles / Marble Work",
+  "False Ceiling"
+];
+
+const getSuggestionIcon = (name) => {
+  const lower = name.toLowerCase();
+  if (lower.includes('door') || lower.includes('jali')) {
+    return <DoorSlidingIcon sx={{ color: '#D4AF37', fontSize: 16 }} />;
+  }
+  if (lower.includes('mirror') || lower.includes('dressing')) {
+    return <CropOriginalIcon sx={{ color: '#D4AF37', fontSize: 16 }} />;
+  }
+  if (lower.includes('tile') || lower.includes('marble') || lower.includes('floor')) {
+    return <GridOnIcon sx={{ color: '#D4AF37', fontSize: 16 }} />;
+  }
+  if (lower.includes('ceiling') || lower.includes('false')) {
+    return <LayersIcon sx={{ color: '#D4AF37', fontSize: 16 }} />;
+  }
+  return <SearchIcon sx={{ color: '#D4AF37', fontSize: 16 }} />;
+};
 
 const normalize = (value = '') =>
   value
@@ -608,78 +637,121 @@ const SmartServiceSearch = () => {
 
   return (
     <Box sx={{ width: '100%', maxWidth: 860, mx: 'auto', mb: { xs: 3, md: 4 } }}>
-      <Paper
+      <Box
         component="form"
         onSubmit={(event) => {
           event.preventDefault();
           handleSearch();
         }}
-        elevation={0}
         sx={{
           display: 'flex',
+          flexDirection: { xs: 'column', sm: 'row' },
           alignItems: 'center',
-          gap: { xs: 0.5, sm: 1 },
-          p: { xs: 0.7, sm: 0.9 },
-          borderRadius: 2,
-          bgcolor: 'rgba(248,250,252,0.96)',
-          border: '1px solid rgba(212,175,55,0.42)',
-          boxShadow: '0 18px 44px rgba(0,0,0,0.26)'
+          gap: 2,
+          width: '100%'
         }}
       >
-        <SearchIcon sx={{ color: '#6B7280', ml: { xs: 0.8, sm: 1.2 }, flex: '0 0 auto' }} />
-        <InputBase
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder="Search or speak: wooden door images, latest kitchen design, price, location..."
+        <Paper
+          elevation={0}
           sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: { xs: 0.5, sm: 1 },
+            p: { xs: 0.7, sm: 0.9 },
+            borderRadius: '50px',
+            bgcolor: 'rgba(248,250,252,0.96)',
+            border: '1px solid rgba(212,175,55,0.42)',
+            boxShadow: '0 18px 44px rgba(0,0,0,0.26)',
             flex: 1,
-            color: '#111827',
-            fontWeight: 700,
-            fontSize: { xs: '0.82rem', sm: '0.96rem', md: '1.05rem' },
-            minWidth: 0,
-            '& input::placeholder': {
-              color: '#6B7280',
-              opacity: 1
-            }
+            width: '100%'
           }}
-          inputProps={{ 'aria-label': 'Search services by text or voice' }}
-        />
-        <Tooltip title={recognitionAvailable ? 'Speak your requirement' : 'Voice search not supported'}>
-          <span>
-            <IconButton
-              type="button"
-              onClick={handleVoiceSearch}
-              disabled={!recognitionAvailable}
-              sx={{
-                bgcolor: listening ? '#25D366' : 'rgba(17,24,39,0.08)',
-                color: listening ? '#07130B' : '#111827',
-                '&:hover': { bgcolor: listening ? '#1EBE5D' : 'rgba(212,175,55,0.2)' }
-              }}
-            >
-              {listening ? <MicOffIcon /> : <MicIcon />}
-            </IconButton>
-          </span>
-        </Tooltip>
+        >
+          <SearchIcon sx={{ color: '#6B7280', ml: { xs: 0.8, sm: 1.2 }, flex: '0 0 auto' }} />
+          <InputBase
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder="Search or speak: wooden door images, latest kitchen design, price, location..."
+            sx={{
+              flex: 1,
+              color: '#111827',
+              fontWeight: 700,
+              fontSize: { xs: '0.82rem', sm: '0.96rem', md: '1.05rem' },
+              minWidth: 0,
+              '& input::placeholder': {
+                color: '#6B7280',
+                opacity: 1
+              }
+            }}
+            inputProps={{ 'aria-label': 'Search services by text or voice' }}
+          />
+          <Tooltip title={recognitionAvailable ? 'Speak your requirement' : 'Voice search not supported'}>
+            <span>
+              <IconButton
+                type="button"
+                onClick={handleVoiceSearch}
+                disabled={!recognitionAvailable}
+                sx={{
+                  bgcolor: listening ? '#25D366' : 'rgba(17,24,39,0.08)',
+                  color: listening ? '#07130B' : '#111827',
+                  '&:hover': { bgcolor: listening ? '#1EBE5D' : 'rgba(212,175,55,0.2)' }
+                }}
+              >
+                {listening ? <MicOffIcon /> : <MicIcon />}
+              </IconButton>
+            </span>
+          </Tooltip>
+        </Paper>
         <Button
           type="submit"
           variant="contained"
-          endIcon={<WhatsAppIcon sx={{ display: { xs: 'none', sm: 'inline-flex' } }} />}
           sx={{
             bgcolor: '#D4AF37',
             color: '#111827',
             fontWeight: 900,
             textTransform: 'none',
-            minWidth: { xs: 76, sm: 112 },
-            px: { xs: 1.2, sm: 2.2 },
+            borderRadius: '50px',
+            minWidth: { xs: '100%', sm: 140 },
+            height: { xs: 48, sm: 54 },
+            px: { xs: 2.2, sm: 3.5 },
+            fontSize: '1.05rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 1.5,
+            boxShadow: '0 18px 44px rgba(0,0,0,0.26)',
             '&:hover': { bgcolor: '#B88917' }
           }}
         >
           Search
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              width: 22,
+              height: 22,
+              borderRadius: '50%',
+              bgcolor: '#fff',
+              color: '#111827'
+            }}
+          >
+            <ArrowForwardIcon sx={{ fontSize: 15 }} />
+          </Box>
         </Button>
-      </Paper>
+      </Box>
 
-      <Box sx={{ display: 'flex', gap: 1, mt: 1.3, justifyContent: 'center', flexWrap: 'wrap' }}>
-        {suggestions.map((name) => (
+      <Box
+        sx={{
+          display: 'flex',
+          gap: { xs: 0.8, sm: 1.2 },
+          mt: 2,
+          justifyContent: 'center',
+          flexWrap: { xs: 'wrap', sm: 'nowrap' },
+          width: '100%',
+          px: { xs: 1, md: 0 }
+        }}
+      >
+        {defaultSuggestions.map((name) => (
           <Button
             key={name}
             size="small"
@@ -688,15 +760,24 @@ const SmartServiceSearch = () => {
               setQuery(text);
               handleSearch(text);
             }}
+            startIcon={getSuggestionIcon(name)}
             sx={{
               color: '#F8FAFC',
-              borderColor: 'rgba(212,175,55,0.45)',
-              bgcolor: 'rgba(248,250,252,0.08)',
-              fontWeight: 800,
+              borderColor: 'rgba(212,175,55,0.3)',
+              bgcolor: 'rgba(255,255,255,0.05)',
+              backdropFilter: 'blur(12px)',
+              fontWeight: 700,
               textTransform: 'none',
-              fontSize: { xs: '0.72rem', sm: '0.8rem' },
-              maxWidth: '100%',
-              whiteSpace: 'normal'
+              fontSize: { xs: '0.68rem', sm: '0.74rem', md: '0.8rem' },
+              px: { xs: 1.2, sm: 1.5, md: 1.8 },
+              py: { xs: 0.5, sm: 0.7 },
+              borderRadius: '20px',
+              flexShrink: 0,
+              whiteSpace: 'nowrap',
+              '&:hover': {
+                bgcolor: 'rgba(212,175,55,0.15)',
+                borderColor: '#D4AF37'
+              }
             }}
             variant="outlined"
           >

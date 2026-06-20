@@ -17,7 +17,7 @@
 html {
   scroll-behavior: smooth;
   background: #111111;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 body {
@@ -27,7 +27,7 @@ body {
   font-family: "Poppins", Arial, sans-serif;
   color: #F5F5F5;
   background: #111111;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 
 img,

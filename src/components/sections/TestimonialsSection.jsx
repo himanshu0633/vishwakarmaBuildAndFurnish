@@ -96,8 +96,7 @@ const TestimonialsSection = () => {
                     lineHeight: 1.75
                   }}
                 >
-                  Construction, renovation, modular kitchen, and furnishing services in Charkhi Dadri and nearby Haryana areas.
-                  wardrobe aur interior finishing ke real project experiences.
+                  Real project experiences from our trusted home construction and interior design clients.
                 </Typography>
               </Box>
             </Grid>
@@ -277,7 +276,7 @@ const TestimonialsSection = () => {
             >
               <StarIcon sx={{ color: "#D4AF37", fontSize: 21 }} />
               <Typography sx={{ fontWeight: 800, fontSize: { xs: "0.86rem", sm: "0.95rem" } }}>
-                Quality material, clear estimate aur stage-wise work updates.
+                Quality materials, clear estimates, and stage-wise work updates.
               </Typography>
             </Paper>
           </Box>

@@ -4,6 +4,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import ShareIcon from "@mui/icons-material/Share";
 import { useNavigate, useParams } from "react-router-dom";
+import { useQuoteModal } from "../contexts/QuoteModalContext";
 import axiosInstance, { getStaticAssetUrl, logStaticAssetUrl } from "../../utils/axiosConfig";
 import {
   getCategoryEmoji,
@@ -11,11 +12,12 @@ import {
   getServiceDescription,
   getServiceFullDescription
 } from "../utils/catalogSchema";
-import { buildPageUrl, buildServiceSeo, businessStructuredData, useSeo } from "../utils/seo";
+import { buildPageUrl, buildServiceSeo, businessStructuredData, useSeo, getImageAlt } from "../utils/seo";
 
 const CatalogSlugPage = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
+  const { openQuote } = useQuoteModal();
   const [type, setType] = useState("");
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -250,9 +252,7 @@ const CatalogSlugPage = () => {
             <Box sx={{ display: "flex", gap: 1.5, flexWrap: "wrap" }}>
               <Button
                 variant="contained"
-                href={`https://wa.me/919416856468?text=${encodeURIComponent(`Hello Vishwakarma Build & Furnish, I want a quote for ${item.name}.`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
+                onClick={() => openQuote(item.name)}
                 sx={{ bgcolor: "#D4AF37", color: "#111111", fontWeight: 900, textTransform: "none", "&:hover": { bgcolor: "#B88917" } }}
               >
                 Get Quote
@@ -319,7 +319,7 @@ const CatalogSlugPage = () => {
                                     className="gallery-image"
                                     component="img"
                                     src={src}
-                                    alt={`${item.name} ${group.title} design and work in Charkhi Dadri Haryana`}
+                                    alt={getImageAlt(item.name, `${item.name} ${group.title} design and work in Charkhi Dadri Haryana`)}
                                     onClick={() => setSelectedMedia({ src, title: group.title })}
                                     sx={{
                                       width: "100%",
@@ -535,7 +535,7 @@ const CatalogSlugPage = () => {
               <Box
                 component="img"
                 src={selectedMedia?.src || ""}
-                alt={`${item.name} ${selectedMedia?.title || "work"} preview in Charkhi Dadri Haryana`}
+                alt={getImageAlt(item.name, `${item.name} ${selectedMedia?.title || "work"} preview in Charkhi Dadri Haryana`)}
                 sx={{
                   width: "100%",
                   maxHeight: "78vh",

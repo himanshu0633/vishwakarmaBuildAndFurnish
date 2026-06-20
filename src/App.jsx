@@ -3,6 +3,8 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { CircularProgress, Box } from '@mui/material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { QuoteModalProvider } from './contexts/QuoteModalContext';
+import QuoteModal from './components/common/QuoteModal';
 
 const theme = createTheme({
   typography: {
@@ -153,7 +155,8 @@ function App() {
     <ThemeProvider theme={theme}>
       <Router>
         <AuthProvider>
-          <ScrollToTop />
+          <QuoteModalProvider>
+            <ScrollToTop />
         <Routes>
 
           {/* Login Pages - No Header/Footer */}
@@ -207,13 +210,15 @@ function App() {
 
                 <Footer />
                 <FloatingWhatsAppButton />
+                <QuoteModal />
               </Box>
             }
           />
 
         </Routes>
-      </AuthProvider>
-    </Router>
+          </QuoteModalProvider>
+        </AuthProvider>
+      </Router>
     </ThemeProvider>
   );
 }

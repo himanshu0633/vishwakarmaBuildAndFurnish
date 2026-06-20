@@ -20,9 +20,9 @@ const HomePage = () => {
   const [selectedService, setSelectedService] = useState(null);
 
   useSeo({
-    title: "Construction & Interior Services in Charkhi Dadri",
+    title: "Best House Construction & Interior Designers in Charkhi Dadri | Vishwakarma Build & Furnish",
     description:
-      "Vishwakarma Build & Furnish offers construction, modular kitchen, plywood door, wooden door, furniture, paint, tiles and marble work in Charkhi Dadri.",
+      "Looking for the best construction contractor or interior designer in Charkhi Dadri? Vishwakarma Build & Furnish offers premium house construction, modular kitchens, wooden doors, and custom furniture at affordable prices. Get a free consultation today!",
     path: "/",
     keywords: [
       "construction company in Charkhi Dadri",
@@ -40,7 +40,7 @@ const HomePage = () => {
   };
 
   return (
-    <Box sx={{ overflowX: "hidden", bgcolor: colors.charcoal }}>
+    <Box sx={{ overflowX: "clip", bgcolor: colors.charcoal }}>
      
       <HeroBanner />
 

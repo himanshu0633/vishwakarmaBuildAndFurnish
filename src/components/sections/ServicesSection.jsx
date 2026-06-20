@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQuoteModal } from "../../contexts/QuoteModalContext";
 
 import {
   Box,
@@ -58,6 +59,7 @@ const ServicesSection = () => {
 
   const theme = useTheme();
   const navigate = useNavigate();
+  const { openQuote } = useQuoteModal();
   const fullScreen =
     useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -391,47 +393,41 @@ Phone: ${formData.phone}`;
 
           <Box
             sx={{
-              display: { xs: "grid", sm: "flex" },
-              gridTemplateColumns: { xs: "repeat(3, minmax(0, 1fr))", sm: "unset" },
-              justifyContent: { sm: "center" },
-              gap: { xs: 0.85, sm: 1 },
-              overflowX: { xs: "visible", sm: "auto" },
-              mb: { xs: 3.25, md: 4 },
-              pb: { xs: 0, sm: 1 },
-              px: { xs: 0, md: 0 },
-              scrollSnapType: { xs: "none", sm: "x mandatory" },
-              "&::-webkit-scrollbar": {
-                height: "6px"
-              },
-              "&::-webkit-scrollbar-track": {
-                backgroundColor: "rgba(245,245,245,0.1)",
-                borderRadius: "10px"
-              },
-              "&::-webkit-scrollbar-thumb": {
-                backgroundColor: "#D4AF37",
-                borderRadius: "10px"
-              }
+              display: "flex",
+              flexDirection: { xs: "row-reverse", sm: "column" },
+              gap: { xs: 2, sm: 4 },
+              alignItems: "flex-start",
+              width: "100%",
+              position: "relative"
             }}
           >
-
-            {serviceCategories.map(
-              (cat, i) => (
-
+            {/* CATEGORY BUTTONS WITH ICONS */}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: { xs: "column", sm: "row" },
+                justifyContent: { sm: "center" },
+                gap: { xs: 1.5, sm: 1 },
+                width: { xs: "84px", sm: "100%" },
+                position: { xs: "sticky", sm: "static" },
+                top: { xs: "calc(50vh - 126px)", sm: "auto" },
+                zIndex: 5,
+                flexShrink: 0,
+                mb: { xs: 0, md: 4 },
+                pb: { xs: 0, sm: 1 },
+                px: { xs: 0, md: 0 }
+              }}
+            >
+              {serviceCategories.map((cat, i) => (
                 <Button
                   key={cat._id}
-
                   onClick={() => {
-
                     setSelectedCategory(i);
-
                     setVisibleServices(6);
-
                   }}
-
                   sx={{
-
                     borderRadius: { xs: "14px", sm: "30px" },
-                    px: { xs: 0.75, sm: 2 },
+                    px: { xs: 0.5, sm: 2 },
                     py: { xs: 1, sm: 1 },
                     minWidth: { xs: 0, sm: 150, md: "auto" },
                     minHeight: { xs: 76, sm: 0 },
@@ -450,27 +446,19 @@ Phone: ${formData.phone}`;
                     boxShadow: selectedCategory === i
                       ? "0 10px 24px rgba(212,175,55,0.22)"
                       : "none",
-
-                    background:
-
-                      selectedCategory === i
-                        ? "linear-gradient(135deg,#D4AF37,#B88917)"
-                        : "rgba(245,245,245,0.1)",
-
+                    background: selectedCategory === i
+                      ? "linear-gradient(135deg,#D4AF37,#B88917)"
+                      : "rgba(245,245,245,0.1)",
                     color: selectedCategory === i ? "#111827" : "#F5F5F5",
                     fontWeight: 800,
-                    
                     "&:hover": {
                       background: selectedCategory === i
                         ? "linear-gradient(135deg,#D4AF37,#B88917)"
                         : "rgba(245,245,245,0.2)",
                       borderColor: "#D4AF37"
                     }
-
                   }}
-
                 >
-
                   <Box
                     component="span"
                     sx={{
@@ -481,192 +469,181 @@ Phone: ${formData.phone}`;
                   >
                     {getCategoryEmoji(cat)}
                   </Box>
-
                   <Box
                     component="span"
                     sx={{
                       display: "block",
                       maxWidth: "100%",
-                      fontSize: { xs: "0.74rem", sm: "0.875rem" },
+                      fontSize: { xs: "0.68rem", sm: "0.875rem" },
+                      textAlign: "center",
+                      lineHeight: 1.1,
                       overflowWrap: "anywhere"
                     }}
                   >
                     {fullScreen ? getCompactCategoryName(cat) : getCategoryName(cat)}
                   </Box>
-
                 </Button>
-
               ))}
+            </Box>
 
-          </Box>
+            {/* SERVICES GRID WITH SERVICE ICONS */}
+            <Box
+              sx={{
+                display: "grid",
+                gridTemplateColumns: {
+                  xs: "1fr",
+                  sm: "1fr 1fr",
+                  md: "1fr 1fr 1fr 1fr"
+                },
+                gap: 3,
+                alignItems: "stretch",
+                gridAutoRows: "1fr",
+                flex: 1,
+                width: "100%"
+              }}
+            >
+              {displayedServices.map(service => {
+                const serviceImages =
+                  getServiceImages(service);
 
-          {/* SERVICES GRID WITH SERVICE ICONS */}
+                const activeImage =
+                  serviceImages.length > 0
+                    ? logStaticAssetUrl(
+                        `services-card:${service.name}`,
+                        serviceImages[
+                          sliderTick %
+                          serviceImages.length
+                        ]
+                      )
+                    : "";
 
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: {
-
-                xs: "1fr",
-
-                sm: "1fr 1fr",
-
-                md: "1fr 1fr 1fr 1fr"
-
-              },
-
-              gap: 3,
-              alignItems: "stretch",
-              gridAutoRows: "1fr"
-
-            }}
-          >
-
-            {displayedServices.map(service => {
-              const serviceImages =
-                getServiceImages(service);
-
-              const activeImage =
-                serviceImages.length > 0
-                  ? logStaticAssetUrl(
-                      `services-card:${service.name}`,
-                      serviceImages[
-                        sliderTick %
-                        serviceImages.length
-                      ]
-                    )
-                  : "";
-
-              return (
-
-              <motion.div
-                key={service._id}
-                variants={fadeInUp}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                style={{ height: "100%" }}
-              >
-
-                <Paper
-                  onClick={() =>
-                    handleServiceClick(service)
-                  }
-
-                  sx={{
-
-                    p: 3,
-                    px: { xs: 2.25, md: 3 },
-
-                    cursor: "pointer",
-
-                    borderRadius: { xs: "14px", md: "20px" },
-
-                    background: activeImage
-                      ? `linear-gradient(180deg, rgba(17,17,17,0.55), rgba(15,23,42,0.9)), url("${activeImage}") center/cover no-repeat`
-                      : "rgba(245,245,245,0.05)",
-
-                    color: "#F5F5F5",
-
-                    transition: "all 0.3s ease",
-                    minHeight: { xs: 220, md: 240 },
-                    height: "100%",
-                    display: "flex",
-                    flexDirection: "column",
-                    justifyContent: "space-between",
-                    gap: 1,
-                    overflow: "hidden",
-                    position: "relative",
-                    border: activeImage
-                      ? "1px solid rgba(212,175,55,0.24)"
-                      : "1px solid transparent",
-
-                    "&:hover": {
-
-                      border:
-                        "1px solid #D4AF37",
-                      transform: "translateY(-5px)",
-                      background: "rgba(245,245,245,0.1)"
-
-                    }
-
-                  }}
-                >
-                  <Box>
-
-                  {/* Service Icon */}
-                  <Box
-                    sx={{
-                      fontSize: "2.5rem",
-                      mb: 1.5,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center"
-                    }}
+                return (
+                  <motion.div
+                    key={service._id}
+                    variants={fadeInUp}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    style={{ height: "100%" }}
                   >
-                    {service.emoji || "🔧"}
-                  </Box>
-
-                  <Typography
-                    fontWeight="bold"
-                    variant="h6"
-                    textAlign="center"
-                    mb={1}
-                  >
-
-                    {service.name}
-
-                  </Typography>
-
-                  <Typography
-                    fontSize="13px"
-                    textAlign="center"
-                    color="rgba(245,245,245,0.7)"
-                    sx={{ lineHeight: 1.6, overflowWrap: "anywhere" }}
-                  >
-
-                    {getServiceDescription(service)}
-
-                  </Typography>
-                  </Box>
-
-                  <Box>
-                  {service.priceStarting && (
-                    <Typography
-                      fontSize="12px"
-                      textAlign="center"
-                      color="#D4AF37"
-                      fontWeight="bold"
-                      mt={1}
-                    >
-                      {service.priceStarting}
-                    </Typography>
-                  )}
-
-                  {(service.popular || service.featured) && (
-                    <Chip
-                      label={service.featured ? "Featured" : "Popular"}
-                      size="small"
+                    <Paper
+                      onClick={() =>
+                        handleServiceClick(service)
+                      }
                       sx={{
-                        mt: 1.5,
-                        bgcolor: "#D4AF37",
+                        p: 3,
+                        px: { xs: 2.25, md: 3 },
+                        cursor: "pointer",
+                        borderRadius: { xs: "14px", md: "20px" },
+                        background: activeImage
+                          ? `linear-gradient(180deg, rgba(17,17,17,0.55), rgba(15,23,42,0.9)), url("${activeImage}") center/cover no-repeat`
+                          : "rgba(245,245,245,0.05)",
                         color: "#F5F5F5",
-                        fontSize: "10px",
-                        display: "block",
-                        mx: "auto",
-                        width: "fit-content"
+                        transition: "all 0.3s ease",
+                        minHeight: { xs: 220, md: 240 },
+                        height: "100%",
+                        display: "flex",
+                        flexDirection: "column",
+                        justifyContent: "space-between",
+                        gap: 1,
+                        overflow: "hidden",
+                        position: "relative",
+                        border: activeImage
+                          ? "1px solid rgba(212,175,55,0.24)"
+                          : "1px solid transparent",
+                        "&:hover": {
+                          border:
+                            "1px solid #D4AF37",
+                          transform: "translateY(-5px)",
+                          background: "rgba(245,245,245,0.1)"
+                        }
                       }}
-                    />
-                  )}
-                  </Box>
-
-                </Paper>
-
-              </motion.div>
-
-              );
-            })}
-
+                    >
+                      <Box>
+                        {/* Service Icon */}
+                        <Box
+                          sx={{
+                            fontSize: "2.5rem",
+                            mb: 1.5,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center"
+                          }}
+                        >
+                          {service.emoji || "🔧"}
+                        </Box>
+                        <Typography
+                          fontWeight="bold"
+                          variant="h6"
+                          textAlign="center"
+                          mb={1}
+                        >
+                          {service.name}
+                        </Typography>
+                        <Typography
+                          fontSize="13px"
+                          textAlign="center"
+                          color="rgba(245,245,245,0.7)"
+                          sx={{ lineHeight: 1.6, overflowWrap: "anywhere" }}
+                        >
+                          {getServiceDescription(service)}
+                        </Typography>
+                      </Box>
+                      <Box>
+                        {service.priceStarting && (
+                          <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, mt: 1 }}>
+                            <Typography
+                              fontSize="12px"
+                              textAlign="center"
+                              color="#D4AF37"
+                              fontWeight="bold"
+                            >
+                              {service.priceStarting}
+                            </Typography>
+                            <Button
+                              size="small"
+                              variant="contained"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                openQuote(service.name);
+                              }}
+                              sx={{
+                                bgcolor: "#D4AF37",
+                                color: "#111111",
+                                fontWeight: 900,
+                                fontSize: "10px",
+                                py: 0.25,
+                                px: 1.25,
+                                borderRadius: 1.5,
+                                textTransform: "none",
+                                "&:hover": { bgcolor: "#B88917" }
+                              }}
+                            >
+                              Enquire Now
+                            </Button>
+                          </Box>
+                        )}
+                        {(service.popular || service.featured) && (
+                          <Chip
+                            label={service.featured ? "Featured" : "Popular"}
+                            size="small"
+                            sx={{
+                              mt: 1.5,
+                              bgcolor: "#D4AF37",
+                              color: "#F5F5F5",
+                              fontSize: "10px",
+                              display: "block",
+                              mx: "auto",
+                              width: "fit-content"
+                            }}
+                          />
+                        )}
+                      </Box>
+                    </Paper>
+                  </motion.div>
+                );
+              })}
+            </Box>
           </Box>
 
           {/* LOAD MORE */}

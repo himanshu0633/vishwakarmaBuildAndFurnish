@@ -4,6 +4,9 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { getImageAlt } from "../../utils/seo";
+import { useQuoteModal } from "../../contexts/QuoteModalContext";
+import CreateIcon from "@mui/icons-material/Create";
 import axiosInstance, { getStaticAssetUrl } from "../../../utils/axiosConfig";
 import {
   getCategoryName,
@@ -57,6 +60,7 @@ const sortFeaturedServices = (list = []) =>
 
 const FeaturedServices = () => {
   const navigate = useNavigate();
+  const { openQuote } = useQuoteModal();
   const [services, setServices] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -89,9 +93,8 @@ const FeaturedServices = () => {
     return image ? getStaticAssetUrl(image) : "";
   };
 
-  const handleQuote = (service) => {
-    const message = `Hello Vishwakarma Build & Furnish, I want a quote for ${service.name}.`;
-    window.open(`https://wa.me/919416856468?text=${encodeURIComponent(message)}`, "_blank");
+  const handleDetailsClick = (service) => {
+    navigate(`/services/${service.slug}`);
   };
 
   if (loading) {
@@ -124,7 +127,7 @@ const FeaturedServices = () => {
                 mb: 1.5
               }}
             >
-              Featured Services
+              Our Premium Construction, Interior & Furniture Solutions
             </Typography>
             <Typography
               sx={{
@@ -184,11 +187,16 @@ const FeaturedServices = () => {
                 >
                   {heroImage && (
                     <Box
+                      component="img"
+                      src={heroImage}
+                      alt={getImageAlt(service.name, `${service.name} by Vishwakarma Build & Furnish`)}
                       className="featured-card-media"
                       sx={{
                         position: "absolute",
                         inset: 0,
-                        background: `url("${heroImage}") center/cover no-repeat`,
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
                         transform: "scale(1)",
                         transition: "transform 0.42s ease",
                         zIndex: 0
@@ -250,8 +258,8 @@ const FeaturedServices = () => {
                       </Button>
                       <Button
                         variant="outlined"
-                        startIcon={<WhatsAppIcon />}
-                        onClick={() => handleQuote(service)}
+                        startIcon={<CreateIcon />}
+                        onClick={() => openQuote(service.name)}
                         sx={{
                           color: "#F8FAFC",
                           borderColor: "rgba(212,175,55,0.62)",

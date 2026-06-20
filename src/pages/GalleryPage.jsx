@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Box, Chip, CircularProgress, Container, Paper, Typography } from "@mui/material";
 import CollectionsIcon from "@mui/icons-material/Collections";
 import axiosInstance, { getStaticAssetUrl } from "../../utils/axiosConfig";
-import { businessStructuredData, buildPageUrl, useSeo } from "../utils/seo";
+import { businessStructuredData, buildPageUrl, useSeo, getImageAlt } from "../utils/seo";
 
 const GalleryPage = () => {
   const [items, setItems] = useState([]);
@@ -59,8 +59,9 @@ const GalleryPage = () => {
   const getGalleryAlt = (item) => {
     const serviceName = item.title || item.category || "construction and interior work";
     const category = item.category ? `${item.category} ` : "";
+    const defaultAlt = `${category}${serviceName} by Vishwakarma Build & Furnish in Charkhi Dadri Haryana`;
 
-    return `${category}${serviceName} by Vishwakarma Build & Furnish in Charkhi Dadri Haryana`;
+    return getImageAlt(item.title || item.category, defaultAlt);
   };
 
   return (

@@ -82,7 +82,8 @@ const WhyChooseUs = () => {
         >
           <Box component={motion.div} variants={fadeInUp} sx={{ textAlign: "center", mb: { xs: 4, md: 6 } }}>
             <Typography
-              variant="h3"
+              variant="h2"
+              component="h2"
               sx={{
                 fontFamily: "Poppins, Montserrat, sans-serif",
                 fontWeight: 900,
@@ -91,7 +92,7 @@ const WhyChooseUs = () => {
                 mb: 1.5
               }}
             >
-              Why Choose Vishwakarma Build & Furnish?
+              Why Choose Us for Your Dream Home in Haryana?
             </Typography>
             <Typography
               sx={{

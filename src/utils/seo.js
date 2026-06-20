@@ -4,10 +4,10 @@ const SITE_NAME = 'Vishwakarma Build & Furnish ';
 const BUSINESS_NAME = 'Vishwakarma Build & Furnish';
 const DEFAULT_SITE_URL = 'https://vishwakarmabuildandfurnish.in';
 const DEFAULT_DESCRIPTION =
-  'House construction, modular kitchen, wardrobe, doors, windows, plumbing, electrical, paint, tiles, marble and interior work in Charkhi Dadri, Haryana.';
+  'Looking for the best construction contractor or interior designer in Charkhi Dadri? Vishwakarma Build & Furnish offers premium house construction, modular kitchens, wooden doors, and custom furniture at affordable prices. Get a free consultation today!';
 const DEFAULT_IMAGE = '/favicon.svg';
-const MAX_TITLE_LENGTH = 60;
-const MAX_DESCRIPTION_LENGTH = 155;
+const MAX_TITLE_LENGTH = 100;
+const MAX_DESCRIPTION_LENGTH = 300;
 
 const siteUrl = (import.meta.env.VITE_SITE_URL || DEFAULT_SITE_URL).replace(/\/+$/, '');
 
@@ -224,4 +224,18 @@ export const buildServiceSeo = (serviceName = 'Construction Service') => {
       'Vishwakarma Build & Furnish'
     ]
   };
+};
+
+export const getImageAlt = (name = '', defaultFallback = '') => {
+  const lower = String(name || '').toLowerCase();
+  if (lower.includes('center table')) {
+    return 'Modern wooden center table design Charkhi Dadri';
+  }
+  if (lower.includes('jali door') || lower.includes('jali single-double')) {
+    return 'Customized wooden jali door work in Haryana';
+  }
+  if (lower.includes('modular kitchen') || lower.includes('kitchen layout') || lower.includes('kitchen interior')) {
+    return 'L-shape modular kitchen installation by Vishwakarma Build and Furnish';
+  }
+  return defaultFallback || `${name} work by Vishwakarma Build & Furnish in Charkhi Dadri Haryana`;
 };

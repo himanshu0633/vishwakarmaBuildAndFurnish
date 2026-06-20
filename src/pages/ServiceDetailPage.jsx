@@ -3,7 +3,7 @@ import { Box, Button, Chip, CircularProgress, Container, Paper, Typography } fro
 import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance, { getStaticAssetUrl, logStaticAssetUrl } from "../../utils/axiosConfig";
 import { getCategoryName, getServiceFullDescription } from "../utils/catalogSchema";
-import { buildServiceSeo, businessStructuredData, buildPageUrl, useSeo } from "../utils/seo";
+import { buildServiceSeo, businessStructuredData, buildPageUrl, useSeo, getImageAlt } from "../utils/seo";
 
 const ServiceDetailPage = () => {
   const { categorySlug, serviceSlug } = useParams();
@@ -169,7 +169,7 @@ const ServiceDetailPage = () => {
                   <Box
                     component="img"
                     src={src}
-                    alt={`${service.name} images and latest design in Charkhi Dadri Haryana`}
+                    alt={getImageAlt(service.name, `${service.name} images and latest design in Charkhi Dadri Haryana`)}
                     onError={(event) => {
                       console.error("[media-url] legacy service detail image failed", {
                         service: service.name,

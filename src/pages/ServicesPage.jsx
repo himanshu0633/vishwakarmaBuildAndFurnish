@@ -384,7 +384,7 @@ const ServicesPage = () => {
   }
 
   return (
-    <Box sx={{ overflowX: 'hidden' }}>
+    <Box sx={{ overflowX: 'clip' }}>
       {/* Hero Section - Industrial Theme */}
       <Box 
         sx={{

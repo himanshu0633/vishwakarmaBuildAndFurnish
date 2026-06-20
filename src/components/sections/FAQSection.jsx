@@ -155,7 +155,7 @@ const FAQSection = () => {
               mb: 1.5
             }}
           >
-            Frequently Asked Questions
+            Frequently Asked Questions About Our Services
           </Typography>
           <Typography
             sx={{
@@ -166,7 +166,7 @@ const FAQSection = () => {
               lineHeight: 1.7
             }}
           >
-            Construction, interior, renovation, modular kitchen, furniture, plumbing, electrical, paint, tiles and marble work ke common questions.
+            Find answers to common questions about our house construction, home interiors, modular kitchens, custom furniture, and renovation services.
           </Typography>
         </Box>
 
