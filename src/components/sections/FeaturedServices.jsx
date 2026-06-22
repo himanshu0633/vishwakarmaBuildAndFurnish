@@ -193,6 +193,7 @@ const FeaturedServices = () => {
                       component="img"
                       src={heroImage}
                       alt={getImageAlt(service.name, `${service.name} by Vishwakarma Build & Furnish`)}
+                      title={getImageAlt(service.name, `${service.name} by Vishwakarma Build & Furnish`)}
                       className="featured-card-media"
                       sx={{
                         position: "absolute",

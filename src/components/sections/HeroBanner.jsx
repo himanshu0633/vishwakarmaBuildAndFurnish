@@ -475,6 +475,7 @@ const HeroBanner = () => {
                   component="img"
                   src={activeService.image}
                   alt={activeService.text}
+                  title={activeService.text}
                   sx={{
                     width: { xs: "75px", sm: "120px", md: "150px" },
                     height: { xs: "55px", sm: "80px" },

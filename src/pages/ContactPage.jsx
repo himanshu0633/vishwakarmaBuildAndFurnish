@@ -16,7 +16,11 @@ import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import EmailIcon from "@mui/icons-material/Email";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
+import FacebookIcon from "@mui/icons-material/Facebook";
+import InstagramIcon from "@mui/icons-material/Instagram";
 import axiosInstance from "../../utils/axiosConfig";
+import { useSeo } from "../utils/seo";
+import { socialLinks } from "../data/constants";
 
 const phone = "9416856468";
 const googleMapsEmbedUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3503.219096391534!2d76.28924219999999!3d28.593203299999992!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391285dbfc386d4b%3A0xefc5900fb3ffdd3b!2sVishwakarma%20Build%20and%20Furnish!5e0!3m2!1sen!2sin!4v1778664056745!5m2!1sen!2sin";
@@ -30,6 +34,13 @@ const createCaptcha = () => {
 };
 
 const ContactPage = () => {
+  useSeo({
+    title: "Contact Us | Vishwakarma Build & Furnish",
+    description: "Get in touch with Vishwakarma Build & Furnish in Charkhi Dadri, Haryana. Call us or visit us for house construction, custom furniture, and interior solutions.",
+    path: "/contact",
+    keywords: ["contact Vishwakarma Build & Furnish", "construction contact Charkhi Dadri", "interior designer phone number Haryana"]
+  });
+
   const [formData, setFormData] = useState({
     name: "",
     phoneNumber: "",
@@ -149,20 +160,38 @@ const ContactPage = () => {
       </Box>
 
       <Container sx={{ py: { xs: 6, md: 9 } }}>
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(4, 1fr)" }, gap: 2.5, mb: 5 }}>
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)", lg: "repeat(6, 1fr)" }, gap: 2.5, mb: 5 }}>
           {[
             { icon: <PhoneIcon />, title: "Phone", text: `+91 ${phone}`, href: `tel:+91${phone}` },
             { icon: <WhatsAppIcon />, title: "WhatsApp", text: "Chat on WhatsApp", href: `https://wa.me/91${phone}` },
             { icon: <EmailIcon />, title: "Email", text: "info@vishwakarmabuildandfurnish.in", href: "mailto:info@vishwakarmabuildandfurnish.in" },
-            { icon: <LocationOnIcon />, title: "Location", text: "Charkhi Dadri, Haryana", href: "https://www.google.com/maps/search/?api=1&query=Charkhi+Dadri+Haryana" }
+            { icon: <LocationOnIcon />, title: "Location", text: "Charkhi Dadri, Haryana", href: "https://www.google.com/maps/search/?api=1&query=Charkhi+Dadri+Haryana" },
+            { icon: <FacebookIcon />, title: "Facebook", text: "Follow on Facebook", href: socialLinks.facebook },
+            { icon: <InstagramIcon />, title: "Instagram", text: "Follow on Instagram", href: socialLinks.instagram }
           ].map(card => (
             <Paper
               key={card.title}
               component="a"
               href={card.href}
+              title={card.title}
               target={card.href.startsWith("http") ? "_blank" : undefined}
               rel="noopener noreferrer"
-              sx={{ p: 2.5, minWidth: 0, textDecoration: "none", bgcolor: "#0F172A", color: "#F8FAFC", border: "1px solid rgba(212,175,55,0.28)", borderRadius: 3 }}
+              sx={{
+                p: 2.5,
+                minWidth: 0,
+                textDecoration: "none",
+                bgcolor: "#0F172A",
+                color: "#F8FAFC",
+                border: "1px solid rgba(212,175,55,0.28)",
+                borderRadius: 3,
+                transition: "all 0.3s ease",
+                "&:hover": {
+                  borderColor: "#D4AF37",
+                  transform: "translateY(-5px)",
+                  boxShadow: "0 6px 20px rgba(212,175,55,0.15)",
+                  bgcolor: "rgba(15,23,42,0.9)"
+                }
+              }}
             >
               <Box sx={{ color: "#D4AF37", mb: 1 }}>{card.icon}</Box>
               <Typography sx={{ fontWeight: 900 }}>{card.title}</Typography>
@@ -255,7 +284,7 @@ const ContactPage = () => {
           <Paper sx={panelSx}>
             <Typography variant="h5" sx={panelTitleSx}>Services Quick Links</Typography>
             <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-              {quickServices.map(service => <Chip key={service} label={service} component="a" href={`/services/${service.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-")}-charkhi-dadri`} clickable sx={chipSx} />)}
+              {quickServices.map(service => <Chip key={service} label={service} component="a" href={`/services/${service.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-")}-charkhi-dadri`} title={service} clickable sx={chipSx} />)}
             </Box>
           </Paper>
           <Paper sx={panelSx}>
@@ -275,8 +304,8 @@ const ContactPage = () => {
         <Paper sx={{ p: { xs: 3, md: 5 }, textAlign: "center", bgcolor: "#0F172A", border: "1px solid rgba(212,175,55,0.34)", borderRadius: 3 }}>
           <Typography variant="h3" sx={{ color: "#F8FAFC", fontWeight: 900, mb: 2, fontSize: { xs: "2rem", md: "3rem" } }}>Ready To Start Your Project?</Typography>
           <Box sx={{ display: "flex", justifyContent: "center", gap: 2, flexWrap: "wrap" }}>
-            <Button href={`tel:+91${phone}`} variant="contained" startIcon={<PhoneIcon />} sx={{ bgcolor: "#D4AF37", color: "#111827", fontWeight: 900, textTransform: "none", "&:hover": { bgcolor: "#B88917" } }}>Call Now</Button>
-            <Button href={`https://wa.me/91${phone}`} target="_blank" rel="noopener noreferrer" variant="outlined" startIcon={<WhatsAppIcon />} sx={{ borderColor: "#D4AF37", color: "#D4AF37", fontWeight: 900, textTransform: "none" }}>WhatsApp Us</Button>
+            <Button href={`tel:+91${phone}`} variant="contained" title="Call Now" startIcon={<PhoneIcon />} sx={{ bgcolor: "#D4AF37", color: "#111827", fontWeight: 900, textTransform: "none", "&:hover": { bgcolor: "#B88917" } }}>Call Now</Button>
+            <Button href={`https://wa.me/91${phone}`} target="_blank" rel="noopener noreferrer" variant="outlined" title="WhatsApp Us" startIcon={<WhatsAppIcon />} sx={{ borderColor: "#D4AF37", color: "#D4AF37", fontWeight: 900, textTransform: "none" }}>WhatsApp Us</Button>
           </Box>
         </Paper>
       </Container>

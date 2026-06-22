@@ -40,7 +40,7 @@ export default function PartnersPage() {
                 }}
               >
                 {image ? (
-                  <Box component="img" src={getStaticAssetUrl(image)} alt={partner.shopName} sx={{ width: '100%', aspectRatio: '16/10', objectFit: 'cover', display: 'block' }} />
+                  <Box component="img" src={getStaticAssetUrl(image)} alt={partner.shopName} title={partner.shopName} sx={{ width: '100%', aspectRatio: '16/10', objectFit: 'cover', display: 'block' }} />
                 ) : (
                   <Box sx={{ aspectRatio: '16/10', display: 'grid', placeItems: 'center', bgcolor: '#111827' }}><StorefrontIcon sx={{ fontSize: 64, color: '#D4AF37' }} /></Box>
                 )}

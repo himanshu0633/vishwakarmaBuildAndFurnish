@@ -4,7 +4,7 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArticleIcon from "@mui/icons-material/Article";
 import { useNavigate } from "react-router-dom";
 import axiosInstance, { getStaticAssetUrl } from "../../utils/axiosConfig";
-import { businessStructuredData, buildPageUrl, useSeo } from "../utils/seo";
+import { simpleBusinessStructuredData, buildPageUrl, useSeo } from "../utils/seo";
 
 const BlogListPage = () => {
   const navigate = useNavigate();
@@ -35,7 +35,7 @@ const BlogListPage = () => {
   );
 
   useSeo({
-    title: "Furniture, Wooden Door & Interior Blogs in Charkhi Dadri",
+    title: "Blogs | Vishwakarma Build & Furnish",
     description:
       "Read Vishwakarma Build & Furnish blogs for all services including images, latest designs, material guidance, custom furniture, interiors and construction work in Charkhi Dadri, Haryana.",
     path: "/blogs",
@@ -45,7 +45,7 @@ const BlogListPage = () => {
       "@type": "Blog",
       name: "Vishwakarma Build & Furnish Blog",
       url: buildPageUrl("/blogs"),
-      publisher: businessStructuredData,
+      publisher: simpleBusinessStructuredData,
       blogPost: blogs.slice(0, 10).map((blog) => ({
         "@type": "BlogPosting",
         headline: blog.title,
@@ -118,6 +118,7 @@ const BlogListPage = () => {
                     component="img"
                     src={image}
                     alt={`${blog.title} - ${blog.category || "Furniture"} in Charkhi Dadri Haryana`}
+                    title={`${blog.title} - ${blog.category || "Furniture"} in Charkhi Dadri Haryana`}
                     sx={{
                       width: "100%",
                       height: { xs: 190, sm: 220, md: 240 },

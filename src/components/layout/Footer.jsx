@@ -14,7 +14,9 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import PhoneIcon from "@mui/icons-material/Phone";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import StorefrontIcon from "@mui/icons-material/Storefront";
-import { colors, branding } from "../../data/constants";
+import FacebookIcon from "@mui/icons-material/Facebook";
+import InstagramIcon from "@mui/icons-material/Instagram";
+import { colors, branding, socialLinks } from "../../data/constants";
 import iesLogo from "../../assets/logo.png";
 
 const phone = "9416856468";
@@ -72,7 +74,7 @@ const Footer = () => {
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1.35fr 0.9fr 1fr 1fr" }, gap: 4 }}>
           <Box>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>
-              <Box component="img" src={iesLogo} alt={branding.name} sx={{ width: 46, height: 46, objectFit: "contain" }} />
+              <Box component="img" src={iesLogo} alt={branding.name} title={`${branding.name} Logo`} sx={{ width: 46, height: 46, objectFit: "contain" }} />
               <Box>
                 <Typography sx={{ fontWeight: 900, fontSize: "1.15rem", lineHeight: 1.15 }}>
                   {branding.name}
@@ -86,12 +88,32 @@ const Footer = () => {
               Premium house construction, custom furniture manufacturing, and modern interior solutions in Charkhi Dadri, Haryana. Serving Charkhi Dadri, Rohtak, Bhiwani, and nearby regions in Haryana.
             </Typography>
             <Stack direction="row" spacing={1.2} flexWrap="wrap">
-              <Button href={`tel:+91${phone}`} startIcon={<PhoneIcon />} variant="contained" sx={goldButtonSx}>
+              <Button href={`tel:+91${phone}`} title="Call Now" startIcon={<PhoneIcon />} variant="contained" sx={goldButtonSx}>
                 Call Now
               </Button>
-              <Button href={`https://wa.me/91${phone}`} target="_blank" rel="noopener noreferrer" startIcon={<WhatsAppIcon />} variant="outlined" sx={outlineButtonSx}>
+              <Button href={`https://wa.me/91${phone}`} target="_blank" rel="noopener noreferrer" title="WhatsApp" startIcon={<WhatsAppIcon />} variant="outlined" sx={outlineButtonSx}>
                 WhatsApp
               </Button>
+            </Stack>
+            <Stack direction="row" spacing={1.5} sx={{ mt: 2 }}>
+              <IconButton
+                href={socialLinks.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Follow us on Facebook"
+                sx={socialIconSx}
+              >
+                <FacebookIcon />
+              </IconButton>
+              <IconButton
+                href={socialLinks.instagram}
+                target="_blank"
+                rel="noopener noreferrer"
+                title="Follow us on Instagram"
+                sx={socialIconSx}
+              >
+                <InstagramIcon />
+              </IconButton>
             </Stack>
           </Box>
 
@@ -151,6 +173,7 @@ const Footer = () => {
           <Link
             component={RouterLink}
             to="/website-info"
+            title="Need a website like this for your business? Know more"
             underline="none"
             sx={{
               color: "#D4AF37",
@@ -174,15 +197,26 @@ const FooterTitle = ({ children }) => (
   </Typography>
 );
 
+const getLinkTitle = (children) => {
+  if (typeof children === "string") return children;
+  if (Array.isArray(children)) {
+    return children
+      .map(child => (typeof child === "string" || typeof child === "number" ? child : ""))
+      .join("")
+      .trim();
+  }
+  return undefined;
+};
+
 const FooterLink = ({ href, icon, children }) => (
-  <Link href={href} underline="none" sx={{ display: "flex", alignItems: "center", gap: 1, color: "rgba(248,250,252,0.72)", fontSize: "0.92rem", transition: "0.2s ease", "& svg": { fontSize: 17, color: "#D4AF37" }, "&:hover": { color: "#D4AF37", transform: "translateX(4px)" } }}>
+  <Link href={href} title={getLinkTitle(children)} underline="none" sx={{ display: "flex", alignItems: "center", gap: 1, color: "rgba(248,250,252,0.72)", fontSize: "0.92rem", transition: "0.2s ease", "& svg": { fontSize: 17, color: "#D4AF37" }, "&:hover": { color: "#D4AF37", transform: "translateX(4px)" } }}>
     {icon}
     {children}
   </Link>
 );
 
 const ContactRow = ({ href, icon, children }) => (
-  <Link href={href} target={href?.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer" underline="none" sx={{ display: "flex", gap: 1.2, alignItems: "flex-start", color: "rgba(248,250,252,0.74)", fontSize: "0.9rem", wordBreak: "break-word", "& svg": { color: "#D4AF37", fontSize: 20, mt: 0.1 }, "&:hover": { color: "#D4AF37" } }}>
+  <Link href={href} target={href?.startsWith("http") ? "_blank" : undefined} rel="noopener noreferrer" title={getLinkTitle(children)} underline="none" sx={{ display: "flex", gap: 1.2, alignItems: "flex-start", color: "rgba(248,250,252,0.74)", fontSize: "0.9rem", wordBreak: "break-word", "& svg": { color: "#D4AF37", fontSize: 20, mt: 0.1 }, "&:hover": { color: "#D4AF37" } }}>
     {icon}
     <span>{children}</span>
   </Link>
@@ -202,6 +236,20 @@ const outlineButtonSx = {
   fontWeight: 900,
   textTransform: "none",
   "&:hover": { borderColor: "#D4AF37", bgcolor: "rgba(212,175,55,0.1)" }
+};
+
+const socialIconSx = {
+  color: "#D4AF37",
+  border: "1px solid rgba(212,175,55,0.3)",
+  bgcolor: "rgba(212,175,55,0.05)",
+  transition: "all 0.3s ease",
+  "&:hover": {
+    color: "#111111",
+    bgcolor: "#D4AF37",
+    borderColor: "#D4AF37",
+    transform: "translateY(-3px)",
+    boxShadow: "0 4px 12px rgba(212,175,55,0.25)"
+  }
 };
 
 export default Footer;

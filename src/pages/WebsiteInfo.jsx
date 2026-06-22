@@ -84,6 +84,7 @@ const WebsiteInfo = () => {
             href={`https://wa.me/91${phone}?text=${whatsappText}`}
             target="_blank"
             rel="noreferrer"
+            title="Get Your Business Website"
             variant="contained"
             endIcon={<ArrowForwardIcon />}
             sx={{
@@ -162,6 +163,7 @@ const WebsiteInfo = () => {
             href={`https://wa.me/91${phone}?text=${whatsappText}`}
             target="_blank"
             rel="noreferrer"
+            title="Chat on WhatsApp"
             variant="contained"
             startIcon={<WhatsAppIcon />}
             sx={{

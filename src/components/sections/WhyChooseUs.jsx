@@ -291,6 +291,7 @@ const WhyChooseUs = () => {
               href={consultationUrl}
               target="_blank"
               rel="noopener noreferrer"
+              title="Get Free Consultation on WhatsApp"
               variant="contained"
               startIcon={<WhatsAppIcon />}
               sx={{

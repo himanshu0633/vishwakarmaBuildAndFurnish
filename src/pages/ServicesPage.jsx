@@ -30,7 +30,7 @@ import {
   getServiceDescription,
   getServiceFullDescription
 } from '../utils/catalogSchema';
-import { businessStructuredData, buildPageUrl, useSeo } from '../utils/seo';
+import { simpleBusinessStructuredData, buildPageUrl, useSeo } from '../utils/seo';
 
 // Animation variants
 const fadeInUp = {
@@ -70,7 +70,7 @@ const ServicesPage = () => {
   const navigate = useNavigate();
 
   useSeo({
-    title: "Construction, Furniture & Interior Services in Charkhi Dadri",
+    title: "Our Services | Vishwakarma Build & Furnish",
     description:
       "Explore Vishwakarma Build & Furnish services for house construction, modular kitchen, wardrobe, doors, windows, plumbing, electrical, paint, tiles, marble and renovation work in Charkhi Dadri, Haryana.",
     path: "/services",
@@ -86,14 +86,14 @@ const ServicesPage = () => {
       "@type": "CollectionPage",
       name: "Vishwakarma Build & Furnish Services",
       url: buildPageUrl("/services"),
-      about: businessStructuredData,
+      about: simpleBusinessStructuredData,
       mainEntity: services.flatMap((category) =>
         category.services.map((service) => ({
           "@type": "Service",
           name: service.name,
           description: service.fullDescription || service.desc,
-          provider: businessStructuredData,
-          areaServed: businessStructuredData.areaServed
+          provider: simpleBusinessStructuredData,
+          areaServed: simpleBusinessStructuredData.areaServed
         }))
       )
     }
@@ -476,6 +476,7 @@ const ServicesPage = () => {
                 <Link 
                   component={RouterLink} 
                   to="/" 
+                  title="Home"
                   sx={{ 
                     display: 'flex', 
                     alignItems: 'center',

@@ -466,6 +466,7 @@ const TendersPage = () => {
                 <Link 
                   component={RouterLink} 
                   to="/" 
+                  title="Home"
                   sx={{ 
                     display: 'flex', 
                     alignItems: 'center',

@@ -192,6 +192,11 @@ export const branding = {
   tagline: "From Foundation to Furniture"
 };
 
+export const socialLinks = {
+  instagram: "https://www.instagram.com/vishwakarmabuildandfurnish/",
+  facebook: "https://www.facebook.com/profile.php?id=61590438730532&sk=directory_category"
+};
+
 // Colors
 export const colors = {
   primary: "#111111",

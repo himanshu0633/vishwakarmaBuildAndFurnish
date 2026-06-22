@@ -147,6 +147,7 @@ const Header = () => {
               component="img"
               src={iesLogo}
               alt="IES Logo"
+              title="Vishwakarma Build & Furnish Logo"
               sx={{
                 height: { xs: 48, sm: 56, md: 88 },
                 width: { xs: 48, sm: 56, md: 88 },

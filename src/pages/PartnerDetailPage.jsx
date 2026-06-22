@@ -75,7 +75,7 @@ export default function PartnerDetailPage() {
             <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, gap: 2 }}>
               {products.map(product => (
                 <Paper key={product._id} sx={{ overflow: 'hidden', bgcolor: '#0F172A', color: '#F5F5F5', border: '1px solid rgba(212,175,55,0.22)' }}>
-                  {product.image && <Box component="img" src={getStaticAssetUrl(product.image)} alt={product.name} sx={{ width: '100%', aspectRatio: '16/10', objectFit: 'cover', display: 'block' }} />}
+                  {product.image && <Box component="img" src={getStaticAssetUrl(product.image)} alt={product.name} title={product.name} sx={{ width: '100%', aspectRatio: '16/10', objectFit: 'cover', display: 'block' }} />}
                   <Box sx={{ p: 2 }}>
                     <Typography fontWeight={900}>{product.name}</Typography>
                     <Typography sx={{ color: 'rgba(245,245,245,0.72)', mt: 1 }}>{product.description}</Typography>

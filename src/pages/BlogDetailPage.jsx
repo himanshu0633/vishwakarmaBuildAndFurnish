@@ -38,7 +38,7 @@ import HomeIcon from "@mui/icons-material/Home";
 
 import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance, { getStaticAssetUrl } from "../../utils/axiosConfig";
-import { businessStructuredData, buildPageUrl, useSeo } from "../utils/seo";
+import { simpleBusinessStructuredData, buildPageUrl, useSeo } from "../utils/seo";
 import { useQuoteModal } from "../contexts/QuoteModalContext";
 
 const defaultLocalAreas = [
@@ -164,6 +164,7 @@ const FloatingSidebar = ({ onQuoteClick }) => {
             component={item.href ? "a" : "div"}
             href={item.href}
             target={item.target}
+            title={item.label}
             rel={item.target ? "noopener noreferrer" : undefined}
             sx={{
               display: "flex",
@@ -375,7 +376,7 @@ const BlogDetailPage = () => {
                 "@type": "Organization",
                 name: "Vishwakarma Build & Furnish"
               },
-              publisher: businessStructuredData,
+              publisher: simpleBusinessStructuredData,
               about: (blog.relatedServices || []).filter(Boolean).map((service) => ({
                 "@type": "Service",
                 name: service.name,
@@ -387,7 +388,7 @@ const BlogDetailPage = () => {
               "@id": `${buildPageUrl(`/blogs/${blog.slug}`)}#service`,
               name: primaryService?.name || blog.title,
               description: blog.seoDescription || blog.excerpt,
-              provider: businessStructuredData,
+              provider: simpleBusinessStructuredData,
               areaServed: localAreas,
               serviceArea: localAreas.map((area) => ({
                 "@type": "Place",
@@ -603,6 +604,7 @@ const BlogDetailPage = () => {
                   href="https://wa.me/919416856468"
                   target="_blank"
                   rel="noopener noreferrer"
+                  title="Chat on WhatsApp"
                   startIcon={<WhatsAppIcon sx={{ color: "#25D366" }} />}
                   sx={{
                     borderColor: "rgba(212, 175, 55, 0.5)",
@@ -824,6 +826,7 @@ const BlogDetailPage = () => {
                     component="img"
                     src={collageImages[0]}
                     alt={`${blog.title} Project 1`}
+                    title={`${blog.title} Project 1`}
                     sx={{
                       width: "100%",
                       height: "100%",
@@ -853,6 +856,7 @@ const BlogDetailPage = () => {
                         component="img"
                         src={collageImages[idx]}
                         alt={`${blog.title} Project ${idx + 1}`}
+                        title={`${blog.title} Project ${idx + 1}`}
                         sx={{
                           width: "100%",
                           aspectRatio: "4/3",
@@ -887,6 +891,7 @@ const BlogDetailPage = () => {
                       component="img"
                       src={url}
                       alt={`${blog.title} Project ${index + 1}`}
+                      title={`${blog.title} Project ${index + 1}`}
                       sx={{
                         width: "100%",
                         aspectRatio: "4/3",
@@ -1388,6 +1393,7 @@ const BlogDetailPage = () => {
               href="https://wa.me/919416856468"
               target="_blank"
               rel="noopener noreferrer"
+              title="Chat on WhatsApp"
               startIcon={<WhatsAppIcon />}
               sx={{
                 borderColor: "#D4AF37",
@@ -1454,6 +1460,7 @@ const BlogDetailPage = () => {
                 component="img"
                 src={url}
                 alt={`${blog.title} Gallery ${idx + 1}`}
+                title={`${blog.title} Gallery ${idx + 1}`}
                 sx={{
                   width: "100%",
                   aspectRatio: "4/3",

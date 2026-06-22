@@ -3,7 +3,7 @@ import { Box, Button, Chip, CircularProgress, Container, Paper, Typography } fro
 import { useNavigate, useParams } from "react-router-dom";
 import axiosInstance from "../../utils/axiosConfig";
 import { getCategoryEmoji, getCategoryName, getServiceDescription } from "../utils/catalogSchema";
-import { businessStructuredData, buildPageUrl, useSeo } from "../utils/seo";
+import { simpleBusinessStructuredData, buildPageUrl, useSeo } from "../utils/seo";
 
 const CategoryPage = () => {
   const { categorySlug } = useParams();
@@ -47,13 +47,13 @@ const CategoryPage = () => {
           name: `${categoryName} Services`,
           description: category.description,
           url: buildPageUrl(`/services/${categorySlug}`),
-          about: businessStructuredData,
+          about: simpleBusinessStructuredData,
           mainEntity: (category.services || []).map((service) => ({
             "@type": "Service",
             name: service.name,
             description: getServiceDescription(service),
-            provider: businessStructuredData,
-            areaServed: businessStructuredData.areaServed
+            provider: simpleBusinessStructuredData,
+            areaServed: simpleBusinessStructuredData.areaServed
           }))
         }
       : null

@@ -384,6 +384,7 @@ const HowItWorks = () => {
               href={consultationUrl}
               target="_blank"
               rel="noopener noreferrer"
+              title="Get Free Consultation on WhatsApp"
               variant="contained"
               startIcon={<WhatsAppIcon />}
               sx={{
@@ -407,6 +408,7 @@ const HowItWorks = () => {
             href={consultationUrl}
             target="_blank"
             rel="noopener noreferrer"
+            title="Get Free Consultation on WhatsApp"
             elevation={0}
             sx={{
               display: { xs: "flex", md: "none" },

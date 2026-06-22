@@ -5,7 +5,7 @@ const BUSINESS_NAME = 'Vishwakarma Build & Furnish';
 const DEFAULT_SITE_URL = 'https://vishwakarmabuildandfurnish.in';
 const DEFAULT_DESCRIPTION =
   'Looking for the best construction contractor or interior designer in Charkhi Dadri? Vishwakarma Build & Furnish offers premium house construction, modular kitchens, wooden doors, and custom furniture at affordable prices. Get a free consultation today!';
-const DEFAULT_IMAGE = '/favicon.svg';
+const DEFAULT_IMAGE = '/logo.png';
 const MAX_TITLE_LENGTH = 100;
 const MAX_DESCRIPTION_LENGTH = 300;
 
@@ -124,15 +124,15 @@ export const useSeo = ({
   }, [title, description, path, image, type, keywords, structuredData]);
 };
 
-export const businessStructuredData = {
+export const simpleBusinessStructuredData = {
   '@context': 'https://schema.org',
   '@type': 'HomeAndConstructionBusiness',
   '@id': `${siteUrl}/#localbusiness`,
   name: BUSINESS_NAME,
   alternateName: SITE_NAME,
   description: DEFAULT_DESCRIPTION,
-  image: `${siteUrl}/favicon.svg`,
-  logo: `${siteUrl}/favicon.svg`,
+  image: `${siteUrl}/logo.png`,
+  logo: `${siteUrl}/logo.png`,
   priceRange: '₹₹',
   areaServed: [
     'Charkhi Dadri',
@@ -146,8 +146,43 @@ export const businessStructuredData = {
   ],
   address: {
     '@type': 'PostalAddress',
+    streetAddress: 'Charkhi Dadri',
     addressLocality: 'Charkhi Dadri',
     addressRegion: 'Haryana',
+    postalCode: '127306',
+    addressCountry: 'IN'
+  },
+  telephone: '+91-9416856468',
+  url: siteUrl,
+  hasMap: 'https://maps.app.goo.gl/V9mPoFxvSJm3hCM69'
+};
+
+export const businessStructuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'HomeAndConstructionBusiness',
+  '@id': `${siteUrl}/#localbusiness`,
+  name: BUSINESS_NAME,
+  alternateName: SITE_NAME,
+  description: DEFAULT_DESCRIPTION,
+  image: `${siteUrl}/logo.png`,
+  logo: `${siteUrl}/logo.png`,
+  priceRange: '₹₹',
+  areaServed: [
+    'Charkhi Dadri',
+    'Bhiwani',
+    'Mahendragarh',
+    'Rewari',
+    'Rohtak',
+    'Jhajjar',
+    'Nearby villages',
+    'Haryana'
+  ],
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'Charkhi Dadri',
+    addressLocality: 'Charkhi Dadri',
+    addressRegion: 'Haryana',
+    postalCode: '127306',
     addressCountry: 'IN'
   },
   telephone: '+91-9416856468',
@@ -155,9 +190,10 @@ export const businessStructuredData = {
   hasMap: 'https://maps.app.goo.gl/V9mPoFxvSJm3hCM69',
   aggregateRating: {
     '@type': 'AggregateRating',
-    ratingValue: '4.9',
-    reviewCount: '100',
-    bestRating: '5'
+    ratingValue: 4.9,
+    reviewCount: 100,
+    bestRating: 5,
+    worstRating: 1
   },
   review: [
     {

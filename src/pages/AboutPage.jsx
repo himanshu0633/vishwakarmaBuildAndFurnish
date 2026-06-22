@@ -18,7 +18,7 @@ import FactoryIcon from "@mui/icons-material/Factory";
 import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
 import { motion, useInView } from "framer-motion";
 import axiosInstance, { getStaticAssetUrl } from "../../utils/axiosConfig";
-import { businessStructuredData, buildPageUrl, useSeo } from "../utils/seo";
+import { businessStructuredData, simpleBusinessStructuredData, buildPageUrl, useSeo } from "../utils/seo";
 
 const phone = "9416856468";
 
@@ -334,7 +334,7 @@ const AboutPage = () => {
           "@id": `${buildPageUrl("/about")}#about`,
           name: "About Vishwakarma Build & Furnish",
           url: buildPageUrl("/about"),
-          mainEntity: businessStructuredData
+          mainEntity: simpleBusinessStructuredData
         },
         {
           "@type": "ImageGallery",
@@ -601,7 +601,7 @@ const AboutPage = () => {
             {ctaSection.text}
           </Typography>
           <Box sx={{ display: "flex", justifyContent: "center", gap: 1.5, flexWrap: "wrap", mb: 3 }}>
-            <Button href={`tel:+91${currentPhone}`} variant="contained" startIcon={<PhoneIcon />} sx={goldButtonSx}>Call Now</Button>
+            <Button href={`tel:+91${currentPhone}`} variant="contained" title="Call Now" startIcon={<PhoneIcon />} sx={goldButtonSx}>Call Now</Button>
             <Button onClick={handleWhatsApp} variant="outlined" startIcon={<WhatsAppIcon />} sx={outlineButtonSx}>WhatsApp Us</Button>
           </Box>
           <Typography sx={{ color: "#D4AF37", fontWeight: 900 }}>+91 {currentPhone}</Typography>

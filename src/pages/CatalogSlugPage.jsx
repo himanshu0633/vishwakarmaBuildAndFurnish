@@ -12,7 +12,7 @@ import {
   getServiceDescription,
   getServiceFullDescription
 } from "../utils/catalogSchema";
-import { buildPageUrl, buildServiceSeo, businessStructuredData, useSeo, getImageAlt } from "../utils/seo";
+import { buildPageUrl, buildServiceSeo, simpleBusinessStructuredData, useSeo, getImageAlt } from "../utils/seo";
 
 const CatalogSlugPage = () => {
   const { slug } = useParams();
@@ -142,8 +142,8 @@ const CatalogSlugPage = () => {
                 name: item.name,
                 description: item.seoDescription || getServiceFullDescription(item),
                 image: seoServiceImages,
-                provider: businessStructuredData,
-                areaServed: businessStructuredData.areaServed,
+                provider: simpleBusinessStructuredData,
+                areaServed: simpleBusinessStructuredData.areaServed,
                 category: getCategoryName(item.categoryId) || "Construction and Interior",
                 url: buildPageUrl(seoPath)
               },
@@ -320,6 +320,7 @@ const CatalogSlugPage = () => {
                                     component="img"
                                     src={src}
                                     alt={getImageAlt(item.name, `${item.name} ${group.title} design and work in Charkhi Dadri Haryana`)}
+                                    title={getImageAlt(item.name, `${item.name} ${group.title} design and work in Charkhi Dadri Haryana`)}
                                     onClick={() => setSelectedMedia({ src, title: group.title })}
                                     sx={{
                                       width: "100%",
@@ -536,6 +537,7 @@ const CatalogSlugPage = () => {
                 component="img"
                 src={selectedMedia?.src || ""}
                 alt={getImageAlt(item.name, `${item.name} ${selectedMedia?.title || "work"} preview in Charkhi Dadri Haryana`)}
+                title={getImageAlt(item.name, `${item.name} ${selectedMedia?.title || "work"} preview in Charkhi Dadri Haryana`)}
                 sx={{
                   width: "100%",
                   maxHeight: "78vh",

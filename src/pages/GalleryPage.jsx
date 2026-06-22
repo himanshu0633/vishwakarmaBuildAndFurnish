@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Box, Chip, CircularProgress, Container, Paper, Typography } from "@mui/material";
 import CollectionsIcon from "@mui/icons-material/Collections";
 import axiosInstance, { getStaticAssetUrl } from "../../utils/axiosConfig";
-import { businessStructuredData, buildPageUrl, useSeo, getImageAlt } from "../utils/seo";
+import { simpleBusinessStructuredData, buildPageUrl, useSeo, getImageAlt } from "../utils/seo";
 
 const GalleryPage = () => {
   const [items, setItems] = useState([]);
@@ -29,7 +29,7 @@ const GalleryPage = () => {
   const filteredItems = selectedCategory === "All" ? items : items.filter((item) => item.category === selectedCategory);
 
   useSeo({
-    title: "Construction, Furniture & Interior Work Gallery in Charkhi Dadri",
+    title: "Gallery | Vishwakarma Build & Furnish",
     description:
       "View Vishwakarma Build & Furnish gallery for modular kitchen, wardrobe, wooden doors, windows, construction, renovation and interior work in Charkhi Dadri, Haryana.",
     path: "/gallery",
@@ -46,7 +46,7 @@ const GalleryPage = () => {
       name: "Vishwakarma Build & Furnish Work Gallery",
       description: "Construction, furniture and interior project photos in Charkhi Dadri, Haryana.",
       url: buildPageUrl("/gallery"),
-      publisher: businessStructuredData,
+      publisher: simpleBusinessStructuredData,
       associatedMedia: items.slice(0, 20).map((item) => ({
         "@type": "ImageObject",
         name: item.title || item.category || "Vishwakarma Build & Furnish work",
@@ -131,6 +131,7 @@ const GalleryPage = () => {
                       className="gallery-photo"
                       src={image}
                       alt={getGalleryAlt(item)}
+                      title={getGalleryAlt(item)}
                       loading="lazy"
                       sx={{
                         width: "100%",
