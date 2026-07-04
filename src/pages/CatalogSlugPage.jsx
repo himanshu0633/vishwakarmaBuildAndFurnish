@@ -1060,56 +1060,6 @@ const ConstructionCategoryPage = ({ item, slug, navigate, openQuote }) => {
         </Container>
       </Box>
 
-      {/* Sticky Bottom CTA Bar */}
-      <Paper
-        elevation={10}
-        sx={{
-          position: "fixed",
-          bottom: { xs: 12, md: 20 },
-          left: "50%",
-          transform: "translateX(-50%)",
-          width: { xs: "92%", sm: "80%", md: "auto" },
-          bgcolor: "rgba(15,23,42,0.95)",
-          backdropFilter: "blur(12px)",
-          border: "1px solid rgba(212,175,55,0.35)",
-          borderRadius: "50px",
-          py: 1,
-          px: { xs: 2, md: 3 },
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 1.5,
-          zIndex: 9999,
-          boxShadow: "0 10px 30px rgba(0,0,0,0.6)"
-        }}
-      >
-        <Button
-          variant="contained"
-          startIcon={<PhoneIcon />}
-          href="tel:+919416856468"
-          sx={{ bgcolor: "#D4AF37", color: "#111827", fontWeight: 950, borderRadius: "50px", textTransform: "none", fontSize: { xs: "0.82rem", md: "0.9rem" }, px: { xs: 2, md: 3.5 }, "&:hover": { bgcolor: "#B88917" } }}
-        >
-          Call
-        </Button>
-        <Button
-          variant="contained"
-          startIcon={<WhatsAppIcon />}
-          href={`https://wa.me/919416856468?text=Hello%20Vishwakarma%20Build%20%26%20Furnish%2C%20I%20want%20to%20inquire%20about%20${encodeURIComponent(content.quoteType)}.`}
-          target="_blank"
-          rel="noopener noreferrer"
-          sx={{ bgcolor: "#25D366", color: "#FFFFFF", fontWeight: 950, borderRadius: "50px", textTransform: "none", fontSize: { xs: "0.82rem", md: "0.9rem" }, px: { xs: 2, md: 3.5 }, "&:hover": { bgcolor: "#20BA56" } }}
-        >
-          WhatsApp
-        </Button>
-        <Button
-          variant="outlined"
-          startIcon={<AssignmentIcon />}
-          onClick={() => openQuote(content.quoteType)}
-          sx={{ borderColor: "#D4AF37", color: "#D4AF37", fontWeight: 950, borderRadius: "50px", textTransform: "none", fontSize: { xs: "0.82rem", md: "0.9rem" }, px: { xs: 2, md: 3.5 }, "&:hover": { borderColor: "#B88917", color: "#B88917", bgcolor: "rgba(212,175,55,0.06)" } }}
-        >
-          Get Quote
-        </Button>
-      </Paper>
 
       {/* Project Lightbox Modal */}
       <Modal open={selectedProj !== null} onClose={() => setSelectedProj(null)}>

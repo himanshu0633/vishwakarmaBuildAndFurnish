@@ -37,7 +37,7 @@ const theme = createTheme({
 import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import ScrollToTop from './components/layout/ScrollToTop';
-import FloatingWhatsAppButton from './components/common/FloatingWhatsAppButton';
+import StickyBottomCta from './components/layout/StickyBottomCta';
 import WebsitePopup from './components/common/WebsitePopup';
 
 // Import Pages
@@ -216,7 +216,7 @@ function App() {
                 </Box>
 
                 <Footer />
-                <FloatingWhatsAppButton />
+                <StickyBottomCta />
                 <WebsitePopup />
                 <QuoteModal />
               </Box>
