@@ -495,47 +495,61 @@ const ConstructionCategoryPage = ({ item, slug, navigate, openQuote }) => {
             />
           </Box>
 
-          <Box sx={{ position: "relative", width: "100%", mt: 6 }}>
-            {/* Dashed Connector Line */}
+          <Box
+            sx={{
+              position: "relative",
+              width: "100%",
+              mt: 6,
+              overflowX: { xs: "auto", lg: "visible" },
+              pb: { xs: 3, lg: 0 },
+              "&::-webkit-scrollbar": { height: "6px" },
+              "&::-webkit-scrollbar-thumb": { bgcolor: "rgba(212,175,55,0.38)", borderRadius: "10px" }
+            }}
+          >
             <Box
               sx={{
-                position: "absolute",
-                top: { xs: "23px", md: "28px" },
-                left: "4%",
-                right: "4%",
-                height: "2px",
-                borderTop: "2px dashed rgba(212,175,55,0.4)",
-                zIndex: 1,
-                display: { xs: "none", lg: "block" }
-              }}
-            />
-
-            {/* Steps Row */}
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                flexWrap: { xs: "wrap", lg: "nowrap" },
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-                gap: { xs: 3, lg: 1 },
-                position: "relative",
-                zIndex: 2
+                minWidth: { xs: content.timelineSteps.length * 105, lg: "100%" },
+                position: "relative"
               }}
             >
-              {content.timelineSteps.map((step) => (
-                <Box
-                  key={step.label}
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    textAlign: "center",
-                    width: { xs: "calc(33.33% - 16px)", sm: "calc(25% - 16px)", lg: "auto" },
-                    flex: { xs: "none", lg: 1 },
-                    flexShrink: 0
-                  }}
-                >
+              {/* Dashed Connector Line */}
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: { xs: "23px", lg: "28px" },
+                  left: "30px",
+                  right: "30px",
+                  height: "2px",
+                  borderTop: "2px dashed rgba(212,175,55,0.4)",
+                  zIndex: 1
+                }}
+              />
+
+              {/* Steps Row */}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  flexWrap: "nowrap",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                  position: "relative",
+                  zIndex: 2
+                }}
+              >
+                {content.timelineSteps.map((step) => (
+                  <Box
+                    key={step.label}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      textAlign: "center",
+                      width: { xs: "105px", lg: "auto" },
+                      flex: { xs: "0 0 auto", lg: 1 },
+                      flexShrink: 0
+                    }}
+                  >
                   {/* Circle */}
                   <Box
                     sx={{
@@ -575,6 +589,7 @@ const ConstructionCategoryPage = ({ item, slug, navigate, openQuote }) => {
                 </Box>
               ))}
             </Box>
+          </Box>
           </Box>
         </Container>
       </Box>
@@ -1064,7 +1079,7 @@ const ConstructionCategoryPage = ({ item, slug, navigate, openQuote }) => {
           alignItems: "center",
           justifyContent: "center",
           gap: 1.5,
-          zIndex: 1000,
+          zIndex: 9999,
           boxShadow: "0 10px 30px rgba(0,0,0,0.6)"
         }}
       >

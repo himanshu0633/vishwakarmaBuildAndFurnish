@@ -452,57 +452,71 @@ const AboutPage = () => {
               }}
             />
           </Box>
-          <Box sx={{ position: "relative", width: "100%", mt: 6 }}>
-            {/* Dashed Connector Line */}
+          <Box
+            sx={{
+              position: "relative",
+              width: "100%",
+              mt: 6,
+              overflowX: { xs: "auto", lg: "visible" },
+              pb: { xs: 3, lg: 0 },
+              "&::-webkit-scrollbar": { height: "6px" },
+              "&::-webkit-scrollbar-thumb": { bgcolor: "rgba(212,175,55,0.38)", borderRadius: "10px" }
+            }}
+          >
             <Box
               sx={{
-                position: "absolute",
-                top: { xs: "23px", md: "28px" },
-                left: "4%",
-                right: "4%",
-                height: "2px",
-                borderTop: "2px dashed rgba(212,175,55,0.4)",
-                zIndex: 1,
-                display: { xs: "none", lg: "block" }
-              }}
-            />
-
-            {/* Steps Row */}
-            <Box
-              sx={{
-                display: "flex",
-                flexDirection: "row",
-                flexWrap: { xs: "wrap", lg: "nowrap" },
-                justifyContent: "space-between",
-                alignItems: "flex-start",
-                gap: { xs: 3, lg: 1 },
-                position: "relative",
-                zIndex: 2
+                minWidth: { xs: 945, lg: "100%" },
+                position: "relative"
               }}
             >
-              {[
-                { label: "Planning & Design", icon: <AssignmentIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
-                { label: "Foundation Work", icon: <FoundationIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
-                { label: "Structure Work", icon: <GridOnIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
-                { label: "Brick Work", icon: <GridOnIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
-                { label: "Plaster Work", icon: <BuildIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
-                { label: "Electrical Work", icon: <FlashOnIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
-                { label: "Plumbing Work", icon: <ShowerIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
-                { label: "Flooring & Tiling", icon: <GridOnIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
-                { label: "Finishing & Handover", icon: <KeyIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> }
-              ].map((step) => (
-                <Box
-                  key={step.label}
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    alignItems: "center",
-                    textAlign: "center",
-                    width: { xs: "calc(33.33% - 16px)", sm: "calc(25% - 16px)", lg: "auto" },
-                    flex: { xs: "none", lg: 1 },
-                    flexShrink: 0
-                  }}
-                >
+              {/* Dashed Connector Line */}
+              <Box
+                sx={{
+                  position: "absolute",
+                  top: { xs: "23px", lg: "28px" },
+                  left: "30px",
+                  right: "30px",
+                  height: "2px",
+                  borderTop: "2px dashed rgba(212,175,55,0.4)",
+                  zIndex: 1
+                }}
+              />
+
+              {/* Steps Row */}
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "row",
+                  flexWrap: "nowrap",
+                  justifyContent: "space-between",
+                  alignItems: "flex-start",
+                  position: "relative",
+                  zIndex: 2
+                }}
+              >
+                {[
+                  { label: "Planning & Design", icon: <AssignmentIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
+                  { label: "Foundation Work", icon: <FoundationIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
+                  { label: "Structure Work", icon: <GridOnIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
+                  { label: "Brick Work", icon: <GridOnIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
+                  { label: "Plaster Work", icon: <BuildIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
+                  { label: "Electrical Work", icon: <FlashOnIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
+                  { label: "Plumbing Work", icon: <ShowerIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
+                  { label: "Flooring & Tiling", icon: <GridOnIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
+                  { label: "Finishing & Handover", icon: <KeyIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> }
+                ].map((step) => (
+                  <Box
+                    key={step.label}
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      textAlign: "center",
+                      width: { xs: "105px", lg: "auto" },
+                      flex: { xs: "0 0 auto", lg: 1 },
+                      flexShrink: 0
+                    }}
+                  >
                   {/* Circle */}
                   <Box
                     sx={{
@@ -542,6 +556,7 @@ const AboutPage = () => {
                 </Box>
               ))}
             </Box>
+          </Box>
           </Box>
         </Container>
       </Box>
