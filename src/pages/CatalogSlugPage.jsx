@@ -320,7 +320,7 @@ const ConstructionCategoryPage = ({ item, slug, navigate, openQuote }) => {
       {/* Hero Section */}
       <Box
         sx={{
-          minHeight: "90vh",
+          minHeight: { xs: "auto", md: "90vh" },
           display: "flex",
           alignItems: "center",
           position: "relative",
@@ -330,7 +330,7 @@ const ConstructionCategoryPage = ({ item, slug, navigate, openQuote }) => {
           borderBottom: "1px solid rgba(212,175,55,0.22)"
         }}
       >
-        <Container maxWidth="lg" sx={{ py: 8, zIndex: 3 }}>
+        <Container maxWidth="lg" sx={{ py: { xs: 10, md: 8 }, zIndex: 3 }}>
           <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
             <Chip
               label={content.badge}
@@ -366,7 +366,7 @@ const ConstructionCategoryPage = ({ item, slug, navigate, openQuote }) => {
               <Typography sx={{ color: "#D4AF37", fontWeight: 900, fontSize: "1rem" }}>★★★★★</Typography>
               <Typography sx={{ color: "#F8FAFC", fontWeight: 700, fontSize: "0.9rem" }}>4.9 Google Rating (Trusted Provider)</Typography>
             </Box>
-            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mt: 0.5 }}>
+            <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mt: 0.5, flexDirection: { xs: "column", sm: "row" } }}>
               <Button
                 variant="contained"
                 onClick={() => openQuote(content.quoteType)}
@@ -379,6 +379,7 @@ const ConstructionCategoryPage = ({ item, slug, navigate, openQuote }) => {
                   fontSize: "0.95rem",
                   borderRadius: "50px",
                   textTransform: "none",
+                  width: { xs: "100%", sm: "auto" },
                   "&:hover": { bgcolor: "#B88917" }
                 }}
               >
@@ -399,6 +400,7 @@ const ConstructionCategoryPage = ({ item, slug, navigate, openQuote }) => {
                   fontSize: "0.95rem",
                   borderRadius: "50px",
                   textTransform: "none",
+                  width: { xs: "100%", sm: "auto" },
                   "&:hover": { borderColor: "#D4AF37", bgcolor: "rgba(212,175,55,0.06)" }
                 }}
               >
@@ -698,6 +700,7 @@ const ConstructionCategoryPage = ({ item, slug, navigate, openQuote }) => {
                         src={imgObj.url}
                         alt={`${imgObj.serviceName} Work in Charkhi Dadri`}
                         title={`${imgObj.serviceName} Work in Charkhi Dadri`}
+                        loading="lazy"
                         sx={{
                           width: "100%",
                           display: "block",
@@ -764,6 +767,7 @@ const ConstructionCategoryPage = ({ item, slug, navigate, openQuote }) => {
               src={projectImages[0]?.url || categoryImage}
               alt="Construction Quality"
               title="Construction Quality"
+              loading="lazy"
               sx={{
                 width: "100%",
                 borderRadius: 4,
@@ -1610,6 +1614,7 @@ const CatalogSlugPage = () => {
                                     alt={getImageAlt(item.name, `${item.name} ${group.title} design and work in Charkhi Dadri Haryana`)}
                                     title={getImageAlt(item.name, `${item.name} ${group.title} design and work in Charkhi Dadri Haryana`)}
                                     onClick={() => openLightbox(mediaItem)}
+                                    loading="lazy"
                                     sx={{
                                       width: "100%",
                                       display: "block",

@@ -385,6 +385,7 @@ const ServiceDetailPage = () => {
                                   alt={getImageAlt(service.name, `${service.name} ${group.title} design and work in Charkhi Dadri Haryana`)}
                                   title={getImageAlt(service.name, `${service.name} ${group.title} design and work in Charkhi Dadri Haryana`)}
                                   onClick={() => openLightbox(mediaItem)}
+                                  loading="lazy"
                                   sx={{
                                     width: "100%",
                                     display: "block",

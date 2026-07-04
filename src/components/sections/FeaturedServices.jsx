@@ -189,6 +189,7 @@ const FeaturedServices = () => {
                       alt={getImageAlt(service.name, `${service.name} by Vishwakarma Build & Furnish`)}
                       title={getImageAlt(service.name, `${service.name} by Vishwakarma Build & Furnish`)}
                       className="featured-card-media"
+                      loading="lazy"
                       sx={{
                         position: "absolute",
                         inset: 0,

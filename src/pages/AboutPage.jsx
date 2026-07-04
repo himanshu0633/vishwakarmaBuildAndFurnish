@@ -365,7 +365,7 @@ const AboutPage = () => {
     <Box sx={{ bgcolor: "#111111", color: "#F8FAFC", overflowX: "hidden" }}>
       <Box
         sx={{
-          minHeight: { xs: 520, md: 620 },
+          minHeight: { xs: "auto", md: 620 },
           display: "flex",
           alignItems: "center",
           position: "relative",
@@ -373,7 +373,7 @@ const AboutPage = () => {
           borderBottom: "1px solid rgba(212,175,55,0.28)"
         }}
       >
-        <Container maxWidth="lg" sx={{ py: { xs: 7, md: 9 } }}>
+        <Container maxWidth="lg" sx={{ py: { xs: 10, md: 9 } }}>
           <Box component={motion.div} initial="hidden" animate="visible" variants={staggerContainer}>
             <Chip
               component={motion.div}
