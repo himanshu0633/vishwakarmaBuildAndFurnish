@@ -57,8 +57,9 @@ const Header = () => {
     { label: "Home", icon: <HomeIcon />, path: "/" },
     { label: "About", icon: <InfoIcon />, path: "/about" },
     { label: "Construction", icon: <ConstructionIcon />, path: "/services/construction-services" },
-    { label: "Furniture", icon: <ChairIcon />, path: "/services/furniture-services" },
+    { label: "Wooden Work", icon: <ChairIcon />, path: "/services/wooden-work-services" },
     { label: "Interior", icon: <EngineeringIcon />, path: "/services/interior-services" },
+    { label: "Build Guide", icon: <EngineeringIcon />, path: "/house-construction-guide" },
     { label: "Gallery", icon: <ImageIcon />, path: "/gallery" },
     // { label: "Blog", icon: <ArticleIcon />, path: "/blogs" },
     // { label: "Partners", icon: <StorefrontIcon />, path: "/partners" },
@@ -72,7 +73,7 @@ const Header = () => {
 
   const mobileBaseNavItems = [
     { label: "Home", icon: <HomeIcon />, path: "/" },
-    { label: "Furniture", icon: <ChairIcon />, path: "/services/furniture-services" },
+    { label: "Wooden Work", icon: <ChairIcon />, path: "/services/wooden-work-services" },
     { label: "Construction", icon: <ConstructionIcon />, path: "/services/construction-services" },
     { label: "Interior", icon: <EngineeringIcon />, path: "/services/interior-services" },
     // { label: "Partners", icon: <StorefrontIcon />, path: "/partners" },

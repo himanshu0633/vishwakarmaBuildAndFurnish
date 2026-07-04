@@ -161,7 +161,7 @@ export default function PartnerDashboard() {
                 </TextField>
                 <TextField label="Product Name" value={productForm.name} onChange={(e) => setProductForm({ ...productForm, name: e.target.value })} />
                 <TextField label="Product Description" multiline minRows={3} value={productForm.description} onChange={(e) => setProductForm({ ...productForm, description: e.target.value })} />
-                <Button variant="outlined" component="label">Product Image<input hidden type="file" accept="image/*" onChange={(e) => setProductForm({ ...productForm, image: e.target.files?.[0] })} /></Button>
+                <Button variant="outlined" component="label">Product Image<input aria-label="Upload Product Image" hidden type="file" accept="image/*" onChange={(e) => setProductForm({ ...productForm, image: e.target.files?.[0] })} /></Button>
                 <Button variant="contained" onClick={addProduct}>Add Product</Button>
               </Stack>
             </Paper>

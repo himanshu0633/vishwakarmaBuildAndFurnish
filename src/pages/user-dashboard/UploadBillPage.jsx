@@ -46,7 +46,7 @@ export default function UploadBillPage() {
         <TextField label="Remark Optional" value={billForm.remark} onChange={(e) => setBillForm({ ...billForm, remark: e.target.value })} multiline minRows={2} />
         <Button variant="outlined" component="label" startIcon={<UploadFileIcon />}>
           {billForm.billImage ? billForm.billImage.name : 'Bill Image'}
-          <input hidden type="file" accept="image/*" onChange={(e) => setBillForm({ ...billForm, billImage: e.target.files?.[0] })} />
+          <input aria-label="Upload Bill Image" hidden type="file" accept="image/*" onChange={(e) => setBillForm({ ...billForm, billImage: e.target.files?.[0] })} />
         </Button>
         <Button variant="contained" onClick={uploadBill} sx={{ bgcolor: '#D4AF37', color: '#111111', fontWeight: 900, '&:hover': { bgcolor: '#B88917' } }}>Upload Bill</Button>
       </Stack>

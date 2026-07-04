@@ -45,7 +45,7 @@ export default function ReviewsPage() {
           </TextField>
           <TextField label="Rating 1-5" type="number" value={reviewForm.rating} onChange={(e) => setReviewForm({ ...reviewForm, rating: e.target.value })} />
           <TextField label="Review Text" multiline minRows={3} value={reviewForm.reviewText} onChange={(e) => setReviewForm({ ...reviewForm, reviewText: e.target.value })} />
-          <Button variant="outlined" component="label">Review Image Optional<input hidden type="file" accept="image/*" onChange={(e) => setReviewForm({ ...reviewForm, image: e.target.files?.[0] })} /></Button>
+          <Button variant="outlined" component="label">Review Image Optional<input aria-label="Upload Review Image" hidden type="file" accept="image/*" onChange={(e) => setReviewForm({ ...reviewForm, image: e.target.files?.[0] })} /></Button>
           <Button variant="contained" onClick={submitReview} sx={{ bgcolor: '#D4AF37', color: '#111111', fontWeight: 900, '&:hover': { bgcolor: '#B88917' } }}>Submit Review</Button>
         </Stack>
       </Paper>

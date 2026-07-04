@@ -82,19 +82,13 @@ const FeaturedServices = () => {
   }, []);
 
   const getHeroImage = (service) => {
-    const image =
-      service.heroImage ||
-      service.images?.[0] ||
-      service.beforeImages?.[0] ||
-      service.afterImages?.[0] ||
-      service.categoryId?.image ||
-      "";
-
+    const image = service.heroImage || "";
     return image ? getStaticAssetUrl(image) : "";
   };
 
   const handleDetailsClick = (service) => {
-    navigate(`/services/${service.slug}`);
+    const categorySlug = service.categoryId?.slug || "wooden-work-services";
+    navigate(`/services/${categorySlug}/${service.slug}`);
   };
 
   if (loading) {
@@ -174,7 +168,7 @@ const FeaturedServices = () => {
                     justifyContent: "flex-end",
                     border: "1px solid rgba(212,175,55,0.35)",
                     background: heroImage
-                      ? `linear-gradient(180deg, rgba(15,23,42,0.12) 0%, rgba(15,23,42,0.72) 48%, rgba(17,24,39,0.96) 100%), url("${heroImage}") center/cover no-repeat`
+                      ? `linear-gradient(180deg, rgba(15,23,42,0.12) 0%, rgba(15,23,42,0.72) 48%, rgba(17,24,39,0.96) 100%), url("${heroImage}") center/100% 100% no-repeat`
                       : "linear-gradient(180deg, #111827 0%, #0F172A 100%)",
                     color: "#F8FAFC",
                     transition: "transform 0.28s ease, border-color 0.28s ease, box-shadow 0.28s ease",
@@ -200,7 +194,7 @@ const FeaturedServices = () => {
                         inset: 0,
                         width: "100%",
                         height: "100%",
-                        objectFit: "cover",
+                        objectFit: "fill",
                         transform: "scale(1)",
                         transition: "transform 0.42s ease",
                         zIndex: 0
@@ -248,7 +242,7 @@ const FeaturedServices = () => {
                       <Button
                         variant="contained"
                         endIcon={<ArrowForwardIcon />}
-                        onClick={() => navigate(`/services/${service.slug}`)}
+                        onClick={() => navigate(`/services/${service.categoryId?.slug || "wooden-work-services"}/${service.slug}`)}
                         sx={{
                           bgcolor: "#D4AF37",
                           color: "#111827",

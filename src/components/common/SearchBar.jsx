@@ -172,6 +172,7 @@
           <span style={currentStyles.icon}>🔍</span>
           <input
             type="text"
+            aria-label="Search services"
             style={currentStyles.input}
             placeholder="Search: Electrician, Event Management, Security Guards, Office Equipment..."
             onFocus={() => setIsFocused(true)}

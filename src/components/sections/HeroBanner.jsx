@@ -26,35 +26,40 @@ const heroServices = [
     text: "Complete House Construction",
     description: "Expert end-to-end home construction from foundation to final finishing.",
     image: "https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=600&auto=format&fit=crop",
-    slug: "complete-house-construction-charkhi-dadri"
+    slug: "complete-house-construction-charkhi-dadri",
+    categorySlug: "construction-services"
   },
   {
     icon: "🪵",
     text: "Custom Furniture Manufacturing",
     description: "Bespoke wooden furniture, sofas, beds, wardrobes, and custom carvings.",
     image: "https://images.unsplash.com/photo-1538688525198-9b88f6f53126?q=80&w=600&auto=format&fit=crop",
-    slug: "custom-wardrobe-charkhi-dadri"
+    slug: "custom-wardrobe-charkhi-dadri",
+    categorySlug: "wooden-work-services"
   },
   {
     icon: "✨",
     text: "Modern Interior Solutions",
     description: "Transform your space with our modern interior designs and customized solutions.",
     image: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?q=80&w=600&auto=format&fit=crop",
-    slug: "modern-interior-solutions-charkhi-dadri"
+    slug: "modern-interior-solutions-charkhi-dadri",
+    categorySlug: "interior-services"
   },
   {
     icon: "🛋️",
     text: "Sofa • Bed • Wardrobe • Modular Kitchen",
     description: "Premium modular kitchens, custom wardrobes, beds, and luxury sofa sets.",
     image: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?q=80&w=600&auto=format&fit=crop",
-    slug: "modular-kitchen-charkhi-dadri"
+    slug: "modular-kitchen-charkhi-dadri",
+    categorySlug: "wooden-work-services"
   },
   {
     icon: "👷",
     text: "Trusted Contractor Services",
     description: "Reliable civil contracting, structural engineering, and renovation solutions.",
     image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?q=80&w=600&auto=format&fit=crop",
-    slug: "complete-house-construction-charkhi-dadri"
+    slug: "complete-house-construction-charkhi-dadri",
+    categorySlug: "construction-services"
   }
 ];
 
@@ -514,7 +519,7 @@ const HeroBanner = () => {
                 {/* Explore Button */}
                 <Button
                   variant="contained"
-                  onClick={() => navigate(`/services/${activeService.slug}`)}
+                  onClick={() => navigate(`/services/${activeService.categorySlug || "wooden-work-services"}/${activeService.slug}`)}
                   sx={{
                     bgcolor: "#D4AF37",
                     color: "#111827",

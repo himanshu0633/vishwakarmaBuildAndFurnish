@@ -225,6 +225,7 @@ const BlogDetailPage = () => {
 
   // Image lightbox state
   const [galleryOpen, setGalleryOpen] = useState(false);
+  const [lightboxImage, setLightboxImage] = useState(null);
 
   // FAQ Accordion State
   const [expandedFaq, setExpandedFaq] = useState(false);
@@ -305,7 +306,7 @@ const BlogDetailPage = () => {
   const primaryService = blog?.relatedServices?.filter(Boolean)?.[0];
   const blogGalleryImages = selectedBlogImages.length
     ? selectedBlogImages
-    : [blog?.coverImage || primaryService?.heroImage || primaryService?.images?.[0]].filter(Boolean);
+    : [blog?.coverImage || primaryService?.images?.[0]].filter(Boolean);
   const blogGalleryImageUrls = blogGalleryImages.slice(0, 9).map((image) => getStaticAssetUrl(image));
   const localAreas = blog?.localAreas?.length ? blog.localAreas : defaultLocalAreas;
   const benefits = blog?.benefits?.length
@@ -491,7 +492,7 @@ const BlogDetailPage = () => {
 
   const paragraphs = String(blog.content || "").split("\n").map((item) => item.trim()).filter(Boolean);
 
-  const serviceCategoryName = blog.category?.replace("Services", "").trim() || "House Construction";
+  const serviceCategoryName = (blog.categoryId?.name || blog.category)?.replace("Services", "").trim() || "House Construction";
 
   const serviceCards = [
     {
@@ -546,7 +547,7 @@ const BlogDetailPage = () => {
             {/* Left Column: Text & CTAs */}
             <Box>
               <Chip
-                label={blog.category || "Construction Services"}
+                label={blog.categoryId?.name || blog.category || "Construction Services"}
                 sx={{
                   bgcolor: "rgba(212, 175, 55, 0.12)",
                   color: "#D4AF37",
@@ -813,102 +814,43 @@ const BlogDetailPage = () => {
             </Typography>
 
             <Box sx={{ mb: 3 }}>
-              {collageImages.length >= 5 ? (
-                <Box
-                  sx={{
-                    display: "grid",
-                    gridTemplateColumns: { xs: "1fr", sm: "1.2fr 0.8fr" },
-                    gap: 1.5
-                  }}
-                >
-                  {/* Left: Large Image */}
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: {
+                    xs: "repeat(2, 1fr)",
+                    sm: "repeat(3, 1fr)",
+                    md: "repeat(4, 1fr)"
+                  },
+                  gap: 1.5
+                }}
+              >
+                {blogGalleryImageUrls.map((url, index) => (
                   <Box
+                    key={index}
                     component="img"
-                    src={collageImages[0]}
-                    alt={`${blog.title} Project 1`}
-                    title={`${blog.title} Project 1`}
+                    src={url}
+                    alt={`${blog.title} Project ${index + 1}`}
+                    title={`${blog.title} Project ${index + 1}`}
+                    onClick={() => setLightboxImage(url)}
                     sx={{
                       width: "100%",
-                      height: "100%",
-                      minHeight: { xs: 260, sm: 380 },
-                      maxHeight: { xs: 320, sm: "none" },
+                      aspectRatio: "4/3",
                       objectFit: "cover",
                       borderRadius: 3,
-                      border: "1px solid rgba(212, 175, 55, 0.25)",
+                      border: "1px solid rgba(212, 175, 55, 0.2)",
+                      display: "block",
+                      cursor: "zoom-in",
                       transition: "all 0.3s ease",
                       "&:hover": {
                         borderColor: "#D4AF37",
-                        boxShadow: "0 4px 20px rgba(212, 175, 55, 0.15)"
+                        transform: "scale(1.03)",
+                        boxShadow: "0 8px 24px rgba(212, 175, 55, 0.2)"
                       }
                     }}
                   />
-                  {/* Right: 2x2 Grid of Small Images */}
-                  <Box
-                    sx={{
-                      display: "grid",
-                      gridTemplateColumns: "repeat(2, 1fr)",
-                      gap: 1.5
-                    }}
-                  >
-                    {[1, 2, 3, 4].map((idx) => (
-                      <Box
-                        key={idx}
-                        component="img"
-                        src={collageImages[idx]}
-                        alt={`${blog.title} Project ${idx + 1}`}
-                        title={`${blog.title} Project ${idx + 1}`}
-                        sx={{
-                          width: "100%",
-                          aspectRatio: "4/3",
-                          objectFit: "cover",
-                          borderRadius: 2.5,
-                          border: "1px solid rgba(212, 175, 55, 0.2)",
-                          display: "block",
-                          transition: "all 0.3s ease",
-                          "&:hover": {
-                            borderColor: "#D4AF37",
-                            boxShadow: "0 4px 20px rgba(212, 175, 55, 0.15)"
-                          }
-                        }}
-                      />
-                    ))}
-                  </Box>
-                </Box>
-              ) : (
-                <Box
-                  sx={{
-                    display: "grid",
-                    gridTemplateColumns: {
-                      xs: "1fr",
-                      sm: blogGalleryImageUrls.length === 1 ? "1fr" : blogGalleryImageUrls.length === 2 ? "1fr 1fr" : "repeat(3, 1fr)"
-                    },
-                    gap: 1.5
-                  }}
-                >
-                  {blogGalleryImageUrls.map((url, index) => (
-                    <Box
-                      key={index}
-                      component="img"
-                      src={url}
-                      alt={`${blog.title} Project ${index + 1}`}
-                      title={`${blog.title} Project ${index + 1}`}
-                      sx={{
-                        width: "100%",
-                        aspectRatio: "4/3",
-                        objectFit: "cover",
-                        borderRadius: 3,
-                        border: "1px solid rgba(212, 175, 55, 0.2)",
-                        display: "block",
-                        transition: "all 0.3s ease",
-                        "&:hover": {
-                          borderColor: "#D4AF37",
-                          boxShadow: "0 4px 20px rgba(212, 175, 55, 0.15)"
-                        }
-                      }}
-                    />
-                  ))}
-                </Box>
-              )}
+                ))}
+              </Box>
             </Box>
 
             {blogGalleryImageUrls.length > 0 && (
@@ -916,7 +858,14 @@ const BlogDetailPage = () => {
                 <Box sx={{ flex: 1, height: "1px", bgcolor: "rgba(212, 175, 55, 0.2)" }} />
                 <Button
                   variant="outlined"
-                  onClick={() => setGalleryOpen(true)}
+                  onClick={() => {
+                    if (primaryService?.slug) {
+                      const categorySlug = primaryService.categoryId?.slug || "wooden-work-services";
+                      navigate(`/services/${categorySlug}/${primaryService.slug}`);
+                    } else {
+                      setGalleryOpen(true);
+                    }
+                  }}
                   endIcon={<ArrowForwardIcon />}
                   sx={{
                     mx: 2,
@@ -997,7 +946,7 @@ const BlogDetailPage = () => {
                       key={service._id}
                       variant="outlined"
                       endIcon={<ArrowForwardIcon />}
-                      onClick={() => navigate(`/services/${service.categoryId?.slug || "furniture"}/${service.slug}`)}
+                      onClick={() => navigate(`/services/${service.categoryId?.slug || "wooden-work-services"}/${service.slug}`)}
                       sx={{
                         justifyContent: "space-between",
                         color: "#F8FAFC",
@@ -1471,6 +1420,50 @@ const BlogDetailPage = () => {
               />
             ))}
           </Box>
+        </Box>
+      </Modal>
+
+      {/* Single Image Lightbox Modal */}
+      <Modal
+        open={Boolean(lightboxImage)}
+        onClose={() => setLightboxImage(null)}
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          bgcolor: "rgba(0, 0, 0, 0.9)",
+          zIndex: 1400
+        }}
+      >
+        <Box sx={{ position: "relative", maxWidth: "95vw", maxHeight: "95vh", outline: "none" }}>
+          <IconButton
+            onClick={() => setLightboxImage(null)}
+            sx={{
+              position: "absolute",
+              top: -45,
+              right: 0,
+              color: "#F5F5F5",
+              bgcolor: "rgba(0,0,0,0.5)",
+              "&:hover": { bgcolor: "rgba(0,0,0,0.8)" }
+            }}
+          >
+            <CloseIcon />
+          </IconButton>
+          <Box
+            component="img"
+            src={lightboxImage}
+            alt="Enlarged Project"
+            sx={{
+              width: "auto",
+              height: "auto",
+              maxWidth: "100%",
+              maxHeight: "85vh",
+              objectFit: "contain",
+              borderRadius: 2,
+              border: "1px solid rgba(212, 175, 55, 0.4)",
+              boxShadow: "0 10px 30px rgba(0,0,0,0.5)"
+            }}
+          />
         </Box>
       </Modal>
     </Box>

@@ -74,6 +74,7 @@ const Layout = ({ children }) => {
     { text: 'Blogs', icon: <ArticleIcon />, path: 'blogs' },
     { text: 'About Page', icon: <BusinessIcon />, path: 'about-page' },
     { text: 'Gallery', icon: <MediaIcon />, path: 'gallery' },
+    { text: 'Website Popups', icon: <CampaignIcon />, path: 'popups' },
     { text: 'Inquiries', icon: <InquiriesIcon />, path: 'inquiries' },
     { text: 'Marketplace Analytics', icon: <AnalyticsIcon />, path: 'marketplace/analytics' },
     { text: 'Users', icon: <PeopleIcon />, path: 'marketplace/users' },

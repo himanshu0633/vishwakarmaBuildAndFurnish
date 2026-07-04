@@ -65,7 +65,7 @@ export default function LikedServicesPage() {
                   <Typography sx={{ color: '#64748B', fontSize: 13 }}>Liked {new Date(like.createdAt).toLocaleDateString()}</Typography>
                   <Box>
                     <IconButton onClick={() => shareService(service)}><ShareIcon /></IconButton>
-                    <IconButton onClick={() => navigate(`/services/${service.slug}`)}><OpenInNewIcon /></IconButton>
+                    <IconButton onClick={() => navigate(`/services/${service.categoryId?.slug || "wooden-work-services"}/${service.slug}`)}><OpenInNewIcon /></IconButton>
                   </Box>
                 </Box>
               </Box>

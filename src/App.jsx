@@ -38,6 +38,7 @@ import Header from './components/layout/Header';
 import Footer from './components/layout/Footer';
 import ScrollToTop from './components/layout/ScrollToTop';
 import FloatingWhatsAppButton from './components/common/FloatingWhatsAppButton';
+import WebsitePopup from './components/common/WebsitePopup';
 
 // Import Pages
 import HomePage from './pages/HomePage';
@@ -45,6 +46,7 @@ import TendersPage from './pages/TendersPage';
 import PostTenderPage from './pages/PostTenderPage';
 import HowItWorksPage from './pages/HowItWorksPage';
 import AboutPage from './pages/AboutPage';
+import HouseConstructionGuidePage from './pages/HouseConstructionGuidePage';
 import ContactPage from './pages/ContactPage';
 import BlogListPage from './pages/BlogListPage';
 import BlogDetailPage from './pages/BlogDetailPage';
@@ -84,6 +86,7 @@ import BlogsManagement from './components/admin/BlogsManagement';
 import GalleryManagement from './components/admin/GalleryManagement';
 import MarketplaceDashboard from './components/admin/MarketplaceDashboard';
 import AboutContentManagement from './components/admin/AboutContentManagement';
+import PopupManagement from './components/admin/PopupManagement';
 
 import './App.css';
 
@@ -117,6 +120,7 @@ const AdminRouter = () => {
         <Route path="blogs" element={<BlogsManagement />} />
         <Route path="about-page" element={<AboutContentManagement />} />
         <Route path="gallery" element={<GalleryManagement />} />
+        <Route path="popups" element={<PopupManagement />} />
         <Route path="inquiries" element={<InquiriesManagement />} />
         <Route path="marketplace" element={<Navigate to="/admin/marketplace/analytics" replace />} />
         <Route path="marketplace/:moduleId" element={<MarketplaceDashboard />} />
@@ -179,10 +183,13 @@ function App() {
                     <Route path="/tenders" element={<TendersPage />} />
                     <Route path="/post-tender" element={<PostTenderPage />} />
                     <Route path="/how-it-works" element={<HowItWorksPage />} />
+                    <Route path="/house-construction-guide" element={<HouseConstructionGuidePage />} />
                     <Route path="/about" element={<AboutPage />} />
                     <Route path="/contact" element={<ContactPage />} />
                     <Route path="/blogs" element={<BlogListPage />} />
                     <Route path="/blogs/:slug" element={<BlogDetailPage />} />
+                    <Route path="/blog" element={<Navigate to="/blogs" replace />} />
+                    <Route path="/blog/:slug" element={<BlogDetailPage />} />
                     <Route path="/gallery" element={<GalleryPage />} />
                     <Route path="/services" element={<ServicesPage />} />
                     <Route path="/services/:slug" element={<CatalogSlugPage />} />
@@ -210,6 +217,7 @@ function App() {
 
                 <Footer />
                 <FloatingWhatsAppButton />
+                <WebsitePopup />
                 <QuoteModal />
               </Box>
             }

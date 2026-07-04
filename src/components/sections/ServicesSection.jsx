@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuoteModal } from "../../contexts/QuoteModalContext";
 
@@ -60,6 +60,7 @@ const ServicesSection = () => {
   const theme = useTheme();
   const navigate = useNavigate();
   const { openQuote } = useQuoteModal();
+  const sectionRef = useRef(null);
   const fullScreen =
     useMediaQuery(theme.breakpoints.down("sm"));
 
@@ -179,7 +180,8 @@ const ServicesSection = () => {
 
   const handleServiceClick = (service) => {
     if (service.slug) {
-      navigate(`/services/${service.slug}`);
+      const categorySlug = activeCategory.slug || service.categoryId?.slug || "wooden-work-services";
+      navigate(`/services/${categorySlug}/${service.slug}`);
       return;
     }
 
@@ -197,6 +199,20 @@ const ServicesSection = () => {
       message: ""
     });
 
+  };
+
+  const handleCategoryChange = (index) => {
+    setSelectedCategory(index);
+    setVisibleServices(6);
+
+    if (fullScreen) {
+      window.requestAnimationFrame(() => {
+        sectionRef.current?.scrollIntoView({
+          behavior: "smooth",
+          block: "start"
+        });
+      });
+    }
   };
 
   /* ================= FORM ================= */
@@ -349,6 +365,7 @@ Phone: ${formData.phone}`;
     <>
 
       <Box
+        ref={sectionRef}
         sx={{
           py: { xs: 6, md: 10 },
           background:
@@ -421,10 +438,7 @@ Phone: ${formData.phone}`;
               {serviceCategories.map((cat, i) => (
                 <Button
                   key={cat._id}
-                  onClick={() => {
-                    setSelectedCategory(i);
-                    setVisibleServices(6);
-                  }}
+                  onClick={() => handleCategoryChange(i)}
                   sx={{
                     borderRadius: { xs: "14px", sm: "30px" },
                     px: { xs: 0.5, sm: 2 },
@@ -503,19 +517,12 @@ Phone: ${formData.phone}`;
               }}
             >
               {displayedServices.map(service => {
-                const serviceImages =
-                  getServiceImages(service);
-
-                const activeImage =
-                  serviceImages.length > 0
-                    ? logStaticAssetUrl(
-                        `services-card:${service.name}`,
-                        serviceImages[
-                          sliderTick %
-                          serviceImages.length
-                        ]
-                      )
-                    : "";
+                const activeImage = service.heroImage
+                  ? logStaticAssetUrl(
+                      `services-card:${service.name}`,
+                      service.heroImage
+                    )
+                  : "";
 
                 return (
                   <motion.div
@@ -536,7 +543,7 @@ Phone: ${formData.phone}`;
                         cursor: "pointer",
                         borderRadius: { xs: "14px", md: "20px" },
                         background: activeImage
-                          ? `linear-gradient(180deg, rgba(17,17,17,0.55), rgba(15,23,42,0.9)), url("${activeImage}") center/cover no-repeat`
+                          ? `linear-gradient(180deg, rgba(17,17,17,0.55), rgba(15,23,42,0.9)), url("${activeImage}") center/100% 100% no-repeat`
                           : "rgba(245,245,245,0.05)",
                         color: "#F5F5F5",
                         transition: "all 0.3s ease",
@@ -552,10 +559,11 @@ Phone: ${formData.phone}`;
                           ? "1px solid rgba(212,175,55,0.24)"
                           : "1px solid transparent",
                         "&:hover": {
-                          border:
-                            "1px solid #D4AF37",
-                          transform: "translateY(-5px)",
-                          background: "rgba(245,245,245,0.1)"
+                          borderColor: "#D4AF37",
+                          transform: "translateY(-8px)",
+                          boxShadow: activeImage 
+                            ? "0 20px 40px rgba(0,0,0,0.55), 0 0 25px rgba(212,175,55,0.25)" 
+                            : "0 12px 30px rgba(0,0,0,0.45)"
                         }
                       }}
                     >

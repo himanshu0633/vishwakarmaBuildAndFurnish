@@ -6,10 +6,19 @@ const DEFAULT_SITE_URL = 'https://vishwakarmabuildandfurnish.in';
 const DEFAULT_DESCRIPTION =
   'Looking for the best construction contractor or interior designer in Charkhi Dadri? Vishwakarma Build & Furnish offers premium house construction, modular kitchens, wooden doors, and custom furniture at affordable prices. Get a free consultation today!';
 const DEFAULT_IMAGE = '/logo.png';
-const MAX_TITLE_LENGTH = 100;
+const MAX_TITLE_LENGTH = 60;
 const MAX_DESCRIPTION_LENGTH = 300;
 
-const siteUrl = (import.meta.env.VITE_SITE_URL || DEFAULT_SITE_URL).replace(/\/+$/, '');
+const getSiteUrl = () => {
+  if (import.meta.env.VITE_SITE_URL) {
+    return import.meta.env.VITE_SITE_URL.replace(/\/+$/, '');
+  }
+  if (typeof window !== 'undefined' && window.location && window.location.origin) {
+    return window.location.origin;
+  }
+  return DEFAULT_SITE_URL;
+};
+const siteUrl = getSiteUrl();
 
 const trimToLength = (value, maxLength) => {
   const text = String(value || '').replace(/\s+/g, ' ').trim();
@@ -105,6 +114,7 @@ export const useSeo = ({
     setMeta('twitter:title', fullTitle);
     setMeta('twitter:description', cleanDescription);
     setMeta('twitter:image', imageUrl);
+    setMeta('twitter:url', canonicalUrl);
 
     const scriptId = 'page-json-ld';
     let script = document.getElementById(scriptId);

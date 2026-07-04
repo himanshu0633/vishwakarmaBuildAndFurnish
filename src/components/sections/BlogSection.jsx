@@ -56,7 +56,7 @@ const BlogSection = () => {
 
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" }, gap: 3 }}>
           {blogs.map((blog, index) => {
-            const image = getStaticAssetUrl(blog.coverImage || blog.relatedServices?.[0]?.heroImage || blog.relatedServices?.[0]?.images?.[0] || "");
+            const image = getStaticAssetUrl(blog.blogImages?.[0] || blog.blogImage || blog.coverImage || blog.relatedServices?.[0]?.heroImage || blog.relatedServices?.[0]?.images?.[0] || "");
 
             return (
               <Paper
@@ -107,7 +107,7 @@ const BlogSection = () => {
                 <Box sx={{ p: 3, display: "flex", flexDirection: "column", flexGrow: 1 }}>
                   <Box>
                     <Chip
-                      label={blog.category || "Guide"}
+                      label={blog.categoryId?.name || blog.category || "Guide"}
                       size="small"
                       sx={{ bgcolor: "rgba(212,175,55,0.92)", color: "#111827", fontWeight: 900, mb: 1.5 }}
                     />

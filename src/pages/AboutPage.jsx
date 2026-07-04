@@ -10,6 +10,16 @@ import {
 import PhoneIcon from "@mui/icons-material/Phone";
 import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import ConstructionIcon from "@mui/icons-material/Construction";
+import AssignmentIcon from "@mui/icons-material/Assignment";
+import ArchitectureIcon from "@mui/icons-material/Architecture";
+import DescriptionIcon from "@mui/icons-material/Description";
+import FoundationIcon from "@mui/icons-material/Foundation";
+import GridOnIcon from "@mui/icons-material/GridOn";
+import BuildIcon from "@mui/icons-material/Build";
+import FlashOnIcon from "@mui/icons-material/FlashOn";
+import ShowerIcon from "@mui/icons-material/Shower";
+import WeekendIcon from "@mui/icons-material/Weekend";
+import KeyIcon from "@mui/icons-material/Key";
 import ChairIcon from "@mui/icons-material/Chair";
 import DesignServicesIcon from "@mui/icons-material/DesignServices";
 import VerifiedIcon from "@mui/icons-material/Verified";
@@ -410,6 +420,131 @@ const AboutPage = () => {
           </InfoPanel>
         </TwoColumn>
       </Section>
+
+      {/* OUR CONSTRUCTION PROCESS Timeline Section */}
+      <Box sx={{ py: { xs: 6, md: 8 }, bgcolor: "#0B0F19", overflow: "hidden", borderTop: "1px solid rgba(212,175,55,0.16)", borderBottom: "1px solid rgba(212,175,55,0.16)" }}>
+        <Container maxWidth="lg">
+          <Box sx={{ textAlign: "center", mb: 6 }}>
+            <Box sx={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 2, mb: 1 }}>
+              <Box sx={{ width: 40, height: "2px", bgcolor: "#D4AF37" }} />
+              <Typography
+                variant="h3"
+                sx={{
+                  fontWeight: 950,
+                  fontSize: { xs: "1.35rem", md: "2.1rem" },
+                  color: "#F8FAFC",
+                  textTransform: "uppercase",
+                  letterSpacing: 1
+                }}
+              >
+                OUR CONSTRUCTION PROCESS
+              </Typography>
+              <Box sx={{ width: 40, height: "2px", bgcolor: "#D4AF37" }} />
+            </Box>
+            <Box
+              sx={{
+                width: 6,
+                height: 6,
+                bgcolor: "#D4AF37",
+                transform: "rotate(45deg)",
+                mx: "auto",
+                mt: 1.5
+              }}
+            />
+          </Box>
+          <Box sx={{ position: "relative", width: "100%", mt: 6 }}>
+            {/* Dashed Connector Line */}
+            <Box
+              sx={{
+                position: "absolute",
+                top: { xs: "23px", md: "28px" },
+                left: "4%",
+                right: "4%",
+                height: "2px",
+                borderTop: "2px dashed rgba(212,175,55,0.4)",
+                zIndex: 1,
+                display: { xs: "none", lg: "block" }
+              }}
+            />
+
+            {/* Steps Row */}
+            <Box
+              sx={{
+                display: "flex",
+                flexDirection: "row",
+                flexWrap: { xs: "wrap", lg: "nowrap" },
+                justifyContent: "space-between",
+                alignItems: "flex-start",
+                gap: { xs: 3, lg: 1 },
+                position: "relative",
+                zIndex: 2
+              }}
+            >
+              {[
+                { label: "Planning & Design", icon: <AssignmentIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
+                { label: "Foundation Work", icon: <FoundationIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
+                { label: "Structure Work", icon: <GridOnIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
+                { label: "Brick Work", icon: <GridOnIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
+                { label: "Plaster Work", icon: <BuildIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
+                { label: "Electrical Work", icon: <FlashOnIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
+                { label: "Plumbing Work", icon: <ShowerIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
+                { label: "Flooring & Tiling", icon: <GridOnIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> },
+                { label: "Finishing & Handover", icon: <KeyIcon sx={{ fontSize: { xs: "1.1rem", md: "1.45rem" } }} /> }
+              ].map((step) => (
+                <Box
+                  key={step.label}
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    alignItems: "center",
+                    textAlign: "center",
+                    width: { xs: "calc(33.33% - 16px)", sm: "calc(25% - 16px)", lg: "auto" },
+                    flex: { xs: "none", lg: 1 },
+                    flexShrink: 0
+                  }}
+                >
+                  {/* Circle */}
+                  <Box
+                    sx={{
+                      width: { xs: 46, md: 56 },
+                      height: { xs: 46, md: 56 },
+                      borderRadius: "50%",
+                      bgcolor: "#0B0F19",
+                      border: "2px solid #D4AF37",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      color: "#D4AF37",
+                      mb: 1.5,
+                      transition: "all 0.3s ease",
+                      boxShadow: "0 0 10px rgba(212,175,55,0.15)",
+                      "&:hover": {
+                        transform: "scale(1.15)",
+                        boxShadow: "0 0 18px rgba(212,175,55,0.45)",
+                        bgcolor: "#D4AF37",
+                        color: "#0B0F19"
+                      }
+                    }}
+                  >
+                    {step.icon}
+                  </Box>
+                  {/* Label */}
+                  <Typography
+                    sx={{
+                      fontWeight: 800,
+                      fontSize: { xs: "0.72rem", md: "0.82rem" },
+                      color: "#F8FAFC",
+                      lineHeight: 1.25
+                    }}
+                  >
+                    {step.label}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        </Container>
+      </Box>
 
       <Section dark>
         <CenterHeader title="What We Specialize In" subtitle="Construction, furniture manufacturing, and interior services under one trusted brand." />

@@ -244,7 +244,7 @@ const ContactPage = () => {
               <TextField name="location" label="Location (Optional)" value={formData.location} onChange={handleChange} fullWidth sx={fieldSx} />
               <Button component="label" startIcon={<UploadFileIcon />} variant="outlined" sx={{ minHeight: 56, borderColor: "#D4AF37", color: "#D4AF37", textTransform: "none" }}>
                 Upload Image
-                <input hidden type="file" accept="image/*" onChange={(event) => setUploadName(event.target.files?.[0]?.name || "")} />
+                <input aria-label="Upload project image" hidden type="file" accept="image/*" onChange={(event) => setUploadName(event.target.files?.[0]?.name || "")} />
               </Button>
               <Box sx={{ display: "grid", gridTemplateColumns: "1fr auto", gap: 1 }}>
                 <TextField

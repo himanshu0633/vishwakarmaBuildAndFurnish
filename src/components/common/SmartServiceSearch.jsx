@@ -575,7 +575,8 @@ const SmartServiceSearch = () => {
     const hasServiceIntent = serviceIntentWords.some((word) => normalizedQuery.includes(word));
 
     if (bestService?.score > 0 && (hasServiceIntent || bestService.score >= 4)) {
-      navigate(`/services/${bestService.service.slug}`);
+      const categorySlug = bestService.service.categoryId?.slug || "wooden-work-services";
+      navigate(`/services/${categorySlug}/${bestService.service.slug}`);
       return;
     }
 
@@ -586,7 +587,8 @@ const SmartServiceSearch = () => {
     }
 
     if (bestService?.score > 0) {
-      navigate(`/services/${bestService.service.slug}`);
+      const categorySlug = bestService.service.categoryId?.slug || "wooden-work-services";
+      navigate(`/services/${categorySlug}/${bestService.service.slug}`);
       return;
     }
 

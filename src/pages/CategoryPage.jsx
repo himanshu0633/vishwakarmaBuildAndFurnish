@@ -88,7 +88,7 @@ const CategoryPage = () => {
           {(category.services || []).map(service => (
             <Paper
               key={service._id}
-              onClick={() => navigate(`/services/${service.slug}`)}
+              onClick={() => navigate(`/services/${category.slug || service.categoryId?.slug || "wooden-work-services"}/${service.slug}`)}
               sx={{
                 p: 3,
                 cursor: "pointer",

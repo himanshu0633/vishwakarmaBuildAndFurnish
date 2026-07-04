@@ -79,6 +79,7 @@ const ServicesManagement = () => {
     shortDescription: "",
     fullDescription: "",
     emoji: "🔧",
+    heroImage: "",
     images: "",
     popular: false,
     featured: false,
@@ -159,6 +160,7 @@ const ServicesManagement = () => {
         shortDescription: service.shortDescription || service.desc || "",
         fullDescription: service.fullDescription || service.description || description,
         emoji: service.emoji || "🔧",
+        heroImage: service.heroImage || "",
         images: asCommaText(service.images),
         popular: service.popular || false,
         featured: service.featured || false,
@@ -179,6 +181,7 @@ const ServicesManagement = () => {
         shortDescription: "",
         fullDescription: "",
         emoji: "🔧",
+        heroImage: "",
         images: "",
         popular: false,
         featured: false,
@@ -205,6 +208,7 @@ const ServicesManagement = () => {
       shortDescription: "",
       fullDescription: "",
       emoji: "🔧",
+      heroImage: "",
       images: "",
       popular: false,
       featured: false,
@@ -246,6 +250,7 @@ const ServicesManagement = () => {
         shortDescription: formData.shortDescription,
         fullDescription: formData.fullDescription,
         emoji: formData.emoji,
+        heroImage: formData.heroImage,
         images: parseCommaText(formData.images),
         popular: formData.popular,
         featured: formData.featured,
@@ -332,14 +337,14 @@ const ServicesManagement = () => {
     return true;
   });
 
-  const handleRowImageUpload = async (serviceId, fileList) => {
+  const handleRowHeroImageUpload = async (serviceId, fileList) => {
     const files = [...fileList];
 
     if (!files.length) return;
 
     try {
       const uploadData = new FormData();
-      files.forEach(file => uploadData.append("images", file));
+      uploadData.append("heroImage", files[0]);
 
       await axiosInstance.post(`/services/${serviceId}/media`, uploadData, {
         headers: { "Content-Type": "multipart/form-data" }
@@ -347,14 +352,14 @@ const ServicesManagement = () => {
 
       setSnackbar({
         open: true,
-        message: "Image uploaded successfully",
+        message: "Hero image uploaded successfully",
         severity: "success"
       });
       fetchData();
     } catch (error) {
       setSnackbar({
         open: true,
-        message: error.response?.data?.message || "Image upload failed",
+        message: error.response?.data?.message || "Hero image upload failed",
         severity: "error"
       });
     }
@@ -704,68 +709,59 @@ const ServicesManagement = () => {
                     </TableCell>
                     <TableCell>
                       <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                        {(() => {
-                          const previews = [
-                            ...(service.images || []).map(url => ({ field: "images", url })),
-                            ...(service.beforeImages || []).map(url => ({ field: "beforeImages", url })),
-                            ...(service.afterImages || []).map(url => ({ field: "afterImages", url }))
-                          ];
-                          const firstImage = previews[0];
-
-                          return firstImage ? (
-                            <Box sx={{ position: "relative", width: 72, height: 54, flex: "0 0 auto" }}>
-                              <Box
-                                component="img"
-                                src={logStaticAssetUrl(`admin-services:${service.name}`, firstImage.url)}
-                                alt={service.name}
-                                onError={(event) => {
-                                  console.error("[media-url] admin services image failed", {
-                                    service: service.name,
-                                    rawUrl: firstImage.url,
-                                    renderedSrc: event.currentTarget.src
-                                  });
-                                }}
-                                sx={{
-                                  width: "100%",
-                                  height: "100%",
-                                  objectFit: "cover",
-                                  borderRadius: 1,
-                                  border: "1px solid rgba(212,175,55,0.35)"
-                                }}
-                              />
-                              <IconButton
-                                size="small"
-                                onClick={() => handleMediaDelete(service._id, firstImage.field, firstImage.url)}
-                                sx={{
-                                  position: "absolute",
-                                  top: -8,
-                                  right: -8,
-                                  width: 22,
-                                  height: 22,
-                                  bgcolor: "#b91c1c",
-                                  color: "#fff",
-                                  "&:hover": { bgcolor: "#ef4444" }
-                                }}
-                              >
-                                <DeleteIcon sx={{ fontSize: 14 }} />
-                              </IconButton>
-                            </Box>
-                          ) : (
+                        {service.heroImage ? (
+                          <Box sx={{ position: "relative", width: 72, height: 54, flex: "0 0 auto" }}>
                             <Box
+                              component="img"
+                              src={logStaticAssetUrl(`admin-services:${service.name}`, service.heroImage)}
+                              alt={service.name}
+                              onError={(event) => {
+                                console.error("[media-url] admin services hero image failed", {
+                                  service: service.name,
+                                  rawUrl: service.heroImage,
+                                  renderedSrc: event.currentTarget.src
+                                });
+                              }}
                               sx={{
-                                width: 72,
-                                height: 54,
+                                width: "100%",
+                                height: "100%",
+                                objectFit: "cover",
                                 borderRadius: 1,
-                                border: "1px dashed rgba(212,175,55,0.35)",
-                                display: "grid",
-                                placeItems: "center",
-                                color: "rgba(245,245,245,0.45)"
+                                border: "1px solid rgba(212,175,55,0.35)"
+                              }}
+                            />
+                            <IconButton
+                              size="small"
+                              onClick={() => handleMediaDelete(service._id, "heroImage", service.heroImage)}
+                              sx={{
+                                position: "absolute",
+                                top: -8,
+                                right: -8,
+                                width: 22,
+                                height: 22,
+                                bgcolor: "#b91c1c",
+                                color: "#fff",
+                                "&:hover": { bgcolor: "#ef4444" }
                               }}
                             >
-                              <ImageIcon fontSize="small" />
-                            </Box>
-                          );
-                        })()}
+                              <DeleteIcon sx={{ fontSize: 14 }} />
+                            </IconButton>
+                          </Box>
+                        ) : (
+                          <Box
+                            sx={{
+                              width: 72,
+                              height: 54,
+                              borderRadius: 1,
+                              border: "1px dashed rgba(212,175,55,0.35)",
+                              display: "grid",
+                              placeItems: "center",
+                              color: "rgba(245,245,245,0.45)"
+                            }}
+                          >
+                            <ImageIcon fontSize="small" />
+                          </Box>
+                        )}
                         <Box>
                           <IconButton
                             component="label"
@@ -778,18 +774,13 @@ const ServicesManagement = () => {
                           >
                             <CloudUploadIcon fontSize="small" />
                             <input
+                              aria-label="Upload service hero image"
                               hidden
                               type="file"
-                              multiple
                               accept="image/*"
-                              onChange={(e) => handleRowImageUpload(service._id, e.target.files)}
+                              onChange={(e) => handleRowHeroImageUpload(service._id, e.target.files)}
                             />
                           </IconButton>
-                          {getServiceImages(service).length > 1 && (
-                            <Typography sx={{ color: "rgba(245,245,245,0.55)", fontSize: "0.72rem", mt: 0.5 }}>
-                              +{getServiceImages(service).length - 1}
-                            </Typography>
-                          )}
                         </Box>
                       </Box>
                     </TableCell>
@@ -1220,6 +1211,25 @@ const ServicesManagement = () => {
             />
             <TextField
               fullWidth
+              label="Hero Image URL"
+              margin="normal"
+              value={formData.heroImage}
+              onChange={(e) => setFormData({ ...formData, heroImage: e.target.value })}
+              helperText="URL or path of the hero image (e.g. uploads/services/service-xxxx.jpg)"
+              sx={{
+                '& .MuiOutlinedInput-root': {
+                  color: '#fff',
+                  '& fieldset': { borderColor: 'rgba(212,175,55,0.3)' },
+                  '&:hover fieldset': { borderColor: '#D4AF37' },
+                  '&.Mui-focused fieldset': { borderColor: '#D4AF37' }
+                },
+                '& .MuiInputLabel-root': { color: 'rgba(245,245,245,0.7)' },
+                '& .MuiInputLabel-root.Mui-focused': { color: '#D4AF37' },
+                '& .MuiFormHelperText-root': { color: 'rgba(245,245,245,0.5)' }
+              }}
+            />
+            <TextField
+              fullWidth
               label="Image URLs"
               margin="normal"
               value={formData.images}
@@ -1312,6 +1322,7 @@ const ServicesManagement = () => {
             >
               Upload Images
               <input
+                aria-label="Upload Images"
                 hidden
                 type="file"
                 multiple

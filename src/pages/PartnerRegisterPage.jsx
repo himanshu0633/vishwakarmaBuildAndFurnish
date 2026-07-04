@@ -144,7 +144,7 @@ export default function PartnerRegisterPage() {
 
             <Button variant="outlined" component="label">
               Shop Images
-              <input hidden multiple type="file" accept="image/*" onChange={(e) => setShopImages([...e.target.files])} />
+              <input aria-label="Upload Shop Images" hidden multiple type="file" accept="image/*" onChange={(e) => setShopImages([...e.target.files])} />
             </Button>
             <Button variant="contained" onClick={submit}>Submit Partner Registration</Button>
           </Stack>

@@ -812,6 +812,7 @@ const handleSubmitInquiry = async () => {
                     <input
                       type="text"
                       name="name"
+                      aria-label="Full Name"
                       placeholder="Full Name *"
                       value={formData.name}
                       onChange={handleInputChange}
@@ -833,6 +834,7 @@ const handleSubmitInquiry = async () => {
                     <input
                       type="tel"
                       name="phone"
+                      aria-label="Phone Number"
                       placeholder="Phone Number *"
                       value={formData.phone}
                       onChange={handleInputChange}
@@ -854,6 +856,7 @@ const handleSubmitInquiry = async () => {
                     <input
                       type="email"
                       name="email"
+                      aria-label="Email Address"
                       placeholder="Email Address *"
                       value={formData.email}
                       onChange={handleInputChange}
@@ -875,6 +878,7 @@ const handleSubmitInquiry = async () => {
                     <input
                       type="text"
                       name="address"
+                      aria-label="Your Address"
                       placeholder="Your Address *"
                       value={formData.address}
                       onChange={handleInputChange}
@@ -896,6 +900,7 @@ const handleSubmitInquiry = async () => {
                     <input
                       type="text"
                       name="company"
+                      aria-label="Company Name"
                       placeholder="Company Name (Optional)"
                       value={formData.company}
                       onChange={handleInputChange}
@@ -915,6 +920,7 @@ const handleSubmitInquiry = async () => {
                   <Box>
                     <textarea
                       name="message"
+                      aria-label="Additional Message"
                       placeholder="Additional Message (Optional)"
                       value={formData.message}
                       onChange={handleInputChange}

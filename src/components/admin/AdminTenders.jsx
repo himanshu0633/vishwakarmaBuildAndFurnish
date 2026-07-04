@@ -993,7 +993,7 @@ const AdminTenders = () => {
                     }}
                   >
                     Choose PDF File
-                    <input type="file" accept=".pdf" hidden onChange={handleFileChange} />
+                    <input aria-label="Upload PDF Tender Document" type="file" accept=".pdf" hidden onChange={handleFileChange} />
                   </Button>
                   {formData.pdf && (
                     <Typography sx={{ color: '#2ecc71', mt: 1, fontSize: '12px' }}>

@@ -5,10 +5,12 @@ import {
   Button,
   Chip,
   CircularProgress,
+  IconButton,
   MenuItem,
   Paper,
   Snackbar,
   TextField,
+  Tooltip,
   Typography
 } from "@mui/material";
 import {
@@ -17,7 +19,8 @@ import {
   Collections as MediaIcon,
   Image as ImageIcon,
   Movie as VideoIcon,
-  Compare as CompareIcon
+  Compare as CompareIcon,
+  Delete as DeleteIcon
 } from "@mui/icons-material";
 import axiosInstance, { logStaticAssetUrl } from "../../../utils/axiosConfig";
 import { getCategoryEmoji, getCategoryName } from "../../utils/catalogSchema";
@@ -88,6 +91,7 @@ const ServiceMediaManagement = () => {
   const [loadingServices, setLoadingServices] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [urlUploading, setUrlUploading] = useState(false);
+  const [deletingMediaKey, setDeletingMediaKey] = useState("");
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "success" });
 
   const selectedCategory = useMemo(
@@ -259,6 +263,37 @@ const ServiceMediaManagement = () => {
     }
   };
 
+  const handleMediaDelete = async (field, url) => {
+    if (!selectedServiceId) return;
+
+    const confirmed = window.confirm("Delete this media from the selected service?");
+    if (!confirmed) return;
+
+    const mediaKey = `${field}-${url}`;
+
+    try {
+      setDeletingMediaKey(mediaKey);
+      await axiosInstance.delete(`/services/${selectedServiceId}/media`, {
+        data: { field, url }
+      });
+
+      setSnackbar({
+        open: true,
+        message: "Media deleted successfully",
+        severity: "success"
+      });
+      await fetchServicesByCategory(selectedCategoryId);
+    } catch (error) {
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || "Media delete failed",
+        severity: "error"
+      });
+    } finally {
+      setDeletingMediaKey("");
+    }
+  };
+
   const buildMediaItems = (key, type) =>
     (selectedService?.[key] || []).map(src => ({ type, src, group: key }));
 
@@ -405,6 +440,7 @@ const ServiceMediaManagement = () => {
               >
                 {section.button}
                 <input
+                  aria-label={section.button}
                   hidden
                   type="file"
                   multiple
@@ -539,8 +575,45 @@ const ServiceMediaManagement = () => {
                 <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", lg: "repeat(3, 1fr)" }, gap: 2 }}>
                   {group.items.map((item) => {
                     const src = logStaticAssetUrl(`service-media:${selectedService?.name || "service"}`, item.src);
+                    const mediaKey = `${group.key}-${item.src}`;
+                    const isDeleting = deletingMediaKey === mediaKey;
                     return (
-                      <Paper key={`${group.key}-${item.src}`} sx={{ overflow: "hidden", background: "#0F172A", border: "1px solid rgba(212,175,55,0.2)" }}>
+                      <Paper
+                        key={mediaKey}
+                        sx={{
+                          position: "relative",
+                          overflow: "hidden",
+                          background: "#0F172A",
+                          border: "1px solid rgba(212,175,55,0.2)"
+                        }}
+                      >
+                        <Tooltip title="Delete media">
+                          <span>
+                            <IconButton
+                              aria-label="Delete media"
+                              disabled={!!deletingMediaKey}
+                              onClick={() => handleMediaDelete(group.key, item.src)}
+                              sx={{
+                                position: "absolute",
+                                top: 8,
+                                right: 8,
+                                zIndex: 2,
+                                color: "#FFFFFF",
+                                bgcolor: "rgba(127,29,29,0.9)",
+                                border: "1px solid rgba(254,202,202,0.35)",
+                                "&:hover": {
+                                  bgcolor: "rgba(185,28,28,0.95)"
+                                },
+                                "&.Mui-disabled": {
+                                  color: "rgba(255,255,255,0.65)",
+                                  bgcolor: "rgba(127,29,29,0.45)"
+                                }
+                              }}
+                            >
+                              {isDeleting ? <CircularProgress size={20} sx={{ color: "#FFFFFF" }} /> : <DeleteIcon fontSize="small" />}
+                            </IconButton>
+                          </span>
+                        </Tooltip>
                         {item.type === "video" ? (
                           <Box component="video" src={src} controls sx={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block" }} />
                         ) : (

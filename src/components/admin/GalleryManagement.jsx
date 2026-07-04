@@ -319,7 +319,7 @@ const GalleryManagement = () => {
           <TextField label="Image URL (optional if uploading file)" value={formData.image} onChange={(event) => setFormData({ ...formData, image: event.target.value })} fullWidth sx={inputSx} />
           <Button component="label" startIcon={<UploadFileIcon />} variant="outlined" sx={{ borderColor: '#D4AF37', color: '#D4AF37', textTransform: 'none', minHeight: 52 }}>
             {imageFile ? imageFile.name : 'Upload Photo'}
-            <input hidden type="file" accept="image/*" onChange={(event) => setImageFile(event.target.files?.[0] || null)} />
+            <input aria-label="Upload Gallery Image" hidden type="file" accept="image/*" onChange={(event) => setImageFile(event.target.files?.[0] || null)} />
           </Button>
           <TextField label="Description" value={formData.description} onChange={(event) => setFormData({ ...formData, description: event.target.value })} fullWidth multiline minRows={2} sx={inputSx} />
           <TextField label="Order" type="number" value={formData.order} onChange={(event) => setFormData({ ...formData, order: event.target.value })} fullWidth sx={inputSx} />

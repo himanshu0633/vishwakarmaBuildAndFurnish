@@ -1169,6 +1169,7 @@ const ServicesPage = () => {
                       <input
                         type={field.type}
                         name={field.name}
+                        aria-label={field.placeholder.replace(' *', '')}
                         placeholder={field.placeholder}
                         value={formData[field.name]}
                         onChange={handleInputChange}
@@ -1192,6 +1193,7 @@ const ServicesPage = () => {
                   <Box>
                     <textarea
                       name="message"
+                      aria-label="Additional Message"
                       placeholder="Additional Message (Optional)"
                       value={formData.message}
                       onChange={handleInputChange}

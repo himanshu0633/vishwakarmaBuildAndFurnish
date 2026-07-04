@@ -311,7 +311,7 @@ const BlogsManagement = () => {
             </TableHead>
             <TableBody>
               {blogs.map((blog) => {
-                const image = getStaticAssetUrl(blog.coverImage || blog.blogImages?.[0] || blog.blogImage || blog.relatedServices?.[0]?.heroImage || blog.relatedServices?.[0]?.images?.[0] || '');
+                const image = getStaticAssetUrl(blog.blogImages?.[0] || blog.blogImage || blog.coverImage || blog.relatedServices?.[0]?.heroImage || blog.relatedServices?.[0]?.images?.[0] || '');
 
                 return (
                   <TableRow key={blog._id} hover sx={{ '&:hover': { bgcolor: 'rgba(212,175,55,0.06)' } }}>
@@ -331,7 +331,7 @@ const BlogsManagement = () => {
                       <Typography sx={{ fontWeight: 900, overflowWrap: 'anywhere' }}>{blog.title}</Typography>
                       <Typography sx={{ color: 'rgba(248,250,252,0.6)', fontSize: '0.82rem', overflowWrap: 'anywhere' }}>{blog.slug}</Typography>
                     </TableCell>
-                    <TableCell sx={{ color: '#F8FAFC', borderColor: 'rgba(212,175,55,0.12)' }}>{blog.category}</TableCell>
+                    <TableCell sx={{ color: '#F8FAFC', borderColor: 'rgba(212,175,55,0.12)' }}>{blog.categoryId?.name || blog.category}</TableCell>
                     <TableCell sx={{ borderColor: 'rgba(212,175,55,0.12)' }}>
                       <Box sx={{ display: 'flex', gap: 0.7, flexWrap: 'wrap' }}>
                         {(blog.relatedServices || []).filter(Boolean).slice(0, 3).map((service) => (

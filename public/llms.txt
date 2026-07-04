@@ -1,0 +1,26 @@
+# Vishwakarma Build & Furnish
+
+> Premium turnkey house construction, civil contracting, modern interior design, and custom furniture manufacturing based in Charkhi Dadri, Haryana.
+
+## Information
+- **URL**: https://vishwakarmabuildandfurnish.in/
+- **Description**: Vishwakarma Build & Furnish offers premium end-to-end residential construction and contemporary interior design services. We specialize in modular kitchens, wardrobes, ceiling layouts, and custom woodwork.
+- **Service Area**: Charkhi Dadri, Bhiwani, Mahendragarh, Rohtak, Jhajjar, Rewari, and nearby regions in Haryana, India.
+- **Contact Phone**: +91-9416856468
+- **Office Location**: Charkhi Dadri, Haryana, India
+
+## Main Services
+- **House Construction**: Complete structural design, layout planning, civil engineering, and turnkey construction with material options and structural guarantee.
+- **Interior Design**: Customized modular kitchens (L-shape, U-shape, parallel layouts), false ceilings, PVC paneling, wallpaper, and home painting.
+- **Custom Woodwork**: Modern designer wooden doors, windows, jali single/double doors, custom double beds, luxury sofa sets, and wardrobes.
+- **Contractor Tenders**: Partners, suppliers, and contractors can view open civil tenders, submit quotes, or register as verified local business providers.
+
+## Key Sitemap & Pages
+- **Home (`/`)**: Main hub presenting recent services, blog posts, process details, and testimonials.
+- **Services (`/services`)**: Full catalog of available services categorized by construction, interior design, and custom furniture.
+- **Gallery (`/gallery`)**: High-definition portfolio images showcasing completed modular kitchen, false ceiling, and structural work.
+- **House Construction Guide (`/house-construction-guide`)**: Step-by-step walkthrough detailing stages from planning and foundation to flooring and finishing.
+- **Tenders (`/tenders`)**: Available tender postings for contractors and site workers.
+- **Post Tender (`/post-tender`)**: Submission page for launching project inquiries and civil tenders.
+- **About Us (`/about`)**: Company background, family values, craftsmanship legacy, and customer support details.
+- **Contact (`/contact`)**: Form for free quote requests, phone contacts, WhatsApp inquiries, and office map layout.
