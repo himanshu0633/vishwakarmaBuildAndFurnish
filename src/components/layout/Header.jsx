@@ -73,10 +73,10 @@ const Header = () => {
 
   const mobileBaseNavItems = [
     { label: "Home", icon: <HomeIcon />, path: "/" },
-    { label: "Wooden Work", icon: <ChairIcon />, path: "/services/wooden-work-services" },
     { label: "Construction", icon: <ConstructionIcon />, path: "/services/construction-services" },
+    { label: "Wooden Work", icon: <ChairIcon />, path: "/services/wooden-work-services" },
     { label: "Interior", icon: <EngineeringIcon />, path: "/services/interior-services" },
-    // { label: "Partners", icon: <StorefrontIcon />, path: "/partners" },
+    { label: "Gallery", icon: <ImageIcon />, path: "/gallery" },
     { label: "About", icon: <InfoIcon />, path: "/about" },
     { label: "Contact", icon: <CallIcon />, path: "/contact" },
   ];
