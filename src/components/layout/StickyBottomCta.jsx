@@ -12,7 +12,7 @@ const StickyBottomCta = () => {
       elevation={10}
       sx={{
         position: "fixed",
-        bottom: 12,
+        bottom: 76,
         left: "50%",
         transform: "translateX(-50%)",
         width: "92%",

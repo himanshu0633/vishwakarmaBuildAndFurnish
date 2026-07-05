@@ -51,7 +51,7 @@ const Footer = () => {
   ];
 
   return (
-    <Box sx={{ bgcolor: "#111111", color: "#F8FAFC", position: "relative", mt: "auto", pb: { xs: '76px', md: 0 } }}>
+    <Box sx={{ bgcolor: "#111111", color: "#F8FAFC", position: "relative", mt: "auto", pb: { xs: '140px', md: 0 } }}>
       <Box sx={{ height: 4, background: "linear-gradient(90deg, #D4AF37, #B88917, #D4AF37)" }} />
 
       <IconButton
