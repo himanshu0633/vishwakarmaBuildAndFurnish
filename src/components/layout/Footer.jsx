@@ -17,6 +17,7 @@ import StorefrontIcon from "@mui/icons-material/Storefront";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import { colors, branding, socialLinks } from "../../data/constants";
+import { serviceAreas } from "../../data/localSeo";
 import iesLogo from "../../assets/logo.png";
 
 const phone = "9416856468";
@@ -161,6 +162,16 @@ const Footer = () => {
               <Typography sx={{ color: "rgba(248,250,252,0.78)", fontSize: "0.9rem" }}>
                 Monday - Sunday, 7:00 AM - 8:00 PM
               </Typography>
+            </Box>
+            <Box sx={{ mt: 2.5 }}>
+              <FooterTitle>Service Areas</FooterTitle>
+              <Stack spacing={1.1}>
+                {serviceAreas.map((area) => (
+                  <FooterLink key={area.slug} href={`/locations/${area.slug}`}>
+                    {area.name}
+                  </FooterLink>
+                ))}
+              </Stack>
             </Box>
           </Box>
         </Box>

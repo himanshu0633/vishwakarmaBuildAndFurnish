@@ -86,6 +86,7 @@ const ServiceMediaManagement = () => {
   const [selectedServiceId, setSelectedServiceId] = useState("");
   const [files, setFiles] = useState(emptyFiles);
   const [mediaUrls, setMediaUrls] = useState("");
+  const [mediaSeoForm, setMediaSeoForm] = useState({ alt: "", title: "", caption: "" });
   const [urlResults, setUrlResults] = useState(null);
   const [loadingCategories, setLoadingCategories] = useState(true);
   const [loadingServices, setLoadingServices] = useState(false);
@@ -157,6 +158,7 @@ const ServiceMediaManagement = () => {
     setSelectedServiceId("");
     setFiles(emptyFiles);
     setMediaUrls("");
+    setMediaSeoForm({ alt: "", title: "", caption: "" });
     setUrlResults(null);
     fetchServicesByCategory(selectedCategoryId);
   }, [selectedCategoryId]);
@@ -191,6 +193,9 @@ const ServiceMediaManagement = () => {
       Object.entries(files).forEach(([key, fileList]) => {
         fileList.forEach(file => formData.append(key, file));
       });
+      formData.append("mediaAlt", mediaSeoForm.alt);
+      formData.append("mediaTitle", mediaSeoForm.title);
+      formData.append("mediaCaption", mediaSeoForm.caption);
 
       await axiosInstance.post(`/services/${selectedServiceId}/media`, formData, {
         headers: { "Content-Type": "multipart/form-data" }
@@ -198,6 +203,7 @@ const ServiceMediaManagement = () => {
 
       setSnackbar({ open: true, message: "Media uploaded successfully", severity: "success" });
       setFiles(emptyFiles);
+      setMediaSeoForm({ alt: "", title: "", caption: "" });
       await fetchServicesByCategory(selectedCategoryId);
     } catch (error) {
       setSnackbar({
@@ -235,7 +241,10 @@ const ServiceMediaManagement = () => {
       setUrlUploading(true);
       setUrlResults(null);
       const response = await axiosInstance.post(`/services/${selectedServiceId}/media-url`, {
-        urls: parsedUrls
+        urls: parsedUrls,
+        mediaAlt: mediaSeoForm.alt,
+        mediaTitle: mediaSeoForm.title,
+        mediaCaption: mediaSeoForm.caption
       });
 
       const results = response.data?.results || { images: [], videos: [], failed: [] };
@@ -249,6 +258,7 @@ const ServiceMediaManagement = () => {
 
       if (addedCount) {
         setMediaUrls("");
+        setMediaSeoForm({ alt: "", title: "", caption: "" });
       }
 
       await fetchServicesByCategory(selectedCategoryId);
@@ -295,7 +305,10 @@ const ServiceMediaManagement = () => {
   };
 
   const buildMediaItems = (key, type) =>
-    (selectedService?.[key] || []).map(src => ({ type, src, group: key }));
+    (selectedService?.[key] || []).map(src => ({ type, src, group: key, seo: getMediaSeo(src) }));
+
+  const getMediaSeo = (src) =>
+    (selectedService?.mediaSeo || []).find(item => item.url === src) || {};
 
   const mediaGroups = [
     { key: "images", title: "Images", items: buildMediaItems("images", "image") },
@@ -378,6 +391,7 @@ const ServiceMediaManagement = () => {
               setSelectedServiceId(e.target.value);
               setFiles(emptyFiles);
               setMediaUrls("");
+              setMediaSeoForm({ alt: "", title: "", caption: "" });
               setUrlResults(null);
             }}
             sx={inputStyles}
@@ -456,6 +470,52 @@ const ServiceMediaManagement = () => {
             </Paper>
           ))}
         </Box>
+
+        <Paper
+          sx={{
+            p: 2,
+            mb: 3,
+            background: "rgba(15,23,42,0.72)",
+            border: "1px solid rgba(212,175,55,0.18)",
+            borderRadius: 2
+          }}
+        >
+          <Typography sx={{ color: "#F5F5F5", fontWeight: 800, mb: 0.5 }}>
+            Image SEO Fields
+          </Typography>
+          <Typography sx={{ color: "rgba(245,245,245,0.58)", fontSize: "0.85rem", mb: 1.5 }}>
+            Optional. Leave blank to auto-create text like Best Service Name design 2026 in Charkhi Dadri.
+          </Typography>
+          <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(3, 1fr)" }, gap: 2 }}>
+            <TextField
+              fullWidth
+              label="Image Alt Text"
+              value={mediaSeoForm.alt}
+              disabled={!selectedServiceId || uploading || urlUploading}
+              onChange={(event) => setMediaSeoForm(prev => ({ ...prev, alt: event.target.value }))}
+              placeholder="Best wooden door design 2026 in Charkhi Dadri"
+              sx={inputStyles}
+            />
+            <TextField
+              fullWidth
+              label="Image Title"
+              value={mediaSeoForm.title}
+              disabled={!selectedServiceId || uploading || urlUploading}
+              onChange={(event) => setMediaSeoForm(prev => ({ ...prev, title: event.target.value }))}
+              placeholder="Best design 2026"
+              sx={inputStyles}
+            />
+            <TextField
+              fullWidth
+              label="Image Caption"
+              value={mediaSeoForm.caption}
+              disabled={!selectedServiceId || uploading || urlUploading}
+              onChange={(event) => setMediaSeoForm(prev => ({ ...prev, caption: event.target.value }))}
+              placeholder="Custom service work by Vishwakarma Build & Furnish"
+              sx={inputStyles}
+            />
+          </Box>
+        </Paper>
 
         <Button
           startIcon={<UploadIcon />}
@@ -620,7 +680,8 @@ const ServiceMediaManagement = () => {
                           <Box
                             component="img"
                             src={src}
-                            alt={selectedService?.name || "Service media"}
+                            alt={item.seo?.alt || selectedService?.name || "Service media"}
+                            title={item.seo?.title || item.seo?.alt || selectedService?.name || "Service media"}
                             onError={(event) => {
                               console.error("[media-url] service media image failed", {
                                 service: selectedService?.name,
@@ -630,6 +691,20 @@ const ServiceMediaManagement = () => {
                             }}
                             sx={{ width: "100%", aspectRatio: "16/9", objectFit: "cover", display: "block" }}
                           />
+                        )}
+                        {(item.seo?.alt || item.seo?.caption) && (
+                          <Box sx={{ p: 1.2, borderTop: "1px solid rgba(212,175,55,0.16)" }}>
+                            {item.seo?.alt && (
+                              <Typography sx={{ color: "#D4AF37", fontWeight: 800, fontSize: "0.78rem", overflowWrap: "anywhere" }}>
+                                Alt: {item.seo.alt}
+                              </Typography>
+                            )}
+                            {item.seo?.caption && (
+                              <Typography sx={{ color: "rgba(245,245,245,0.66)", fontSize: "0.75rem", mt: 0.4, overflowWrap: "anywhere" }}>
+                                {item.seo.caption}
+                              </Typography>
+                            )}
+                          </Box>
                         )}
                       </Paper>
                     );

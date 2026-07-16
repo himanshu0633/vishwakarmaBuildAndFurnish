@@ -8,7 +8,8 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuoteModal } from "../contexts/QuoteModalContext";
 import axiosInstance, { getStaticAssetUrl } from "../../utils/axiosConfig";
-import { getCategoryName, getServiceDescription, getServiceFullDescription } from "../utils/catalogSchema";
+import { buildLocalSearchFaqs, getCategoryName, getLocalSearchTags, getServiceDescription, getServiceFullDescription } from "../utils/catalogSchema";
+import { serviceAreas } from "../data/localSeo";
 import { buildServiceSeo, simpleBusinessStructuredData, buildPageUrl, useSeo, getImageAlt } from "../utils/seo";
 
 const ServiceDetailPage = () => {
@@ -94,6 +95,8 @@ const ServiceDetailPage = () => {
   const categoryName = service?.categoryId?.name || getCategoryName(service?.categoryId);
   const serviceSeo = buildServiceSeo(service?.name || "Service");
   const localServiceAreas = ["Charkhi Dadri", "Bhiwani", "Mahendragarh", "Rewari", "Rohtak", "Jhajjar", "Nearby villages", "Haryana"];
+  const visibleFaqs = service ? [...(service.faq || []), ...buildLocalSearchFaqs(service)] : [];
+  const localSearchTags = service ? getLocalSearchTags(service, 14) : [];
 
   useSeo({
     title: service?.seoTitle || (service?.name ? `${service.name} in Charkhi Dadri | Vishwakarma Build & Furnish` : "Service Detail"),
@@ -163,7 +166,7 @@ const ServiceDetailPage = () => {
             {
               "@type": "FAQPage",
               "@id": `${buildPageUrl(`/services/${categorySlug}/${service.slug}`)}#faq`,
-              mainEntity: (service.faq || []).filter((item) => item.question || item.answer).map((item) => ({
+              mainEntity: visibleFaqs.filter((item) => item.question || item.answer).map((item) => ({
                 "@type": "Question",
                 name: item.question,
                 acceptedAnswer: {
@@ -382,8 +385,8 @@ const ServiceDetailPage = () => {
                                   className="gallery-image"
                                   component="img"
                                   src={src}
-                                  alt={getImageAlt(service.name, `${service.name} ${group.title} design and work in Charkhi Dadri Haryana`)}
-                                  title={getImageAlt(service.name, `${service.name} ${group.title} design and work in Charkhi Dadri Haryana`)}
+                                  alt={mediaItem.alt || getImageAlt(service.name, `${service.name} ${group.title} design and work in Charkhi Dadri Haryana`)}
+                                  title={mediaItem.seoTitle || mediaItem.alt || getImageAlt(service.name, `${service.name} ${group.title} design and work in Charkhi Dadri Haryana`)}
                                   onClick={() => openLightbox(mediaItem)}
                                   loading="lazy"
                                   sx={{
@@ -480,11 +483,27 @@ const ServiceDetailPage = () => {
               </Typography>
             </Paper>
 
-            {service.faq?.length > 0 && (
+            {localSearchTags.length > 0 && (
+              <Paper sx={{ p: { xs: 3, md: 4 }, bgcolor: "#0F172A", color: "#F5F5F5", border: "1px solid rgba(212,175,55,0.22)", borderRadius: 3, mb: 3 }}>
+                <Typography variant="h4" sx={{ fontWeight: 900, color: "#D4AF37", mb: 1.5 }}>
+                  Local Search Names
+                </Typography>
+                <Typography sx={{ color: "rgba(245,245,245,0.76)", lineHeight: 1.8, mb: 2 }}>
+                  Customers in Charkhi Dadri and nearby Haryana areas also search {service.name} as {localSearchTags.slice(0, 8).join(", ")}.
+                </Typography>
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                  {localSearchTags.map((tag) => (
+                    <Chip key={tag} label={tag} sx={{ bgcolor: "rgba(212,175,55,0.1)", color: "rgba(245,245,245,0.88)", border: "1px solid rgba(212,175,55,0.18)" }} />
+                  ))}
+                </Box>
+              </Paper>
+            )}
+
+            {visibleFaqs.length > 0 && (
               <Paper sx={{ p: { xs: 3, md: 4 }, bgcolor: "#0F172A", color: "#F5F5F5", border: "1px solid rgba(212,175,55,0.22)", borderRadius: 3 }}>
                 <Typography variant="h4" sx={{ fontWeight: 900, color: "#D4AF37", mb: 2 }}>FAQ</Typography>
-                {service.faq.map((faqItem, index) => (
-                  <Box key={index} sx={{ py: 1.8, borderBottom: index === service.faq.length - 1 ? "none" : "1px solid rgba(212,175,55,0.14)" }}>
+                {visibleFaqs.map((faqItem, index) => (
+                  <Box key={`${faqItem.question}-${index}`} sx={{ py: 1.8, borderBottom: index === visibleFaqs.length - 1 ? "none" : "1px solid rgba(212,175,55,0.14)" }}>
                     <Typography sx={{ fontWeight: 900, color: "#F5F5F5", mb: 0.5 }}>{faqItem.question}</Typography>
                     <Typography sx={{ color: "rgba(245,245,245,0.72)" }}>{faqItem.answer}</Typography>
                   </Box>
@@ -519,6 +538,24 @@ const ServiceDetailPage = () => {
               <Typography sx={{ color: "rgba(245,245,245,0.74)", lineHeight: 1.7 }}>
                 Pricing depends on your required quality, materials, customization, and project quantity.
               </Typography>
+            </Paper>
+
+            <Paper sx={{ p: 3, bgcolor: "#111827", color: "#F5F5F5", border: "1px solid rgba(212,175,55,0.26)", borderRadius: 3 }}>
+              <Typography variant="h5" sx={{ fontWeight: 900, color: "#D4AF37", mb: 2 }}>
+                Service Areas
+              </Typography>
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 1 }}>
+                {serviceAreas.map((area) => (
+                  <Chip
+                    key={area.slug}
+                    component="a"
+                    href={`/locations/${area.slug}`}
+                    clickable
+                    label={`${service.name} in ${area.name}`}
+                    sx={{ bgcolor: "rgba(212,175,55,0.08)", color: "rgba(245,245,245,0.86)", border: "1px solid rgba(212,175,55,0.18)", "&:hover": { bgcolor: "rgba(212,175,55,0.16)" } }}
+                  />
+                ))}
+              </Box>
             </Paper>
           </Box>
         </Box>
@@ -604,11 +641,11 @@ const ServiceDetailPage = () => {
               overflow: "hidden"
             }}
           >
-            <Box
-              component="img"
-              src={selectedMedia?.src || ""}
-              alt={getImageAlt(service.name, `${service.name} ${selectedMedia?.title || "work"} preview in Charkhi Dadri Haryana`)}
-              title={getImageAlt(service.name, `${service.name} ${selectedMedia?.title || "work"} preview in Charkhi Dadri Haryana`)}
+              <Box
+                component="img"
+                src={selectedMedia?.src || ""}
+                alt={selectedMedia?.alt || getImageAlt(service.name, `${service.name} ${selectedMedia?.title || "work"} preview in Charkhi Dadri Haryana`)}
+                title={selectedMedia?.seoTitle || selectedMedia?.alt || getImageAlt(service.name, `${service.name} ${selectedMedia?.title || "work"} preview in Charkhi Dadri Haryana`)}
               sx={{
                 width: "100%",
                 maxHeight: "78vh",

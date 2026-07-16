@@ -51,6 +51,7 @@ import ContactPage from './pages/ContactPage';
 import BlogListPage from './pages/BlogListPage';
 import BlogDetailPage from './pages/BlogDetailPage';
 import GalleryPage from './pages/GalleryPage';
+import LocationPage from './pages/LocationPage';
 import ServicesPage from './pages/ServicesPage';
 import CategoryPage from './pages/CategoryPage';
 import ServiceDetailPage from './pages/ServiceDetailPage';
@@ -191,6 +192,7 @@ function App() {
                     <Route path="/blog" element={<Navigate to="/blogs" replace />} />
                     <Route path="/blog/:slug" element={<BlogDetailPage />} />
                     <Route path="/gallery" element={<GalleryPage />} />
+                    <Route path="/locations/:citySlug" element={<LocationPage />} />
                     <Route path="/services" element={<ServicesPage />} />
                     <Route path="/services/:slug" element={<CatalogSlugPage />} />
                     <Route path="/services/:categorySlug/:serviceSlug" element={<ServiceDetailPage />} />
