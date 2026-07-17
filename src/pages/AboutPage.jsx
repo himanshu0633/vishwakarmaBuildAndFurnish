@@ -29,6 +29,7 @@ import FormatQuoteIcon from "@mui/icons-material/FormatQuote";
 import { motion, useInView } from "framer-motion";
 import axiosInstance, { getStaticAssetUrl } from "../../utils/axiosConfig";
 import { businessStructuredData, simpleBusinessStructuredData, buildPageUrl, useSeo } from "../utils/seo";
+import useGoogleReviews from "../hooks/useGoogleReviews";
 
 const phone = "9416856468";
 
@@ -255,6 +256,7 @@ const AnimatedCounter = ({ value, suffix }) => {
 const AboutPage = () => {
   const [cmsGalleryImages, setCmsGalleryImages] = useState([]);
   const [aboutContent, setAboutContent] = useState(null);
+  const { reviews: clientReviews, isGoogleReviews } = useGoogleReviews(reviews);
 
   useEffect(() => {
     const fetchAboutData = async () => {
@@ -325,7 +327,7 @@ const AboutPage = () => {
             name: item.title
           })),
           areaServed: currentServiceAreas,
-          review: reviews.map((review) => ({
+          review: clientReviews.map((review) => ({
             "@type": "Review",
             author: {
               "@type": "Person",
@@ -333,7 +335,7 @@ const AboutPage = () => {
             },
             reviewRating: {
               "@type": "Rating",
-              ratingValue: "5",
+              ratingValue: String(review.rating || 5),
               bestRating: "5"
             },
             reviewBody: review.text
@@ -702,15 +704,20 @@ const AboutPage = () => {
       </Section>
 
       <Section dark>
-        <CenterHeader title="What Our Clients Say" subtitle="Real feedback from clients who trusted us for furniture, interior, and construction work." />
+        <CenterHeader
+          title="What Our Clients Say"
+          subtitle={isGoogleReviews ? "Live feedback from customers on Google Maps." : "Real feedback from clients who trusted us for furniture, interior, and construction work."}
+        />
         <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "repeat(2, 1fr)" }, gap: 3 }}>
-          {reviews.map((review) => (
-            <Paper key={review.name} elevation={0} sx={cardSx}>
+          {clientReviews.map((review, index) => (
+            <Paper key={`${review.name}-${index}`} elevation={0} sx={cardSx}>
               <FormatQuoteIcon sx={{ color: "#D4AF37", fontSize: 34, mb: 1 }} />
               <Typography sx={{ color: "rgba(248,250,252,0.82)", lineHeight: 1.8, mb: 2 }}>
                 "{review.text}"
               </Typography>
-              <Typography sx={{ color: "#D4AF37", fontWeight: 900 }}>- {review.name}</Typography>
+              <Typography sx={{ color: "#D4AF37", fontWeight: 900 }}>
+                - {review.name}{review.source === "Google" ? " • Google Review" : ""}
+              </Typography>
             </Paper>
           ))}
         </Box>

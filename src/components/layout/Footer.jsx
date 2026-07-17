@@ -73,7 +73,7 @@ const Footer = () => {
       </IconButton>
 
       <Container sx={{ py: { xs: 5, md: 7 } }}>
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", md: "1.35fr 0.9fr 1fr 1fr" }, gap: 4 }}>
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "1fr 1fr", md: "1.35fr 0.8fr 0.9fr 1.05fr 0.9fr" }, gap: 4 }}>
           <Box>
             <Box sx={{ display: "flex", alignItems: "center", gap: 1.5, mb: 2 }}>
               <Box component="img" src={iesLogo} alt={branding.name} title={`${branding.name} Logo`} sx={{ width: 46, height: 46, objectFit: "contain" }} />
@@ -163,16 +163,17 @@ const Footer = () => {
                 Monday - Sunday, 7:00 AM - 8:00 PM
               </Typography>
             </Box>
-            <Box sx={{ mt: 2.5 }}>
-              <FooterTitle>Service Areas</FooterTitle>
-              <Stack spacing={1.1}>
-                {serviceAreas.map((area) => (
-                  <FooterLink key={area.slug} href={`/locations/${area.slug}`}>
-                    {area.name}
-                  </FooterLink>
-                ))}
-              </Stack>
-            </Box>
+          </Box>
+
+          <Box>
+            <FooterTitle>Service Areas</FooterTitle>
+            <Stack spacing={1.1}>
+              {serviceAreas.map((area) => (
+                <FooterLink key={area.slug} href={`/locations/${area.slug}`}>
+                  {area.name}
+                </FooterLink>
+              ))}
+            </Stack>
           </Box>
         </Box>
 

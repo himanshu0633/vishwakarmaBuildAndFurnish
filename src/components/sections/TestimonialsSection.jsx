@@ -8,7 +8,8 @@ import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import VerifiedIcon from "@mui/icons-material/Verified";
 import { motion } from "framer-motion";
-import { testimonials } from "../../data/constants";
+import { testimonials as fallbackTestimonials } from "../../data/constants";
+import useGoogleReviews from "../../hooks/useGoogleReviews";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 28 },
@@ -23,13 +24,14 @@ const staggerContainer = {
   }
 };
 
-const trustStats = [
-  { value: "500+", label: "Happy Clients" },
-  { value: "4.8/5", label: "Average Rating" },
-  { value: "1000+", label: "Completed Works" }
-];
-
 const TestimonialsSection = () => {
+  const { reviews: testimonials, business, isGoogleReviews } = useGoogleReviews(fallbackTestimonials);
+  const trustStats = [
+    { value: "500+", label: "Happy Clients" },
+    { value: business?.rating ? `${business.rating}/5` : "4.8/5", label: isGoogleReviews ? "Google Rating" : "Average Rating" },
+    { value: business?.reviewCount ? `${business.reviewCount}+` : "1000+", label: isGoogleReviews ? "Google Reviews" : "Completed Works" }
+  ];
+
   return (
     <Box
       component="section"
@@ -96,7 +98,9 @@ const TestimonialsSection = () => {
                     lineHeight: 1.75
                   }}
                 >
-                  Real project experiences from our trusted home construction and interior design clients.
+                  {isGoogleReviews
+                    ? "Live Google reviews from customers who found us on Maps and trusted us for construction, interiors, and furniture work."
+                    : "Real project experiences from our trusted home construction and interior design clients."}
                 </Typography>
               </Box>
             </Grid>
@@ -141,7 +145,7 @@ const TestimonialsSection = () => {
 
           <Grid container spacing={{ xs: 2.5, md: 3 }}>
             {testimonials.map((testimonial, index) => (
-              <Grid item xs={12} sm={6} key={testimonial.name}>
+              <Grid item xs={12} sm={6} key={`${testimonial.name}-${index}`}>
                 <Box component={motion.div} variants={fadeInUp} sx={{ height: "100%" }}>
                   <Card
                     elevation={0}
@@ -191,7 +195,9 @@ const TestimonialsSection = () => {
                       />
                       <Box sx={{ display: "flex", alignItems: "center", gap: 0.5, color: "#D4AF37", flexShrink: 0 }}>
                         <VerifiedIcon sx={{ fontSize: 17 }} />
-                        <Typography sx={{ fontSize: "0.78rem", fontWeight: 800 }}>Verified</Typography>
+                        <Typography sx={{ fontSize: "0.78rem", fontWeight: 800 }}>
+                          {testimonial.source === "Google" ? "Google" : "Verified"}
+                        </Typography>
                       </Box>
                     </Box>
 
@@ -230,6 +236,8 @@ const TestimonialsSection = () => {
                       }}
                     >
                       <Avatar
+                        src={testimonial.profilePhotoUrl}
+                        alt={testimonial.name}
                         sx={{
                           width: 52,
                           height: 52,

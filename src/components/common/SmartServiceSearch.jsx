@@ -150,7 +150,18 @@ const serviceAliasGroups = [
       'entrance',
       'entry gate',
       'wooden door',
-      'door'
+      'door',
+      'wooden door manufacturer',
+      'main gate',
+      'wooden entrance door',
+      'designer wooden door',
+      'solid wood door',
+      'door manufacturer charkhi dadri',
+      'wooden door near me',
+      'door maker',
+      'custom door manufacturer',
+      'darwaza banane wala',
+      'wooden doors charkhi dadri'
     ]
   },
   {
@@ -170,7 +181,14 @@ const serviceAliasGroups = [
       'khirkii',
       'khidkiya',
       'window',
-      'windows'
+      'windows',
+      'wooden window manufacturer',
+      'custom wooden windows',
+      'window maker',
+      'khidki banane wala',
+      'window contractor',
+      'window manufacturer charkhi dadri',
+      'wooden window near me'
     ]
   },
   {
@@ -204,7 +222,19 @@ const serviceAliasGroups = [
       'smart rasoi',
       'kitchen wala setup',
       'designer rasoi',
-      'rasoi'
+      'rasoi',
+      'modular kitchen charkhi dadri',
+      'modular kitchen near me',
+      'kitchen designer charkhi dadri',
+      'kitchen contractor charkhi dadri',
+      'best modular kitchen',
+      'custom kitchen',
+      'kitchen maker',
+      'kitchen renovation',
+      'kitchen designer',
+      'kitchen contractor',
+      'kitchen cabinet maker',
+      'kitchen interior designer'
     ]
   },
   {
@@ -230,7 +260,15 @@ const serviceAliasGroups = [
       'dressing wardrobe',
       'almeera',
       'almira',
-      'kapdo ki almari'
+      'kapdo ki almari',
+      'wardrobe designer',
+      'wardrobe maker',
+      'custom wardrobe',
+      'almari banane wala',
+      'wardrobe near me',
+      'wardrobe charkhi dadri',
+      'cupboard maker',
+      'wardrobe maker charkhi dadri'
     ]
   },
   {
@@ -261,7 +299,12 @@ const serviceAliasGroups = [
       'modern tv unit',
       'luxury tv unit',
       'tv wall',
-      'tv setup'
+      'tv setup',
+      'tv wall design',
+      'tv unit designer',
+      'tv panel contractor',
+      'tv unit near me',
+      'tv unit designer charkhi dadri'
     ]
   },
   {
@@ -325,7 +368,14 @@ const serviceAliasGroups = [
       'bed set',
       'palang',
       'khat',
-      'beddroom bed'
+      'beddroom bed',
+      'hydraulic bed',
+      'storage bed',
+      'custom bed',
+      'bed manufacturer',
+      'bed maker',
+      'bed near me',
+      'palang banane wala'
     ]
   },
   {
@@ -353,7 +403,49 @@ const serviceAliasGroups = [
       'makaan construction',
       'building work',
       'civil work',
-      'ghar ka kaam'
+      'ghar ka kaam',
+      'house construction contractor',
+      'home builder',
+      'civil contractor',
+      'building contractor',
+      'construction company charkhi dadri',
+      'house builder charkhi dadri',
+      'construction near me',
+      'turnkey contractor',
+      'construction company',
+      'home construction near me',
+      'ghar banane wala',
+      'ghar ka thekedar',
+      'makan banane wala',
+      'commercial construction',
+      'budget home construction',
+      'luxury home construction',
+      'construction services haryana',
+      'contractor charkhi dadri',
+      'civil contractor charkhi dadri',
+      'home renovation contractor',
+      'house renovation services'
+    ]
+  },
+  {
+    targetKeywords: ['interior design', 'interior', 'modular interior', 'living room interior', 'bedroom interior'],
+    weight: 70,
+    aliases: [
+      'interior designer',
+      'interior decorator',
+      'home interior',
+      'office interior',
+      'luxury interior',
+      'modern interior',
+      'interior designer charkhi dadri',
+      'interior contractor',
+      'interior company',
+      'interior renovation',
+      'house interior designer',
+      'interior near me',
+      'best interior designer',
+      'living room interior',
+      'bedroom interior'
     ]
   },
   {
@@ -379,7 +471,8 @@ const serviceAliasGroups = [
       'bijli ka kaam',
       'wiring fitting',
       'light fitting',
-      'board fitting'
+      'board fitting',
+      'electrician charkhi dadri'
     ]
   },
   {
@@ -433,7 +526,8 @@ const serviceAliasGroups = [
       'plumber work',
       'paani ki line ka kaam',
       'nal ka kaam',
-      'pipe work'
+      'pipe work',
+      'plumber charkhi dadri'
     ]
   },
   {
@@ -470,7 +564,65 @@ const serviceAliasGroups = [
       'pathar work',
       'tailes work',
       'marbal work',
-      'flooring ka kaam'
+      'flooring ka kaam',
+      'tile contractor',
+      'marble contractor',
+      'flooring contractor',
+      'tiles near me',
+      'marble work charkhi dadri',
+      'flooring specialist',
+      'tiles contractor charkhi dadri'
+    ]
+  },
+  {
+    targetKeywords: ['furniture', 'customized furniture', 'office furniture', 'wooden work'],
+    weight: 70,
+    aliases: [
+      'furniture shop charkhi dadri',
+      'furniture store charkhi dadri',
+      'custom furniture maker',
+      'furniture manufacturer',
+      'wood furniture maker',
+      'furniture near me',
+      'best furniture shop',
+      'furniture contractor',
+      'furniture shop',
+      'furniture store',
+      'custom furniture',
+      'wooden furniture',
+      'office furniture',
+      'home furniture',
+      'furniture manufacturer charkhi dadri',
+      'carpenter furniture work',
+      'custom furniture charkhi dadri',
+      'best carpenter in charkhi dadri',
+      'wooden work contractor',
+      'furniture banane wala',
+      'furniture wala',
+      'lakdi ka furniture',
+      'carpenter charkhi dadri',
+      'badhai ka kaam'
+    ]
+  },
+  {
+    targetKeywords: ['false ceiling', 'pop design', 'pop', 'gypsum ceiling'],
+    weight: 70,
+    aliases: [
+      'false ceiling contractor',
+      'pop design',
+      'gypsum ceiling',
+      'ceiling design',
+      'false ceiling near me',
+      'pop contractor',
+      'ceiling work charkhi dadri',
+      'false ceiling contractor charkhi dadri',
+      'pop ka kaam',
+      'pop ka kaam karne wala',
+      'pop design wala',
+      'pop banane wala',
+      'ceiling ka kaam',
+      'false ceiling ka kaam',
+      'false ceiling banane wala'
     ]
   }
 ];
