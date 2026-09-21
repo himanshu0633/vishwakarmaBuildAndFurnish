@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }) => {
         localStorage.setItem('user', JSON.stringify(user));
         
         setUser(user);
-        return { success: true };
+        return { success: true, user };
       }
       
       return { 
@@ -115,8 +115,34 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const loginWithOtp = async (target, otp) => {
+    try {
+      const response = await axiosInstance.post('/auth/login/otp', {
+        target,
+        channel: 'email',
+        otp
+      });
+      if (response.data.success) {
+        const { token, user } = response.data;
+        localStorage.setItem('token', token);
+        localStorage.setItem('user', JSON.stringify(user));
+        setUser(user);
+        return { success: true, user };
+      }
+      return { success: false, error: response.data.message || 'OTP login failed' };
+    } catch (error) {
+      return { success: false, error: error.response?.data?.message || 'Invalid or expired OTP' };
+    }
+  };
+
+  const loginWithToken = (token, user) => {
+    localStorage.setItem('token', token);
+    localStorage.setItem('user', JSON.stringify(user));
+    setUser(user);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout, register }}>
+    <AuthContext.Provider value={{ user, loading, login, loginWithOtp, loginWithToken, logout, register, setUser }}>
       {children}
     </AuthContext.Provider>
   );

@@ -4,7 +4,7 @@ import axios from 'axios';
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
   import.meta.env.VITE_TEST_API_URL ||
-  'http://localhost:4000/api';
+  'http://localhost:4001/api';
 
 // Create axios instance with default config
 const axiosInstance = axios.create({

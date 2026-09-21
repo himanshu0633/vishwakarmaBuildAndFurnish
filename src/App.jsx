@@ -72,6 +72,7 @@ import WalletPage from './pages/user-dashboard/WalletPage';
 import ReferralsPage from './pages/user-dashboard/ReferralsPage';
 import ReviewsPage from './pages/user-dashboard/ReviewsPage';
 import NotificationsPage from './pages/user-dashboard/NotificationsPage';
+import ClientProjectReportPage from './pages/user-dashboard/ClientProjectReportPage';
 
 // Import Admin Components
 
@@ -88,6 +89,9 @@ import GalleryManagement from './components/admin/GalleryManagement';
 import MarketplaceDashboard from './components/admin/MarketplaceDashboard';
 import AboutContentManagement from './components/admin/AboutContentManagement';
 import PopupManagement from './components/admin/PopupManagement';
+import ClientsManagement from './components/admin/ClientsManagement';
+import ClientDetailView from './components/admin/ClientDetailView';
+import MaterialsManagement from './components/admin/MaterialsManagement';
 
 import './App.css';
 
@@ -114,6 +118,10 @@ const AdminRouter = () => {
   return (
     <AdminLayout>
       <Routes>
+        <Route path="clients" element={<ClientsManagement />} />
+        <Route path="clients/:id" element={<ClientDetailView />} />
+        <Route path="clients/:id/:section" element={<ClientDetailView />} />
+        <Route path="materials" element={<MaterialsManagement />} />
         <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="categories" element={<CategoriesManagement />} />
         <Route path="services" element={<ServicesManagement />} />
@@ -153,6 +161,14 @@ const ProtectedRoute = ({ children, roles }) => {
   }
 
   return children;
+};
+
+const DashboardIndex = () => {
+  const { user } = useAuth();
+  if (user?.role === 'client' || user?.clientId) {
+    return <Navigate to="project" replace />;
+  }
+  return <Navigate to="profile" replace />;
 };
 
 function App() {
@@ -199,8 +215,9 @@ function App() {
                     <Route path="/website-info" element={<WebsiteInfo />} />
                     <Route path="/partners" element={<PartnersPage />} />
                     <Route path="/partners/:id" element={<PartnerDetailPage />} />
-                    <Route path="/dashboard" element={<ProtectedRoute roles={['user', 'admin']}><UserDashboardLayout /></ProtectedRoute>}>
-                      <Route index element={<Navigate to="profile" replace />} />
+                    <Route path="/dashboard" element={<ProtectedRoute roles={['user', 'admin', 'client']}><UserDashboardLayout /></ProtectedRoute>}>
+                      <Route index element={<DashboardIndex />} />
+                      <Route path="project" element={<ClientProjectReportPage />} />
                       <Route path="profile" element={<ProfilePage />} />
                       <Route path="liked" element={<LikedServicesPage />} />
                       <Route path="partners" element={<PartnersListPage />} />

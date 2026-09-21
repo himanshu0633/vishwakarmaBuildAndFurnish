@@ -28,6 +28,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import StorefrontIcon from '@mui/icons-material/Storefront';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import LogoutIcon from '@mui/icons-material/Logout';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import iesLogo from "../../assets/logo.png";
 import { colors, branding } from "../../data/constants";
 import { useAuth } from "../../contexts/AuthContext";
@@ -41,17 +42,23 @@ const Header = () => {
   const { user, logout } = useAuth();
   const [accountAnchor, setAccountAnchor] = useState(null);
 
+  const isClientUser = user?.role === "client" || Boolean(user?.clientId);
+
   const accountPath = user?.role === "admin"
-    ? "/admin/marketplace"
+    ? "/admin/clients"
     : user?.role === "partner"
       ? "/partner/dashboard"
-      : "/dashboard";
+      : isClientUser
+        ? "/dashboard/project"
+        : "/dashboard";
 
   const accountLabel = user?.role === "admin"
-    ? "Admin"
+    ? "Admin Panel"
     : user?.role === "partner"
       ? "Partner"
-      : "Profile";
+      : isClientUser
+        ? "Client Dashboard"
+        : "Profile";
 
   const baseNavItems = [
     { label: "Home", icon: <HomeIcon />, path: "/" },
@@ -68,8 +75,7 @@ const Header = () => {
 
   const navItems = user
     ? [...baseNavItems, { label: accountLabel, icon: <AccountCircleIcon />, path: accountPath, account: true }]
-    : baseNavItems;
-    // : [...baseNavItems, { label: "Login", icon: <AccountCircleIcon />, path: "/login" }];
+    : [...baseNavItems, { label: "Client Portal", icon: <AccountCircleIcon />, path: "/loginuser", loginBtn: true }];
 
   const mobileBaseNavItems = [
     { label: "Home", icon: <HomeIcon />, path: "/" },
@@ -82,9 +88,8 @@ const Header = () => {
   ];
 
   const mobileNavItems = user
-    ? [...mobileBaseNavItems.slice(0, 5), { label: accountLabel, icon: <AccountCircleIcon />, path: accountPath }]
-    : mobileBaseNavItems.slice(0, 5);
-    // : [...mobileBaseNavItems.slice(0, 5), { label: "Login", icon: <AccountCircleIcon />, path: "/login" }];
+    ? [...mobileBaseNavItems.slice(0, 4), { label: isClientUser ? "Client Portal" : accountLabel, icon: <AccountCircleIcon />, path: accountPath }]
+    : [...mobileBaseNavItems.slice(0, 4), { label: "Client Portal", icon: <AccountCircleIcon />, path: "/loginuser" }];
 
   // Get current active route index
   const getActiveRouteIndex = (items = navItems) => {
@@ -183,26 +188,128 @@ const Header = () => {
             </Box>
           </Box>
 
+          {/* Mobile Right Action */}
+          {isMobile && (
+            <Button
+              onClick={() => handleNavigation(user ? accountPath : "/loginuser")}
+              sx={{
+                background: "linear-gradient(135deg, #F3E5AB 0%, #D4AF37 55%, #AA7C11 100%)",
+                color: "#0F172A",
+                fontSize: "0.74rem",
+                fontWeight: 900,
+                textTransform: "none",
+                py: 0.5,
+                px: 1.4,
+                borderRadius: "20px",
+                border: "1px solid rgba(243, 229, 171, 0.7)",
+                boxShadow: "0 2px 8px rgba(212,175,55,0.3)",
+                whiteSpace: "nowrap",
+                flexShrink: 0
+              }}
+            >
+              {user ? (isClientUser ? "🏗️ Project" : "Dashboard") : "🔑 Portal"}
+            </Button>
+          )}
+
           {/* Desktop Navigation - Always visible on larger screens */}
           {!isMobile && (
-            <Box sx={{ display: "flex", alignItems: "center", gap: { sm: 0.5, lg: 1.5 }, minWidth: 0 }}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: { sm: 0.4, md: 0.6, lg: 1.2 }, minWidth: 0 }}>
               {navItems.map((item) => {
                 const isActive = location.pathname === item.path;
                 if (item.account && user) {
                   return (
                     <Button
                       key={item.label}
-                      startIcon={<Avatar sx={{ width: 24, height: 24, bgcolor: "#D4AF37", color: "#111111", fontSize: 13, fontWeight: 900 }}>{user.name?.charAt(0) || "U"}</Avatar>}
                       onClick={(event) => setAccountAnchor(event.currentTarget)}
                       sx={{
-                        color: colors.light,
-                        border: "1px solid rgba(212,175,55,0.45)",
-                        borderRadius: 1,
-                        fontSize: { md: "0.78rem", lg: "0.9rem" },
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 1,
+                        background: "linear-gradient(135deg, #F3E5AB 0%, #D4AF37 55%, #AA7C11 100%)",
+                        color: "#0F172A",
+                        border: "1px solid rgba(243, 229, 171, 0.8)",
+                        borderRadius: "24px",
+                        fontSize: { md: "0.78rem", lg: "0.85rem" },
                         fontWeight: 900,
                         textTransform: "none",
-                        px: { md: 1, lg: 1.4 },
-                        "&:hover": { color: colors.secondary, backgroundColor: "rgba(212,175,55,0.1)" }
+                        px: { md: 1.2, lg: 1.6 },
+                        py: 0.55,
+                        height: 38,
+                        whiteSpace: "nowrap",
+                        flexShrink: 0,
+                        boxShadow: "0 3px 12px rgba(212, 175, 55, 0.35)",
+                        transition: "all 0.2s ease-in-out",
+                        "&:hover": {
+                          background: "linear-gradient(135deg, #FFFFFF 0%, #E2C044 55%, #B8860B 100%)",
+                          boxShadow: "0 6px 18px rgba(212, 175, 55, 0.5)",
+                          transform: "translateY(-1px)"
+                        }
+                      }}
+                    >
+                      <Avatar
+                        sx={{
+                          width: 24,
+                          height: 24,
+                          bgcolor: "#0F172A",
+                          color: "#D4AF37",
+                          fontSize: 12,
+                          fontWeight: 900,
+                          border: "1.5px solid rgba(212, 175, 55, 0.8)"
+                        }}
+                      >
+                        {user.name?.charAt(0)?.toUpperCase() || "C"}
+                      </Avatar>
+                      <Typography
+                        component="span"
+                        sx={{
+                          color: "#0F172A",
+                          fontWeight: 900,
+                          fontSize: { md: "0.78rem", lg: "0.85rem" },
+                          letterSpacing: "0.2px",
+                          whiteSpace: "nowrap",
+                          lineHeight: 1
+                        }}
+                      >
+                        {item.label}
+                      </Typography>
+                      <KeyboardArrowDownIcon
+                        sx={{
+                          fontSize: 18,
+                          color: "#0F172A",
+                          transition: "transform 0.2s",
+                          transform: accountAnchor ? "rotate(180deg)" : "none",
+                          ml: -0.3
+                        }}
+                      />
+                    </Button>
+                  );
+                }
+
+                if (item.loginBtn && !user) {
+                  return (
+                    <Button
+                      key={item.label}
+                      onClick={() => handleNavigation(item.path)}
+                      sx={{
+                        color: "#0F172A",
+                        background: "linear-gradient(135deg, #F3E5AB 0%, #D4AF37 55%, #AA7C11 100%)",
+                        border: "1px solid rgba(243, 229, 171, 0.8)",
+                        borderRadius: "24px",
+                        fontSize: { md: "0.78rem", lg: "0.85rem" },
+                        fontWeight: 900,
+                        textTransform: "none",
+                        px: { md: 1.4, lg: 1.8 },
+                        py: 0.55,
+                        height: 38,
+                        whiteSpace: "nowrap",
+                        flexShrink: 0,
+                        boxShadow: "0 3px 12px rgba(212, 175, 55, 0.35)",
+                        transition: "all 0.2s ease-in-out",
+                        "&:hover": {
+                          background: "linear-gradient(135deg, #FFFFFF 0%, #E2C044 55%, #B8860B 100%)",
+                          boxShadow: "0 6px 18px rgba(212, 175, 55, 0.45)",
+                          transform: "translateY(-1px)"
+                        }
                       }}
                     >
                       {item.label}
@@ -239,19 +346,45 @@ const Header = () => {
                 PaperProps={{
                   sx: {
                     mt: 1,
-                    bgcolor: "#F8FAFC",
-                    color: "#111827",
-                    border: "1px solid rgba(212,175,55,0.35)",
+                    bgcolor: "#0F172A",
+                    color: "#F8FAFC",
+                    border: "1.5px solid rgba(212,175,55,0.35)",
+                    borderRadius: "12px",
+                    boxShadow: "0 10px 30px rgba(0,0,0,0.7)",
                     minWidth: 220
                   }
                 }}
               >
-                <MenuItem onClick={() => { navigate(accountPath); setAccountAnchor(null); }}>
-                  <DashboardIcon sx={{ mr: 1, color: "#B88917" }} />
-                  {accountLabel} Dashboard
+                <Box sx={{ px: 2, py: 1.2, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+                  <Typography sx={{ fontWeight: 800, fontSize: "14px", color: "#FACC15" }}>
+                    {user?.name || "Client"}
+                  </Typography>
+                  <Typography sx={{ fontSize: "12px", color: "#94A3B8" }}>
+                    {user?.email}
+                  </Typography>
+                </Box>
+                <MenuItem
+                  onClick={() => { navigate(accountPath); setAccountAnchor(null); }}
+                  sx={{
+                    py: 1.2,
+                    fontWeight: 700,
+                    color: "#FFFFFF",
+                    "&:hover": { bgcolor: "rgba(212,175,55,0.15)", color: "#FACC15" }
+                  }}
+                >
+                  <DashboardIcon sx={{ mr: 1.2, color: "#D4AF37", fontSize: 20 }} />
+                  {isClientUser ? "Client Dashboard" : `${accountLabel} Dashboard`}
                 </MenuItem>
-                <MenuItem onClick={handleLogout} sx={{ color: "#B91C1C", fontWeight: 800 }}>
-                  <LogoutIcon sx={{ mr: 1 }} />
+                <MenuItem
+                  onClick={handleLogout}
+                  sx={{
+                    py: 1.2,
+                    fontWeight: 700,
+                    color: "#F87171",
+                    "&:hover": { bgcolor: "rgba(239,68,68,0.15)", color: "#EF4444" }
+                  }}
+                >
+                  <LogoutIcon sx={{ mr: 1.2, fontSize: 20 }} />
                   Logout
                 </MenuItem>
               </Menu>
@@ -325,7 +458,8 @@ const Header = () => {
               bgcolor: colors.primary,
               borderTop: `1px solid ${colors.secondary}4D`,
               borderRadius: 0,
-              boxShadow: "0 -2px 10px rgba(0,0,0,0.1)"
+              boxShadow: "0 -2px 10px rgba(0,0,0,0.1)",
+              paddingBottom: "env(safe-area-inset-bottom, 0px)",
             }} 
             elevation={3}
           >

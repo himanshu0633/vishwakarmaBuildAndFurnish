@@ -43,7 +43,9 @@ import {
   AccountBalanceWallet as WalletIcon,
   Reviews as ReviewsIcon,
   Campaign as CampaignIcon,
-  Assessment as ReportsIcon
+  Assessment as ReportsIcon,
+  Engineering as ClientsIcon,
+  Inventory2 as MaterialsIcon
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
@@ -66,8 +68,10 @@ const Layout = ({ children }) => {
   const currentPage = getCurrentPath();
 
   const menuItems = [
+    { text: 'Clients & Projects', icon: <ClientsIcon />, path: 'clients' },
+    { text: 'Materials Catalog', icon: <MaterialsIcon />, path: 'materials' },
     // { text: 'Dashboard', icon: <DashboardIcon />, path: 'dashboard' },
-    { text: 'Tenders', icon: <GavelIcon />, path: 'tenders' },
+    // { text: 'Tenders', icon: <GavelIcon />, path: 'tenders' },
     { text: 'Categories', icon: <CategoryIcon />, path: 'categories' },
     { text: 'Services', icon: <ServicesIcon />, path: 'services' },
     { text: 'Service Media', icon: <MediaIcon />, path: 'service-media' },
@@ -76,19 +80,19 @@ const Layout = ({ children }) => {
     { text: 'Gallery', icon: <MediaIcon />, path: 'gallery' },
     { text: 'Website Popups', icon: <CampaignIcon />, path: 'popups' },
     { text: 'Inquiries', icon: <InquiriesIcon />, path: 'inquiries' },
-    { text: 'Marketplace Analytics', icon: <AnalyticsIcon />, path: 'marketplace/analytics' },
-    { text: 'Users', icon: <PeopleIcon />, path: 'marketplace/users' },
-    { text: 'Partners', icon: <StorefrontIcon />, path: 'marketplace/partners' },
-    { text: 'Partner Verification', icon: <VerifiedIcon />, path: 'marketplace/verification' },
-    { text: 'Leads', icon: <CampaignIcon />, path: 'marketplace/leads' },
-    { text: 'Service Likes', icon: <FavoriteIcon />, path: 'marketplace/likes' },
-    { text: 'Bills', icon: <ReceiptLongIcon />, path: 'marketplace/bills' },
-    { text: 'Cashback', icon: <WalletIcon />, path: 'marketplace/cashback' },
-    { text: 'Wallet', icon: <WalletIcon />, path: 'marketplace/wallet' },
-    { text: 'Referrals', icon: <PeopleIcon />, path: 'marketplace/referrals' },
-    { text: 'Partner Reviews', icon: <ReviewsIcon />, path: 'marketplace/reviews' },
-    { text: 'Notifications', icon: <CampaignIcon />, path: 'marketplace/notifications' },
-    { text: 'Reports', icon: <ReportsIcon />, path: 'marketplace/reports' },
+    // { text: 'Marketplace Analytics', icon: <AnalyticsIcon />, path: 'marketplace/analytics' },
+    // { text: 'Users', icon: <PeopleIcon />, path: 'marketplace/users' },
+    // { text: 'Partners', icon: <StorefrontIcon />, path: 'marketplace/partners' },
+    // { text: 'Partner Verification', icon: <VerifiedIcon />, path: 'marketplace/verification' },
+    // { text: 'Leads', icon: <CampaignIcon />, path: 'marketplace/leads' },
+    // { text: 'Service Likes', icon: <FavoriteIcon />, path: 'marketplace/likes' },
+    // { text: 'Bills', icon: <ReceiptLongIcon />, path: 'marketplace/bills' },
+    // { text: 'Cashback', icon: <WalletIcon />, path: 'marketplace/cashback' },
+    // { text: 'Wallet', icon: <WalletIcon />, path: 'marketplace/wallet' },
+    // { text: 'Referrals', icon: <PeopleIcon />, path: 'marketplace/referrals' },
+    // { text: 'Partner Reviews', icon: <ReviewsIcon />, path: 'marketplace/reviews' },
+    // { text: 'Notifications', icon: <CampaignIcon />, path: 'marketplace/notifications' },
+    // { text: 'Reports', icon: <ReportsIcon />, path: 'marketplace/reports' },
   ];
 
   const handleLogout = () => {
@@ -229,8 +233,8 @@ const Layout = ({ children }) => {
           )}
           
           <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
-            <Box component="span" sx={{ color: '#D4AF37' }}>Industrial</Box>
-            <Box component="span" sx={{ color: '#fff' }}> Equipment Solutions</Box>
+            <Box component="span" sx={{ color: '#D4AF37' }}>Vishwakarma</Box>
+            <Box component="span" sx={{ color: '#fff' }}> Build & Furnish</Box>
           </Typography>
           
           <Box display="flex" alignItems="center" gap={2}>
