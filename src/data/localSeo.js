@@ -34,7 +34,7 @@ export const serviceAreas = [
 export const localSeoServices = [
   {
     name: "Wooden Doors",
-    path: "/services/furniture-services/wooden-doors-charkhi-dadri",
+    path: "/services/wooden-work-services/wooden-doors-charkhi-dadri",
     searches: ["lakdi ka darwaza", "darwaza banane wala", "door ka kaam", "main door design"]
   },
   {
@@ -44,12 +44,12 @@ export const localSeoServices = [
   },
   {
     name: "Modular Kitchen",
-    path: "/services/furniture-services/modular-kitchen-charkhi-dadri",
+    path: "/services/wooden-work-services/modular-kitchen-charkhi-dadri",
     searches: ["kitchen banane wala", "rasoi design", "modular kitchen ka kaam", "designer kitchen"]
   },
   {
     name: "Sofa Set",
-    path: "/services/furniture-services/sofa-set-charkhi-dadri",
+    path: "/services/wooden-work-services/sofa-set-charkhi-dadri",
     searches: ["sofa banane wala", "sofa set ka kaam", "custom sofa", "designer sofa"]
   },
   {

@@ -210,6 +210,8 @@ function App() {
                     <Route path="/gallery" element={<GalleryPage />} />
                     <Route path="/locations/:citySlug" element={<LocationPage />} />
                     <Route path="/services" element={<ServicesPage />} />
+                    <Route path="/services/furniture-services" element={<Navigate to="/services/wooden-work-services" replace />} />
+                    <Route path="/services/furniture-services/:serviceSlug" element={<ServiceDetailPage />} />
                     <Route path="/services/:slug" element={<CatalogSlugPage />} />
                     <Route path="/services/:categorySlug/:serviceSlug" element={<ServiceDetailPage />} />
                     <Route path="/website-info" element={<WebsiteInfo />} />

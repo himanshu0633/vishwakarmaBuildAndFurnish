@@ -68,8 +68,7 @@ const Header = () => {
     { label: "Interior", icon: <EngineeringIcon />, path: "/services/interior-services" },
     { label: "Build Guide", icon: <EngineeringIcon />, path: "/house-construction-guide" },
     { label: "Gallery", icon: <ImageIcon />, path: "/gallery" },
-    // { label: "Blog", icon: <ArticleIcon />, path: "/blogs" },
-    // { label: "Partners", icon: <StorefrontIcon />, path: "/partners" },
+    { label: "Blogs", icon: <ArticleIcon />, path: "/blogs" },
     { label: "Contact", icon: <CallIcon />, path: "/contact" },
   ];
 

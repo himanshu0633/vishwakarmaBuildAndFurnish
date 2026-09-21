@@ -30,6 +30,7 @@ const Footer = () => {
 
   const quickLinks = [
     { name: "Home", icon: <HomeIcon />, link: "/" },
+    { name: "All Services", icon: <ConstructionIcon />, link: "/services" },
     { name: "About", icon: <InfoIcon />, link: "/about" },
     { name: "Construction", icon: <ConstructionIcon />, link: "/services/construction-services" },
     { name: "Wooden Work", icon: <ChairIcon />, link: "/services/wooden-work-services" },

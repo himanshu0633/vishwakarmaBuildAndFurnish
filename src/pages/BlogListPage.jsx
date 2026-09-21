@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Box, Button, Chip, CircularProgress, Container, Paper, Typography } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArticleIcon from "@mui/icons-material/Article";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axiosInstance, { getStaticAssetUrl } from "../../utils/axiosConfig";
 import { simpleBusinessStructuredData, buildPageUrl, useSeo } from "../utils/seo";
 
@@ -131,14 +131,31 @@ const BlogListPage = () => {
                   <Box sx={{ p: { xs: 2, sm: 2.5, md: 3 }, display: "flex", flexDirection: "column", flexGrow: 1 }}>
                     <Box>
                       <Chip label={blog.categoryId?.name || blog.category || "Guide"} size="small" sx={{ bgcolor: "#D4AF37", color: "#111827", fontWeight: 900, mb: 1.5 }} />
-                      <Typography sx={{ fontSize: { xs: "1.12rem", md: "1.3rem" }, lineHeight: 1.25, fontWeight: 900, mb: 1, overflowWrap: "anywhere" }}>{blog.title}</Typography>
+                      <Typography
+                        component={Link}
+                        to={`/blogs/${blog.slug}`}
+                        sx={{
+                          fontSize: { xs: "1.12rem", md: "1.3rem" },
+                          lineHeight: 1.25,
+                          fontWeight: 900,
+                          mb: 1,
+                          overflowWrap: "anywhere",
+                          color: "#F8FAFC",
+                          textDecoration: "none",
+                          display: "block",
+                          "&:hover": { color: "#D4AF37" }
+                        }}
+                      >
+                        {blog.title}
+                      </Typography>
                       <Typography sx={{ color: "rgba(248,250,252,0.72)", lineHeight: 1.65, mb: 2, fontSize: { xs: "0.92rem", md: "1rem" } }}>{blog.excerpt}</Typography>
                     </Box>
                     <Button
                       fullWidth
+                      component={Link}
+                      to={`/blogs/${blog.slug}`}
                       variant="contained"
                       endIcon={<ArrowForwardIcon />}
-                      onClick={() => navigate(`/blogs/${blog.slug}`)}
                       sx={{ bgcolor: "#D4AF37", color: "#111827", fontWeight: 900, textTransform: "none", "&:hover": { bgcolor: "#B88917" }, mt: "auto" }}
                     >
                       Read Article

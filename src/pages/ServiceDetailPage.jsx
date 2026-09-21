@@ -12,6 +12,25 @@ import { buildLocalSearchFaqs, getCategoryName, getLocalSearchTags, getServiceDe
 import { serviceAreas } from "../data/localSeo";
 import { buildServiceSeo, simpleBusinessStructuredData, buildPageUrl, useSeo, getImageAlt } from "../utils/seo";
 
+const SERVICE_ALIASES = {
+  "office-furniture-charkhi-dadri": {
+    categorySlug: "wooden-work-services",
+    serviceSlug: "customized-furniture-charkhi-dadri"
+  },
+  "reception-counter-charkhi-dadri": {
+    categorySlug: "wooden-work-services",
+    serviceSlug: "customized-furniture-charkhi-dadri"
+  },
+  "wall-panels-charkhi-dadri": {
+    categorySlug: "interior-services",
+    serviceSlug: "tv-panel-design-charkhi-dadri"
+  },
+  "curtains-and-blinds-charkhi-dadri": {
+    categorySlug: "interior-services",
+    serviceSlug: "living-room-interior-charkhi-dadri"
+  }
+};
+
 const ServiceDetailPage = () => {
   const { categorySlug, serviceSlug } = useParams();
   const navigate = useNavigate();
@@ -39,6 +58,19 @@ const ServiceDetailPage = () => {
   const [mediaLoading, setMediaLoading] = useState(false);
 
   useEffect(() => {
+    // Check for obsolete/removed service slugs and redirect to active replacement
+    if (serviceSlug && SERVICE_ALIASES[serviceSlug]) {
+      const alias = SERVICE_ALIASES[serviceSlug];
+      navigate(`/services/${alias.categorySlug}/${alias.serviceSlug}`, { replace: true });
+      return;
+    }
+
+    // Redirect legacy "furniture-services" category path to "wooden-work-services"
+    if (categorySlug === "furniture-services") {
+      navigate(`/services/wooden-work-services/${serviceSlug}`, { replace: true });
+      return;
+    }
+
     const fetchService = async () => {
       try {
         setLoading(true);
@@ -52,7 +84,7 @@ const ServiceDetailPage = () => {
     };
 
     fetchService();
-  }, [serviceSlug]);
+  }, [categorySlug, serviceSlug, navigate]);
 
   useEffect(() => {
     setMediaPage(1);
@@ -98,11 +130,14 @@ const ServiceDetailPage = () => {
   const visibleFaqs = service ? [...(service.faq || []), ...buildLocalSearchFaqs(service)] : [];
   const localSearchTags = service ? getLocalSearchTags(service, 14) : [];
 
+  const activeCategorySlug = service?.categoryId?.slug || (categorySlug === "furniture-services" ? "wooden-work-services" : categorySlug);
+
   useSeo({
     title: service?.seoTitle || (service?.name ? `${service.name} in Charkhi Dadri | Vishwakarma Build & Furnish` : "Service Detail"),
     description: service?.seoDescription || service?.shortDescription || `Premium ${service?.name} services in Charkhi Dadri Haryana.`,
-    path: serviceSlug ? `/services/${categorySlug}/${serviceSlug}` : "/services",
+    path: serviceSlug ? `/services/${activeCategorySlug}/${serviceSlug}` : "/services",
     image: serviceImage,
+    robots: service ? "index, follow, max-image-preview:large" : "noindex, follow",
     keywords: [
       ...(serviceSeo.keywords || []),
       ...(service?.tags || []),
@@ -118,7 +153,7 @@ const ServiceDetailPage = () => {
           "@graph": [
             {
               "@type": "Service",
-              "@id": `${buildPageUrl(`/services/${categorySlug}/${service.slug}`)}#service`,
+              "@id": `${buildPageUrl(`/services/${activeCategorySlug}/${service.slug}`)}#service`,
               name: service.name,
               description: service.seoDescription || getServiceFullDescription(service),
               image: serviceImageUrls.length ? serviceImageUrls : [serviceImage],
@@ -126,7 +161,7 @@ const ServiceDetailPage = () => {
               areaServed: localServiceAreas,
               serviceArea: localServiceAreas.map((area) => ({ "@type": "Place", name: area })),
               category: categoryName,
-              url: buildPageUrl(`/services/${categorySlug}/${service.slug}`),
+              url: buildPageUrl(`/services/${activeCategorySlug}/${service.slug}`),
               offers: service.priceStarting
                 ? {
                     "@type": "Offer",
@@ -153,19 +188,19 @@ const ServiceDetailPage = () => {
             },
             {
               "@type": "ImageGallery",
-              "@id": `${buildPageUrl(`/services/${categorySlug}/${service.slug}`)}#images`,
+              "@id": `${buildPageUrl(`/services/${activeCategorySlug}/${service.slug}`)}#images`,
               name: `${service.name} Images`,
               image: serviceImageUrls.map((imageUrl, index) => ({
                 "@type": "ImageObject",
                 contentUrl: imageUrl,
                 url: imageUrl,
                 name: `${service.name} image ${index + 1}`,
-                caption: `${service.name} design and work in Charkhi Dadri Haryana`
+                caption: `${service.name} work by Vishwakarma Build & Furnish in Charkhi Dadri`
               }))
             },
             {
               "@type": "FAQPage",
-              "@id": `${buildPageUrl(`/services/${categorySlug}/${service.slug}`)}#faq`,
+              "@id": `${buildPageUrl(`/services/${activeCategorySlug}/${service.slug}`)}#faq`,
               mainEntity: visibleFaqs.filter((item) => item.question || item.answer).map((item) => ({
                 "@type": "Question",
                 name: item.question,
@@ -177,11 +212,11 @@ const ServiceDetailPage = () => {
             },
             {
               "@type": "BreadcrumbList",
-              "@id": `${buildPageUrl(`/services/${categorySlug}/${service.slug}`)}#breadcrumbs`,
+              "@id": `${buildPageUrl(`/services/${activeCategorySlug}/${service.slug}`)}#breadcrumbs`,
               itemListElement: [
                 { "@type": "ListItem", position: 1, name: "Home", item: buildPageUrl("/") },
-                { "@type": "ListItem", position: 2, name: categoryName || "Services", item: buildPageUrl(`/services/${categorySlug}`) },
-                { "@type": "ListItem", position: 3, name: service.name, item: buildPageUrl(`/services/${categorySlug}/${service.slug}`) }
+                { "@type": "ListItem", position: 2, name: categoryName || "Services", item: buildPageUrl(`/services/${activeCategorySlug}`) },
+                { "@type": "ListItem", position: 3, name: service.name, item: buildPageUrl(`/services/${activeCategorySlug}/${service.slug}`) }
               ]
             }
           ]
@@ -238,7 +273,34 @@ const ServiceDetailPage = () => {
   }
 
   if (!service) {
-    return <Box sx={{ minHeight: "60vh", bgcolor: "#111111", color: "#fff", p: 4 }}>Service not found</Box>;
+    return (
+      <Box sx={{ minHeight: "65vh", bgcolor: "#111111", color: "#F8FAFC", display: "grid", placeItems: "center", textAlign: "center", px: 3, py: 8 }}>
+        <Box sx={{ maxWidth: 500 }}>
+          <Typography sx={{ fontSize: { xs: "1.75rem", md: "2.25rem" }, fontWeight: 800, mb: 1.5, color: "#D4AF37" }}>
+            Service Not Found
+          </Typography>
+          <Typography sx={{ color: "#94A3B8", fontSize: "0.95rem", mb: 3.5, lineHeight: 1.6 }}>
+            The requested service may have moved or been updated. Explore our full range of construction, woodwork, and interior services in Charkhi Dadri.
+          </Typography>
+          <Box sx={{ display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap" }}>
+            <Button
+              variant="contained"
+              onClick={() => navigate("/services")}
+              sx={{ bgcolor: "#D4AF37", color: "#0F172A", fontWeight: 700, px: 3, "&:hover": { bgcolor: "#B89628" } }}
+            >
+              Browse All Services
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => navigate("/")}
+              sx={{ borderColor: "rgba(212, 175, 55, 0.4)", color: "#D4AF37", fontWeight: 600, px: 3 }}
+            >
+              Go to Home
+            </Button>
+          </Box>
+        </Box>
+      </Box>
+    );
   }
 
   const heroImage = service.heroImage || "";
@@ -556,6 +618,30 @@ const ServiceDetailPage = () => {
                   />
                 ))}
               </Box>
+            </Paper>
+
+            <Paper sx={{ p: 3, bgcolor: "#111827", color: "#F5F5F5", border: "1px solid rgba(212,175,55,0.26)", borderRadius: 3 }}>
+              <Typography variant="h5" sx={{ fontWeight: 900, color: "#D4AF37", mb: 1 }}>
+                Design Guides & Ideas
+              </Typography>
+              <Typography sx={{ color: "rgba(245,245,245,0.74)", fontSize: "0.92rem", mb: 2, lineHeight: 1.6 }}>
+                Looking for modern ideas and material advice for {service.name}? Read our expert local guides and design portfolios.
+              </Typography>
+              <Button
+                component="a"
+                href="/blogs"
+                variant="outlined"
+                endIcon={<ArrowForwardIcon />}
+                sx={{
+                  color: "#D4AF37",
+                  borderColor: "rgba(212,175,55,0.5)",
+                  fontWeight: 700,
+                  textTransform: "none",
+                  "&:hover": { borderColor: "#D4AF37", bgcolor: "rgba(212,175,55,0.08)" }
+                }}
+              >
+                Read Construction & Furniture Guides
+              </Button>
             </Paper>
           </Box>
         </Box>

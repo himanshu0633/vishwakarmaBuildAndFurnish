@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Box, Button, Chip, CircularProgress, Container, Paper, Typography } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ArticleIcon from "@mui/icons-material/Article";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import axiosInstance, { getStaticAssetUrl } from "../../../utils/axiosConfig";
 
@@ -111,7 +111,19 @@ const BlogSection = () => {
                       size="small"
                       sx={{ bgcolor: "rgba(212,175,55,0.92)", color: "#111827", fontWeight: 900, mb: 1.5 }}
                     />
-                    <Typography sx={{ fontSize: "1.25rem", fontWeight: 900, mb: 1 }}>
+                    <Typography
+                      component={Link}
+                      to={`/blogs/${blog.slug}`}
+                      sx={{
+                        fontSize: "1.25rem",
+                        fontWeight: 900,
+                        mb: 1,
+                        color: "#F8FAFC",
+                        textDecoration: "none",
+                        display: "block",
+                        "&:hover": { color: "#D4AF37" }
+                      }}
+                    >
                       {blog.title}
                     </Typography>
                     <Typography sx={{ color: "rgba(248,250,252,0.72)", lineHeight: 1.65, mb: 2 }}>
@@ -119,8 +131,9 @@ const BlogSection = () => {
                     </Typography>
                   </Box>
                   <Button
+                    component={Link}
+                    to={`/blogs/${blog.slug}`}
                     endIcon={<ArrowForwardIcon />}
-                    onClick={() => navigate(`/blogs/${blog.slug}`)}
                     sx={{ color: "#D4AF37", fontWeight: 900, textTransform: "none", px: 0, mt: "auto", width: "fit-content" }}
                   >
                     Read More
@@ -129,6 +142,26 @@ const BlogSection = () => {
               </Paper>
             );
           })}
+        </Box>
+
+        <Box sx={{ display: "flex", justifyContent: "center", mt: { xs: 4, md: 5 } }}>
+          <Button
+            component={Link}
+            to="/blogs"
+            variant="outlined"
+            endIcon={<ArrowForwardIcon />}
+            sx={{
+              borderColor: "rgba(212,175,55,0.5)",
+              color: "#D4AF37",
+              fontWeight: 800,
+              px: 3.5,
+              py: 1.2,
+              borderRadius: "24px",
+              "&:hover": { borderColor: "#D4AF37", bgcolor: "rgba(212,175,55,0.08)" }
+            }}
+          >
+            Explore All 30+ Construction & Furniture Guides
+          </Button>
         </Box>
       </Container>
     </Box>

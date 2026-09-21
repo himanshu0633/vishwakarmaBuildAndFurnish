@@ -1193,6 +1193,11 @@ const CatalogSlugPage = () => {
   const [mediaLoading, setMediaLoading] = useState(false);
 
   useEffect(() => {
+    if (slug === "furniture-services") {
+      navigate("/services/wooden-work-services", { replace: true });
+      return;
+    }
+
     const fetchCatalogItem = async () => {
       try {
         setLoading(true);
@@ -1322,6 +1327,7 @@ const CatalogSlugPage = () => {
         : item?.description || "Explore construction, furniture, modular kitchen, wardrobe and interior services by Vishwakarma Build & Furnish in Charkhi Dadri, Haryana.",
     path: seoPath,
     image: type === "service" ? getStaticAssetUrl(item?.heroImage || item?.images?.[0] || "") : undefined,
+    robots: item ? "index, follow, max-image-preview:large" : "noindex, follow",
     keywords:
       type === "service"
         ? [...(serviceSeo?.keywords || []), ...(item?.tags || [])]
@@ -1421,7 +1427,34 @@ const CatalogSlugPage = () => {
   }
 
   if (!item) {
-    return <Box sx={{ minHeight: "60vh", bgcolor: "#111111", color: "#fff", p: 4 }}>Page not found</Box>;
+    return (
+      <Box sx={{ minHeight: "65vh", bgcolor: "#111111", color: "#F8FAFC", display: "grid", placeItems: "center", textAlign: "center", px: 3, py: 8 }}>
+        <Box sx={{ maxWidth: 500 }}>
+          <Typography sx={{ fontSize: { xs: "1.75rem", md: "2.25rem" }, fontWeight: 800, mb: 1.5, color: "#D4AF37" }}>
+            Category Not Found
+          </Typography>
+          <Typography sx={{ color: "#94A3B8", fontSize: "0.95rem", mb: 3.5, lineHeight: 1.6 }}>
+            The requested category or service could not be found. Explore our available home construction, furniture, and interior solutions.
+          </Typography>
+          <Box sx={{ display: "flex", gap: 2, justifyContent: "center", flexWrap: "wrap" }}>
+            <Button
+              variant="contained"
+              onClick={() => navigate("/services")}
+              sx={{ bgcolor: "#D4AF37", color: "#0F172A", fontWeight: 700, px: 3, "&:hover": { bgcolor: "#B89628" } }}
+            >
+              Browse All Services
+            </Button>
+            <Button
+              variant="outlined"
+              onClick={() => navigate("/")}
+              sx={{ borderColor: "rgba(212, 175, 55, 0.4)", color: "#D4AF37", fontWeight: 600, px: 3 }}
+            >
+              Go to Home
+            </Button>
+          </Box>
+        </Box>
+      </Box>
+    );
   }
 
   const isPremiumCategory = ["construction-services", "wooden-work-services", "interior-services"].includes(slug);

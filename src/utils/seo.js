@@ -14,7 +14,9 @@ const getSiteUrl = () => {
     return import.meta.env.VITE_SITE_URL.replace(/\/+$/, '');
   }
   if (typeof window !== 'undefined' && window.location && window.location.origin) {
-    return window.location.origin;
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      return window.location.origin;
+    }
   }
   return DEFAULT_SITE_URL;
 };
@@ -88,7 +90,8 @@ export const useSeo = ({
   image,
   type = 'website',
   keywords = [],
-  structuredData
+  structuredData,
+  robots = 'index, follow, max-image-preview:large'
 }) => {
   useEffect(() => {
     const fullTitle = formatTitle(title);
@@ -100,7 +103,7 @@ export const useSeo = ({
     document.title = fullTitle;
     setMeta('description', cleanDescription);
     setMeta('keywords', cleanKeywords);
-    setMeta('robots', 'index, follow, max-image-preview:large');
+    setMeta('robots', robots);
     setCanonical(canonicalUrl);
 
     setProperty('og:site_name', SITE_NAME);
@@ -131,7 +134,7 @@ export const useSeo = ({
     } else if (script) {
       script.remove();
     }
-  }, [title, description, path, image, type, keywords, structuredData]);
+  }, [title, description, path, image, type, keywords, structuredData, robots]);
 };
 
 export const simpleBusinessStructuredData = {

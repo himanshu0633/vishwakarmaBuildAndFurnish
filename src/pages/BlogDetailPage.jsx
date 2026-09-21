@@ -234,7 +234,24 @@ const BlogDetailPage = () => {
     setExpandedFaq(isExpanded ? panel : false);
   };
 
+const BLOG_ALIASES = {
+  "custom-office-furniture-designs-in-charkhi-dadri": "custom-furniture-designs-in-charkhi-dadri",
+  "custom-reception-counter-designs-in-charkhi-dadri": "custom-furniture-designs-in-charkhi-dadri",
+  "custom-wall-panels-designs-in-charkhi-dadri": "latest-tv-panel-designs-in-charkhi-dadri",
+  "custom-curtains-and-blinds-designs-in-charkhi-dadri": null
+};
+
   useEffect(() => {
+    if (slug && slug in BLOG_ALIASES) {
+      const target = BLOG_ALIASES[slug];
+      if (target) {
+        navigate(`/blogs/${target}`, { replace: true });
+      } else {
+        navigate("/blogs", { replace: true });
+      }
+      return;
+    }
+
     const fetchBlog = async () => {
       try {
         setLoading(true);
@@ -249,7 +266,7 @@ const BlogDetailPage = () => {
     };
 
     fetchBlog();
-  }, [slug]);
+  }, [slug, navigate]);
 
   const handleWhatsApp = () => {
     const message = `Hello Vishwakarma Build & Furnish, I read this blog and want consultation: ${blog?.title}`;
@@ -359,6 +376,7 @@ const BlogDetailPage = () => {
     path: slug ? `/blogs/${slug}` : "/blogs",
     image: heroImage,
     type: "article",
+    robots: blog ? "index, follow, max-image-preview:large" : "noindex, follow",
     keywords: seoKeywords,
     structuredData: blog
       ? {
