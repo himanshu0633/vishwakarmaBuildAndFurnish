@@ -65,9 +65,6 @@ export default function LoginPage() {
       const response = await api.post('/auth/request-otp', { target, channel: 'email', purpose: 'login' });
       setOtpSent(true);
       setMessage(response.data.message || `OTP sent successfully to ${target}! Please check your inbox.`);
-      if (response.data.devOtp) {
-        setMessage(`OTP sent to ${target}. (Test OTP: ${response.data.devOtp})`);
-      }
     } catch (err) {
       setError(err.response?.data?.message || 'Unable to generate OTP. Please check your email address and try again.');
     } finally {
