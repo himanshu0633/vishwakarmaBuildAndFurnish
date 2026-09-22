@@ -1,11 +1,17 @@
 import React from 'react';
+import { useLocation } from 'react-router-dom';
 import { Paper, Button } from '@mui/material';
 import PhoneIcon from '@mui/icons-material/Phone';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 
 const StickyBottomCta = () => {
+  const location = useLocation();
   const phone = "9416856468";
   const message = "Hello Vishwakarma Build & Furnish, I want to inquire about your services.";
+  
+  if (location.pathname.startsWith('/dashboard')) {
+    return null;
+  }
   
   return (
     <Paper

@@ -1,6 +1,6 @@
 import React from "react";
 import { Box, Button, Container, Divider, IconButton, Link, Stack, Typography } from "@mui/material";
-import { Link as RouterLink } from "react-router-dom";
+import { Link as RouterLink, useLocation } from "react-router-dom";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import ArticleIcon from "@mui/icons-material/Article";
 import ChairIcon from "@mui/icons-material/Chair";
@@ -24,6 +24,8 @@ const phone = "9416856468";
 const googleMapsLocationUrl = "https://maps.app.goo.gl/V9mPoFxvSJm3hCM69";
 
 const Footer = () => {
+  const location = useLocation();
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };

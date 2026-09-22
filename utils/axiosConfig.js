@@ -18,14 +18,44 @@ const axiosInstance = axios.create({
 export const API_ORIGIN = API_BASE_URL.replace(/\/api\/?$/, '');
 
 export const getStaticAssetUrl = (url = '') => {
-  if (!url) return '';
-  if (/^https?:\/\//i.test(url)) return url.replace('/api/uploads/', '/uploads/');
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim().replace(/\\/g, '/');
+  if (!trimmed) return '';
 
-  const cleanUrl = url.startsWith('/api/uploads/')
-    ? url.replace('/api/uploads/', '/uploads/')
-    : url;
+  // If already an absolute URL
+  if (/^https?:\/\//i.test(trimmed)) {
+    // If it's a localhost URL but user is on a mobile device or production site
+    if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i.test(trimmed)) {
+      if (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        const pathOnly = trimmed.replace(/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/i, '');
+        const cleanPath = pathOnly.replace('/api/uploads/', '/uploads/');
+        return `${API_ORIGIN}${cleanPath.startsWith('/') ? cleanPath : `/${cleanPath}`}`;
+      }
+    }
+    return trimmed.replace('/api/uploads/', '/uploads/');
+  }
 
-  return `${API_ORIGIN}${cleanUrl.startsWith('/') ? cleanUrl : `/${cleanUrl}`}`;
+  let cleanUrl = trimmed.replace(/^\/?api\/uploads\//, '/uploads/');
+  if (!cleanUrl.startsWith('/uploads/') && !cleanUrl.startsWith('uploads/')) {
+    cleanUrl = `/uploads/${cleanUrl.replace(/^\/+/, '')}`;
+  } else if (!cleanUrl.startsWith('/')) {
+    cleanUrl = `/${cleanUrl}`;
+  }
+
+  return `${API_ORIGIN}${cleanUrl}`;
+};
+
+export const getFallbackAssetUrl = (url = '') => {
+  if (!url || typeof url !== 'string') return '';
+  const trimmed = url.trim().replace(/\\/g, '/');
+  const pathOnly = trimmed.replace(/^https?:\/\/[^/]+/i, '');
+  const cleanPath = pathOnly.startsWith('/') ? pathOnly : `/${pathOnly}`;
+  const uploadPath = cleanPath.startsWith('/uploads/') ? cleanPath : `/uploads/${cleanPath.replace(/^\/+/, '')}`;
+
+  if (API_ORIGIN.includes('localhost') || API_ORIGIN.includes('127.0.0.1')) {
+    return `https://backend.vishwakarmabuildandfurnish.in${uploadPath}`;
+  }
+  return `http://localhost:4001${uploadPath}`;
 };
 
 export const logStaticAssetUrl = (label, rawUrl) => {

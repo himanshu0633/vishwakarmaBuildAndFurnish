@@ -134,7 +134,7 @@ const AdminRouter = () => {
         <Route path="marketplace" element={<Navigate to="/admin/marketplace/analytics" replace />} />
         <Route path="marketplace/:moduleId" element={<MarketplaceDashboard />} />
         <Route path="/tenders" element={<AdminTenders />} />
-        <Route path="/" element={<Navigate to="dashboard" replace />} />
+        <Route path="/" element={<Navigate to="clients" replace />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AdminLayout>

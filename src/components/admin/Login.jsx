@@ -51,18 +51,21 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   useEffect(() => {
+    if (user && user.role === 'admin') {
+      navigate('/admin/clients', { replace: true });
+    }
     const savedEmail = localStorage.getItem('savedEmail');
     if (savedEmail) {
       setEmail(savedEmail);
       setRememberMe(true);
     }
-  }, []);
+  }, [user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -76,7 +79,7 @@ const Login = () => {
       } else {
         localStorage.removeItem('savedEmail');
       }
-      navigate('/admin/tenders');
+      navigate('/admin/clients');
     } else {
       setError(result.error);
     }

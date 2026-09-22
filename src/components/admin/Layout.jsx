@@ -12,40 +12,32 @@ import {
   ListItemText,
   Box,
   IconButton,
-  Container,
   Avatar,
   Menu,
   MenuItem,
   Divider,
-  Chip,
+  InputBase,
+  Badge,
   useTheme,
   useMediaQuery
 } from '@mui/material';
 import {
-  Dashboard as DashboardIcon,
   Category as CategoryIcon,
   Build as ServicesIcon,
   Assignment as InquiriesIcon,
-  Logout as LogoutIcon,
   Menu as MenuIcon,
   AccountCircle as AccountCircleIcon,
   Business as BusinessIcon,
-  Gavel as GavelIcon,
   Collections as MediaIcon,
   Article as ArticleIcon,
   Settings as SettingsIcon,
-  Analytics as AnalyticsIcon,
-  People as PeopleIcon,
-  Storefront as StorefrontIcon,
-  Verified as VerifiedIcon,
-  Favorite as FavoriteIcon,
-  ReceiptLong as ReceiptLongIcon,
-  AccountBalanceWallet as WalletIcon,
-  Reviews as ReviewsIcon,
   Campaign as CampaignIcon,
-  Assessment as ReportsIcon,
   Engineering as ClientsIcon,
-  Inventory2 as MaterialsIcon
+  Inventory2 as MaterialsIcon,
+  Search as SearchIcon,
+  NotificationsNone as NotificationsIcon,
+  ExitToApp as LogoutIcon,
+  HomeWork as HomeWorkIcon
 } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
@@ -70,8 +62,6 @@ const Layout = ({ children }) => {
   const menuItems = [
     { text: 'Clients & Projects', icon: <ClientsIcon />, path: 'clients' },
     { text: 'Materials Catalog', icon: <MaterialsIcon />, path: 'materials' },
-    // { text: 'Dashboard', icon: <DashboardIcon />, path: 'dashboard' },
-    // { text: 'Tenders', icon: <GavelIcon />, path: 'tenders' },
     { text: 'Categories', icon: <CategoryIcon />, path: 'categories' },
     { text: 'Services', icon: <ServicesIcon />, path: 'services' },
     { text: 'Service Media', icon: <MediaIcon />, path: 'service-media' },
@@ -80,19 +70,6 @@ const Layout = ({ children }) => {
     { text: 'Gallery', icon: <MediaIcon />, path: 'gallery' },
     { text: 'Website Popups', icon: <CampaignIcon />, path: 'popups' },
     { text: 'Inquiries', icon: <InquiriesIcon />, path: 'inquiries' },
-    // { text: 'Marketplace Analytics', icon: <AnalyticsIcon />, path: 'marketplace/analytics' },
-    // { text: 'Users', icon: <PeopleIcon />, path: 'marketplace/users' },
-    // { text: 'Partners', icon: <StorefrontIcon />, path: 'marketplace/partners' },
-    // { text: 'Partner Verification', icon: <VerifiedIcon />, path: 'marketplace/verification' },
-    // { text: 'Leads', icon: <CampaignIcon />, path: 'marketplace/leads' },
-    // { text: 'Service Likes', icon: <FavoriteIcon />, path: 'marketplace/likes' },
-    // { text: 'Bills', icon: <ReceiptLongIcon />, path: 'marketplace/bills' },
-    // { text: 'Cashback', icon: <WalletIcon />, path: 'marketplace/cashback' },
-    // { text: 'Wallet', icon: <WalletIcon />, path: 'marketplace/wallet' },
-    // { text: 'Referrals', icon: <PeopleIcon />, path: 'marketplace/referrals' },
-    // { text: 'Partner Reviews', icon: <ReviewsIcon />, path: 'marketplace/reviews' },
-    // { text: 'Notifications', icon: <CampaignIcon />, path: 'marketplace/notifications' },
-    // { text: 'Reports', icon: <ReportsIcon />, path: 'marketplace/reports' },
   ];
 
   const handleLogout = () => {
@@ -113,23 +90,19 @@ const Layout = ({ children }) => {
     setMobileOpen(!mobileOpen);
   };
 
-  const drawerWidth = 280;
+  const drawerWidth = 250;
 
   const drawerContent = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', bgcolor: '#0a0e17' }}>
       {/* Navigation Menu */}
-      <List sx={{ flex: 1, px: 1 }}>
+      <List sx={{ flex: 1, px: 1.5, pt: 1.5 }}>
         {menuItems.map((item) => {
-          const isActive = currentPage === item.path || (item.path === 'marketplace/analytics' && currentPage === 'marketplace');
+          const isActive = currentPage === item.path || (item.path === 'clients' && (currentPage === '' || currentPage === 'clients' || currentPage.startsWith('clients/')));
           return (
             <ListItem
               key={item.text}
               disablePadding
-              sx={{
-                mb: 0.5,
-                borderRadius: 2,
-                overflow: 'hidden'
-              }}
+              sx={{ mb: 0.6, borderRadius: '10px', overflow: 'hidden' }}
             >
               <ListItemButton
                 onClick={() => {
@@ -137,20 +110,23 @@ const Layout = ({ children }) => {
                   if (isMobile) setMobileOpen(false);
                 }}
                 sx={{
-                  borderRadius: 2,
+                  borderRadius: '10px',
+                  py: 1,
+                  px: 1.5,
                   background: isActive 
-                    ? 'linear-gradient(135deg, rgba(212,175,55,0.2), rgba(212,175,55,0.1))'
+                    ? 'rgba(245, 183, 46, 0.14)'
                     : 'transparent',
-                  borderLeft: isActive ? `3px solid #D4AF37` : '3px solid transparent',
+                  border: isActive ? '1px solid rgba(245, 183, 46, 0.28)' : '1px solid transparent',
                   '&:hover': {
-                    background: 'rgba(212,175,55,0.1)'
+                    background: isActive ? 'rgba(245, 183, 46, 0.2)' : 'rgba(255, 255, 255, 0.04)'
                   },
-                  transition: 'all 0.3s ease'
+                  transition: 'all 0.2s ease'
                 }}
               >
                 <ListItemIcon sx={{ 
-                  color: isActive ? '#D4AF37' : 'rgba(245,245,245,0.6)',
-                  minWidth: 40
+                  color: isActive ? '#f5b72e' : '#8b949e',
+                  minWidth: 36,
+                  '& svg': { fontSize: 20 }
                 }}>
                   {item.icon}
                 </ListItemIcon>
@@ -158,46 +134,55 @@ const Layout = ({ children }) => {
                   primary={item.text} 
                   sx={{ 
                     '& .MuiTypography-root': { 
-                      fontWeight: isActive ? 'bold' : 'normal',
-                      color: isActive ? '#D4AF37' : 'rgba(245,245,245,0.8)',
-                      fontSize: '0.9rem'
+                      fontWeight: isActive ? 700 : 500,
+                      color: isActive ? '#f5b72e' : '#8b949e',
+                      fontSize: '0.86rem'
                     } 
                   }}
                 />
-                {isActive && (
-                  <Box sx={{ 
-                    width: 4, 
-                    height: 20, 
-                    background: '#D4AF37',
-                    borderRadius: 2
-                  }} />
-                )}
               </ListItemButton>
             </ListItem>
           );
         })}
       </List>
 
+      {/* Promo Card at bottom of sidebar */}
+      <Box sx={{ p: 2, m: 1.5, mb: 1.5, bgcolor: '#111726', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.07)' }}>
+        <Typography sx={{ fontSize: '1.2rem', mb: 0.5, lineHeight: 1 }}>👑</Typography>
+        <Typography sx={{ color: '#ffffff', fontWeight: 800, fontSize: '0.84rem', lineHeight: 1.3 }}>
+          Build Better
+        </Typography>
+        <Typography sx={{ color: '#ffffff', fontWeight: 800, fontSize: '0.84rem', lineHeight: 1.3 }}>
+          Manage Smarter
+        </Typography>
+        <Typography sx={{ color: '#6e7681', fontSize: '0.72rem', mt: 0.8, lineHeight: 1.4 }}>
+          From foundation to furniture we make it simple.
+        </Typography>
+      </Box>
+
       {/* Logout Button */}
-      <Box sx={{ p: 2, borderTop: '1px solid rgba(212,175,55,0.2)' }}>
+      <Box sx={{ p: 1.5, px: 2, borderTop: '1px solid rgba(255, 255, 255, 0.06)' }}>
         <ListItemButton
           onClick={handleLogout}
           sx={{
-            borderRadius: 2,
+            borderRadius: '10px',
+            color: '#8b949e',
+            py: 0.8,
             '&:hover': {
-              background: 'rgba(244,67,54,0.1)'
+              color: '#ef4444',
+              bgcolor: 'rgba(239, 68, 68, 0.08)'
             }
           }}
         >
-          <ListItemIcon sx={{ color: '#e74c3c', minWidth: 40 }}>
-            <LogoutIcon />
+          <ListItemIcon sx={{ color: 'inherit', minWidth: 34 }}>
+            <LogoutIcon sx={{ fontSize: 19 }} />
           </ListItemIcon>
           <ListItemText 
             primary="Logout" 
             sx={{ 
               '& .MuiTypography-root': { 
-                color: '#e74c3c',
-                fontWeight: 500
+                fontSize: '0.85rem',
+                fontWeight: 600
               } 
             }}
           />
@@ -207,102 +192,195 @@ const Layout = ({ children }) => {
   );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', background: '#111111' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', background: '#0a0d14' }}>
       {/* App Bar */}
       <AppBar 
         position="fixed" 
         sx={{ 
           zIndex: (theme) => theme.zIndex.drawer + 1,
-          background: 'linear-gradient(135deg, #111111 0%, #0F172A 50%, #1A1A1A 100%)',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
-          borderBottom: '1px solid rgba(212,175,55,0.3)'
+          background: '#0a0d14',
+          boxShadow: 'none',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.06)'
         }}
       >
-        <Toolbar>
-          {/* Mobile Menu Button */}
-          {isMobile && (
-            <IconButton
-              color="inherit"
-              aria-label="open drawer"
-              edge="start"
-              onClick={handleDrawerToggle}
-              sx={{ mr: 2 }}
+        <Toolbar sx={{ minHeight: '64px !important', px: { xs: 2, sm: 3 }, gap: 2 }}>
+          {/* Brand Logo & Title on the left */}
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, minWidth: { md: 230 } }}>
+            <Box
+              sx={{
+                width: 36,
+                height: 36,
+                borderRadius: '8px',
+                bgcolor: 'rgba(245, 183, 46, 0.15)',
+                border: '1px solid rgba(245, 183, 46, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#f5b72e'
+              }}
             >
-              <MenuIcon />
-            </IconButton>
-          )}
+              <HomeWorkIcon sx={{ fontSize: 22 }} />
+            </Box>
+            <Box>
+              <Typography sx={{ fontWeight: 800, color: '#ffffff', fontSize: '0.98rem', lineHeight: 1.15 }}>
+                Vishwakarma
+              </Typography>
+              <Typography sx={{ fontSize: '0.72rem', color: '#f5b72e', fontWeight: 600, letterSpacing: '0.4px' }}>
+                Build & Furnish
+              </Typography>
+            </Box>
+          </Box>
+
+          {/* Toggle Button for Mobile or Desktop */}
+          <IconButton
+            color="inherit"
+            aria-label="open drawer"
+            edge="start"
+            onClick={handleDrawerToggle}
+            sx={{ color: '#8b949e', ml: { xs: 0, md: 1 }, mr: 1 }}
+          >
+            <MenuIcon sx={{ fontSize: 20 }} />
+          </IconButton>
           
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1, fontWeight: 'bold' }}>
-            <Box component="span" sx={{ color: '#D4AF37' }}>Vishwakarma</Box>
-            <Box component="span" sx={{ color: '#fff' }}> Build & Furnish</Box>
-          </Typography>
+          {/* Global Search Bar */}
+          <Box 
+            sx={{ 
+              display: { xs: 'none', sm: 'flex' },
+              alignItems: 'center',
+              bgcolor: 'rgba(255, 255, 255, 0.04)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '9px',
+              px: 1.5,
+              py: 0.5,
+              width: { sm: 320, md: 400 },
+              gap: 1
+            }}
+          >
+            <SearchIcon sx={{ color: '#6e7681', fontSize: 18 }} />
+            <InputBase
+              placeholder="Search clients, projects, services, materials..."
+              sx={{ 
+                color: '#ffffff', 
+                fontSize: '0.82rem', 
+                flex: 1,
+                '& ::placeholder': { color: '#6e7681', opacity: 1 }
+              }}
+            />
+            <Box sx={{
+              bgcolor: 'rgba(255, 255, 255, 0.06)',
+              color: '#8b949e',
+              fontSize: '0.68rem',
+              fontWeight: 700,
+              px: 0.7,
+              py: 0.2,
+              borderRadius: '5px',
+              border: '1px solid rgba(255, 255, 255, 0.08)'
+            }}>
+              ⌘ K
+            </Box>
+          </Box>
+
+          <Box sx={{ flexGrow: 1 }} />
           
+          {/* Right Header items: Notifications & Admin Profile */}
           <Box display="flex" alignItems="center" gap={2}>
-            {/* Quick Stats */}
-            <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 2, mr: 2 }}>
-              <Chip
-                label="Admin Portal"
-                size="small"
-                sx={{
-                  background: 'rgba(212,175,55,0.2)',
-                  color: '#D4AF37',
-                  '& .MuiChip-icon': { color: '#D4AF37' }
+            {/* Notification Bell */}
+            <IconButton 
+              sx={{ 
+                color: '#8b949e',
+                bgcolor: 'rgba(255, 255, 255, 0.04)',
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                width: 36,
+                height: 36,
+                '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.08)', color: '#fff' }
+              }}
+            >
+              <Badge 
+                badgeContent={3} 
+                sx={{ 
+                  '& .MuiBadge-badge': { 
+                    bgcolor: '#ef4444', 
+                    color: '#fff', 
+                    fontSize: '0.62rem', 
+                    height: 15, 
+                    minWidth: 15,
+                    fontWeight: 700
+                  } 
                 }}
-              />
+              >
+                <NotificationsIcon sx={{ fontSize: 19 }} />
+              </Badge>
+            </IconButton>
+
+            {/* Admin Avatar & Profile Dropdown */}
+            <Box 
+              onClick={handleMenuOpen}
+              sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 1.2, 
+                cursor: 'pointer',
+                p: 0.5,
+                pr: 1,
+                borderRadius: '10px',
+                '&:hover': { bgcolor: 'rgba(255, 255, 255, 0.05)' }
+              }}
+            >
+              <Avatar 
+                sx={{ 
+                  width: 34, 
+                  height: 34,
+                  bgcolor: '#f5b72e',
+                  color: '#0a0d14',
+                  fontWeight: 800,
+                  fontSize: '0.9rem'
+                }}
+              >
+                {user?.name?.charAt(0) || user?.email?.charAt(0) || 'A'}
+              </Avatar>
+              <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+                <Typography sx={{ color: '#ffffff', fontWeight: 700, fontSize: '0.84rem', lineHeight: 1.1 }}>
+                  Admin
+                </Typography>
+                <Typography sx={{ color: '#6e7681', fontSize: '0.7rem', lineHeight: 1.1 }}>
+                  Administrator
+                </Typography>
+              </Box>
             </Box>
             
-            {/* User Menu */}
-            <Box>
-              <IconButton 
-                color="inherit" 
-                onClick={handleMenuOpen}
-                sx={{
-                  '&:hover': {
-                    background: 'rgba(212,175,55,0.2)'
-                  }
-                }}
-              >
-                <Avatar sx={{ 
-                  width: 32, 
-                  height: 32,
-                  background: 'linear-gradient(135deg, #D4AF37, #B88917)'
-                }}>
-                  {user?.name?.charAt(0) || user?.email?.charAt(0) || 'A'}
-                </Avatar>
-              </IconButton>
-              <Menu
-                anchorEl={anchorEl}
-                open={Boolean(anchorEl)}
-                onClose={handleMenuClose}
-                PaperProps={{
-                  sx: {
-                    background: 'linear-gradient(135deg, #0F172A, #111111)',
-                    border: '1px solid rgba(212,175,55,0.3)',
-                    borderRadius: 2,
-                    mt: 1
-                  }
-                }}
-              >
-                <MenuItem onClick={() => { navigate('/admin/profile'); handleMenuClose(); }} sx={{ color: '#fff' }}>
-                  <AccountCircleIcon sx={{ mr: 1, color: '#D4AF37' }} />
-                  Profile
-                </MenuItem>
-                <MenuItem onClick={() => { navigate('/admin/settings'); handleMenuClose(); }} sx={{ color: '#fff' }}>
-                  <SettingsIcon sx={{ mr: 1, color: '#D4AF37' }} />
-                  Settings
-                </MenuItem>
-                <Divider sx={{ borderColor: 'rgba(212,175,55,0.2)' }} />
-                <MenuItem onClick={handleLogout} sx={{ color: '#e74c3c' }}>
-                  <LogoutIcon sx={{ mr: 1 }} />
-                  Logout
-                </MenuItem>
-              </Menu>
-            </Box>
+            <Menu
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={handleMenuClose}
+              PaperProps={{
+                sx: {
+                  background: '#111625',
+                  border: '1px solid rgba(245, 183, 46, 0.25)',
+                  borderRadius: '10px',
+                  mt: 1,
+                  boxShadow: '0 10px 30px rgba(0,0,0,0.6)'
+                }
+              }}
+            >
+              <MenuItem onClick={() => { navigate('/admin/profile'); handleMenuClose(); }} sx={{ color: '#fff', fontSize: '0.85rem' }}>
+                <AccountCircleIcon sx={{ mr: 1, color: '#f5b72e', fontSize: 18 }} />
+                Profile
+              </MenuItem>
+              <MenuItem onClick={() => { navigate('/admin/settings'); handleMenuClose(); }} sx={{ color: '#fff', fontSize: '0.85rem' }}>
+                <SettingsIcon sx={{ mr: 1, color: '#f5b72e', fontSize: 18 }} />
+                Settings
+              </MenuItem>
+              <Divider sx={{ borderColor: 'rgba(255, 255, 255, 0.08)' }} />
+              <MenuItem onClick={handleLogout} sx={{ color: '#ef4444', fontSize: '0.85rem' }}>
+                <LogoutIcon sx={{ mr: 1, fontSize: 18 }} />
+                Logout
+              </MenuItem>
+            </Menu>
           </Box>
         </Toolbar>
       </AppBar>
       
-      {/* Desktop Drawer */}
+      {/* Sidebar Drawer */}
       <Drawer
         variant={isMobile ? 'temporary' : 'permanent'}
         open={isMobile ? mobileOpen : true}
@@ -313,56 +391,81 @@ const Layout = ({ children }) => {
           '& .MuiDrawer-paper': {
             width: drawerWidth,
             boxSizing: 'border-box',
-            mt: { xs: 7, sm: 8 },
-            background: 'linear-gradient(135deg, #111111 0%, #1a2f38 100%)',
-            borderRight: '1px solid rgba(212,175,55,0.2)',
-            boxShadow: '2px 0 10px rgba(0,0,0,0.2)'
+            mt: '64px',
+            height: 'calc(100% - 64px)',
+            background: '#0a0e17',
+            borderRight: '1px solid rgba(255, 255, 255, 0.06)'
           },
         }}
       >
         {drawerContent}
       </Drawer>
       
-      {/* Main Content */}
+      {/* Main Content Area */}
       <Box 
         component="main" 
         sx={{ 
           flexGrow: 1, 
-          p: { xs: 2, sm: 3 }, 
-          mt: { xs: 7, sm: 8 },
-          minHeight: '100vh',
-          background: 'linear-gradient(135deg, #111111 0%, #0F172A 50%, #1A1A1A 100%)'
+          p: { xs: 2, sm: 3, md: 3.5 }, 
+          mt: '64px',
+          minHeight: 'calc(100vh - 64px)',
+          background: '#0a0d14',
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          overflowX: 'auto'
         }}
       >
-        <Container maxWidth="xl" sx={{ py: 2 }}>
+        <Box sx={{ maxWidth: 1680, mx: 'auto' }}>
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.25 }}
           >
             {children}
           </motion.div>
-        </Container>
+
+          {/* Footer matching reference design */}
+          <Box 
+            sx={{ 
+              mt: 5, 
+              pt: 3, 
+              pb: 2, 
+              borderTop: '1px solid rgba(255, 255, 255, 0.06)',
+              display: 'flex',
+              flexDirection: { xs: 'column', sm: 'row' },
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              gap: 1.5,
+              color: '#6e7681',
+              fontSize: '0.8rem'
+            }}
+          >
+            <Typography variant="body2" sx={{ color: '#6e7681', fontSize: '0.8rem' }}>
+              © 2024 Vishwakarma Build & Furnish. All rights reserved.
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#6e7681', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+              Built with <span style={{ color: '#ef4444' }}>❤️</span> for Better Homes
+            </Typography>
+          </Box>
+        </Box>
       </Box>
 
       <style>{`
         ::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
+          width: 7px;
+          height: 7px;
         }
         
         ::-webkit-scrollbar-track {
-          background: rgba(245,245,245,0.05);
-          border-radius: 10px;
+          background: #0a0d14;
         }
         
         ::-webkit-scrollbar-thumb {
-          background: #D4AF37;
-          border-radius: 10px;
+          background: #1c2438;
+          border-radius: 4px;
         }
         
         ::-webkit-scrollbar-thumb:hover {
-          background: #B88917;
+          background: #f5b72e;
         }
       `}</style>
     </Box>
@@ -370,3 +473,4 @@ const Layout = ({ children }) => {
 };
 
 export default Layout;
+

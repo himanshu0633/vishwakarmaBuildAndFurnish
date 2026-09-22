@@ -32,7 +32,10 @@ import {
   Tooltip,
   Accordion,
   AccordionSummary,
-  AccordionDetails
+  AccordionDetails,
+  Select,
+  FormControl,
+  Avatar
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -52,9 +55,18 @@ import {
   Category as CategoryIcon,
   AccountBalanceWallet as WalletIcon,
   FormatListBulleted as ListIcon,
-  VpnKey as KeyIcon
+  VpnKey as KeyIcon,
+  GroupsRounded as GroupsIcon,
+  BusinessCenterRounded as BriefcaseIcon,
+  CurrencyRupeeRounded as RupeeIcon,
+  AccessTimeRounded as ClockIcon,
+  VisibilityRounded as ViewIcon,
+  ContentCopy as CopyIcon,
+  Clear as ClearIcon,
+  NorthEast as TrendingUpIcon,
+  Check as CheckIcon
 } from '@mui/icons-material';
-import axiosInstance from '../../../utils/axiosConfig';
+import axiosInstance, { getStaticAssetUrl, getFallbackAssetUrl } from '../../../utils/axiosConfig';
 
 const STATUS_OPTIONS = [
   { value: 'All', label: 'All Statuses' },
@@ -67,17 +79,18 @@ const STATUS_OPTIONS = [
 const getStatusBadge = (status) => {
   switch (status) {
     case 'in_progress':
-      return { label: 'In Progress', bg: '#e8f5e9', text: '#2e7d32', border: '#a5d6a7' };
+      return { label: 'In Progress', bg: '#172554', text: '#60a5fa', border: 'rgba(96, 165, 250, 0.3)', dot: '#3b82f6' };
     case 'planning':
-      return { label: 'Planning', bg: '#e3f2fd', text: '#1565c0', border: '#90caf9' };
+      return { label: 'Planning & Prep', bg: '#1e293b', text: '#94a3b8', border: 'rgba(148, 163, 184, 0.3)', dot: '#94a3b8' };
     case 'completed':
-      return { label: 'Completed', bg: '#fff8e1', text: '#f57f17', border: '#ffe082' };
+      return { label: 'Completed', bg: '#14291e', text: '#4ade80', border: 'rgba(74, 222, 128, 0.3)', dot: '#22c55e' };
     case 'on_hold':
-      return { label: 'On Hold', bg: '#ffebee', text: '#c62828', border: '#ef9a9a' };
+      return { label: 'On Hold', bg: '#2d1519', text: '#f87171', border: 'rgba(248, 113, 113, 0.3)', dot: '#ef4444' };
     default:
-      return { label: status || 'Active', bg: '#f5f5f5', text: '#424242', border: '#e0e0e0' };
+      return { label: status || 'Active', bg: '#1e293b', text: '#cbd5e1', border: 'rgba(255, 255, 255, 0.1)', dot: '#f5b72e' };
   }
 };
+
 
 const DEFAULT_STEPS = [
   {
@@ -183,6 +196,34 @@ const ClientsManagement = () => {
 
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' });
   const [resendingId, setResendingId] = useState(null);
+  const [sortBy, setSortBy] = useState('newest');
+  const [copiedPassId, setCopiedPassId] = useState(null);
+
+  const handleCopyPassword = (e, client) => {
+    e.stopPropagation();
+    const pass = client.loginPassword || `${(client.name || 'Client').trim().split(/\s+/)[0]}@123`;
+    navigator.clipboard.writeText(pass);
+    setCopiedPassId(client._id);
+    setSnackbar({ open: true, message: `Password "${pass}" copied to clipboard!`, severity: 'success' });
+    setTimeout(() => setCopiedPassId(null), 2500);
+  };
+
+  const getAvatarConfig = (index, name = '') => {
+    const bgColors = [
+      '#38bdf8', // sky
+      '#a78bfa', // purple
+      '#f472b6', // pink
+      '#34d399', // emerald
+      '#fbbf24', // amber
+      '#818cf8', // indigo
+    ];
+    const charCode = (name.charCodeAt(0) || 0) + index;
+    const initial = (name.trim().charAt(0) || 'C').toUpperCase();
+    return {
+      bg: bgColors[charCode % bgColors.length],
+      initial
+    };
+  };
 
   // Resend Login Credentials
   const handleResendCredentials = async (client) => {
@@ -663,6 +704,41 @@ const ClientsManagement = () => {
   const totalCollected = clients.reduce((sum, c) => sum + (Number(c.totalPaid) || 0), 0);
   const totalBalanceDue = Math.max(0, totalContractVal - totalCollected);
   const activeProjectsCount = clients.filter((c) => c.status === 'in_progress').length;
+  const receivedPct = totalContractVal > 0 ? Math.min(100, Math.round((totalCollected / totalContractVal) * 100)) : (totalCollected > 0 ? 100 : 0);
+  const balancePct = totalContractVal > 0 ? Math.max(0, Math.round((totalBalanceDue / totalContractVal) * 100)) : 0;
+  const thisMonthCount = clients.filter((c) => {
+    if (!c.createdAt) return false;
+    const d = new Date(c.createdAt);
+    const now = new Date();
+    return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+  }).length;
+  const activeProjectsPct = clients.length > 0 ? Math.round((activeProjectsCount / clients.length) * 100) : 0;
+
+  // Status Counts
+  const statusCounts = {
+    All: clients.length,
+    planning: clients.filter((c) => c.status === 'planning').length,
+    in_progress: clients.filter((c) => c.status === 'in_progress').length,
+    on_hold: clients.filter((c) => c.status === 'on_hold').length,
+    completed: clients.filter((c) => c.status === 'completed').length
+  };
+
+  // Sorted clients
+  const sortedClients = [...clients].sort((a, b) => {
+    if (sortBy === 'newest') {
+      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+    }
+    if (sortBy === 'oldest') {
+      return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
+    }
+    if (sortBy === 'name') {
+      return (a.name || '').localeCompare(b.name || '');
+    }
+    if (sortBy === 'budget') {
+      return (Number(b.contractAmount) || 0) - (Number(a.contractAmount) || 0);
+    }
+    return 0;
+  });
 
   // Percentage allocation calculations
   const totalAllocatedPct = customSteps.reduce((sum, s) => sum + (Number(s.percentage) || 0), 0);
@@ -1071,211 +1147,350 @@ const ClientsManagement = () => {
   );
 
   return (
-    <Box sx={{ p: { xs: 2, sm: 3 } }}>
-      {/* Header */}
-      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2, mb: 3 }}>
-        <Box>
-          <Typography
-            variant="h4"
-            sx={{
-              fontWeight: 900,
-              background: 'linear-gradient(135deg, #FFFFFF 0%, #E2C044 50%, #D4AF37 100%)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1.5,
-              fontSize: { xs: '1.6rem', sm: '2.1rem' }
-            }}
-          >
-            <PersonIcon sx={{ color: '#D4AF37', fontSize: 38 }} />
-            Clients & Construction Projects
-          </Typography>
-          <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.7)', mt: 0.5, fontSize: '0.92rem' }}>
-            Manage client profiles, construction categories & services, milestone progress points, payments, and site materials
-          </Typography>
-        </Box>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={handleOpenAdd}
+    <Box sx={{ width: '100%' }}>
+      {/* Header Section with Silhouette Watermark & Cursive Quote */}
+      <Box sx={{ position: 'relative', mb: 3, pt: 0.5, overflow: 'hidden' }}>
+        {/* Background Skyline & Cursive Watermark on Top Right */}
+        <Box
           sx={{
-            background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)',
-            color: '#0a0a0a',
-            fontWeight: 800,
-            fontSize: '0.95rem',
-            boxShadow: '0 4px 16px rgba(212, 175, 55, 0.4)',
-            border: '1px solid #F3E5AB',
-            '&:hover': {
-              background: 'linear-gradient(135deg, #F3E5AB 0%, #D4AF37 100%)',
-              boxShadow: '0 6px 20px rgba(212, 175, 55, 0.6)'
-            },
-            px: 3,
-            py: 1.2,
-            borderRadius: 2
+            position: 'absolute',
+            right: 0,
+            top: -5,
+            bottom: 0,
+            width: { xs: 0, md: 460 },
+            pointerEvents: 'none',
+            opacity: 0.35,
+            display: { xs: 'none', md: 'flex' },
+            flexDirection: 'column',
+            alignItems: 'flex-end',
+            justifyContent: 'center',
+            pr: 26,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 500 200' fill='%23f5b72e'%3E%3Cpath opacity='0.35' d='M40,190 L40,40 L48,35 L48,190 Z M40,40 L160,20 L160,28 L48,45 Z M10,60 L40,40 L40,45 L10,65 Z M130,23 L130,80 L132,80 L132,23 Z M280,190 L280,60 L288,55 L288,190 Z M280,60 L400,40 L400,48 L288,65 Z'/%3E%3Crect x='60' y='80' width='30' height='110' opacity='0.25'/%3E%3Crect x='100' y='60' width='40' height='130' opacity='0.2'/%3E%3Crect x='200' y='100' width='35' height='90' opacity='0.2'/%3E%3Crect x='320' y='75' width='45' height='115' opacity='0.25'/%3E%3C/svg%3E")`,
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'right center',
+            backgroundSize: 'contain',
           }}
         >
-          + Add New Client
-        </Button>
+          <Typography
+            sx={{
+              fontFamily: '"Caveat", "Brush Script MT", "Segoe Script", cursive',
+              fontSize: '1.9rem',
+              color: '#f5b72e',
+              lineHeight: 1.15,
+              textAlign: 'right',
+              fontWeight: 700,
+              transform: 'rotate(-4deg)',
+              mr: 2,
+              textShadow: '0 2px 10px rgba(0,0,0,0.8)'
+            }}
+          >
+            From<br />Foundation<br />to Furniture
+          </Typography>
+        </Box>
+
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 2, position: 'relative', zIndex: 1 }}>
+          <Box>
+            <Typography
+              variant="caption"
+              sx={{
+                color: '#8b949e',
+                fontWeight: 700,
+                letterSpacing: '1.2px',
+                textTransform: 'uppercase',
+                fontSize: '0.72rem',
+                display: 'block',
+                mb: 0.4
+              }}
+            >
+              DASHBOARD
+            </Typography>
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 800,
+                color: '#ffffff',
+                fontSize: { xs: '1.6rem', sm: '2.1rem' },
+                letterSpacing: '-0.3px'
+              }}
+            >
+              Clients & Construction Projects
+            </Typography>
+            <Typography variant="body2" sx={{ color: '#8b949e', mt: 0.4, fontSize: '0.86rem' }}>
+              Manage client profiles, construction categories & services, milestone progress points, payments, and site materials
+            </Typography>
+          </Box>
+
+          <Button
+            variant="contained"
+            startIcon={<AddIcon sx={{ fontSize: 20 }} />}
+            onClick={handleOpenAdd}
+            sx={{
+              bgcolor: '#f5b72e',
+              color: '#0a0d14',
+              fontWeight: 800,
+              fontSize: '0.88rem',
+              textTransform: 'none',
+              borderRadius: '8px',
+              px: 2.5,
+              py: 1,
+              boxShadow: '0 4px 14px rgba(245, 183, 46, 0.3)',
+              '&:hover': {
+                bgcolor: '#e5a924',
+                boxShadow: '0 6px 18px rgba(245, 183, 46, 0.45)'
+              }
+            }}
+          >
+            Add New Client
+          </Button>
+        </Box>
       </Box>
 
-      {/* KPI Overview Cards */}
+      {/* 5 Metric / KPI Overview Cards in Exact Row */}
       <Grid container spacing={2} sx={{ mb: 3 }}>
+        {/* Total Clients */}
         <Grid item xs={12} sm={6} md={2.4}>
-          <Card sx={{ bgcolor: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(10px)', border: '1px solid rgba(212,175,55,0.3)', borderRadius: 2 }}>
-            <CardContent sx={{ py: 2 }}>
-              <Typography variant="caption" sx={{ color: '#D4AF37', fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+          <Box sx={{ p: 2, bgcolor: '#111625', border: '1px solid rgba(255, 255, 255, 0.07)', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: 1.8, height: '100%' }}>
+            <Box sx={{ width: 44, height: 44, borderRadius: '10px', bgcolor: 'rgba(245, 183, 46, 0.15)', color: '#f5b72e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <GroupsIcon sx={{ fontSize: 24 }} />
+            </Box>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography sx={{ color: '#8c96a5', fontSize: '0.74rem', fontWeight: 600 }}>
                 Total Clients
               </Typography>
-              <Typography variant="h4" sx={{ fontWeight: 800, color: '#FFFFFF', mt: 0.5 }}>
+              <Typography sx={{ color: '#ffffff', fontWeight: 800, fontSize: '1.45rem', lineHeight: 1.2, my: 0.2 }}>
                 {clients.length}
               </Typography>
-            </CardContent>
-          </Card>
+              <Typography sx={{ color: '#22c55e', fontSize: '0.72rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 0.3 }}>
+                <TrendingUpIcon sx={{ fontSize: 13 }} /> +{thisMonthCount} this month
+              </Typography>
+            </Box>
+          </Box>
         </Grid>
+
+        {/* Active On-Site */}
         <Grid item xs={12} sm={6} md={2.4}>
-          <Card sx={{ bgcolor: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(10px)', border: '1px solid rgba(74,222,128,0.3)', borderRadius: 2 }}>
-            <CardContent sx={{ py: 2 }}>
-              <Typography variant="caption" sx={{ color: '#4ade80', fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+          <Box sx={{ p: 2, bgcolor: '#111625', border: '1px solid rgba(255, 255, 255, 0.07)', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: 1.8, height: '100%' }}>
+            <Box sx={{ width: 44, height: 44, borderRadius: '10px', bgcolor: 'rgba(34, 197, 94, 0.15)', color: '#22c55e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <BriefcaseIcon sx={{ fontSize: 22 }} />
+            </Box>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography sx={{ color: '#8c96a5', fontSize: '0.74rem', fontWeight: 600 }}>
                 Active On-Site
               </Typography>
-              <Typography variant="h4" sx={{ fontWeight: 800, color: '#4ade80', mt: 0.5 }}>
+              <Typography sx={{ color: '#ffffff', fontWeight: 800, fontSize: '1.45rem', lineHeight: 1.2, my: 0.2 }}>
                 {activeProjectsCount}
               </Typography>
-            </CardContent>
-          </Card>
+              <Typography sx={{ color: '#22c55e', fontSize: '0.72rem', fontWeight: 600 }}>
+                {activeProjectsPct}% of total
+              </Typography>
+            </Box>
+          </Box>
         </Grid>
+
+        {/* Total Contract Value */}
         <Grid item xs={12} sm={6} md={2.4}>
-          <Card sx={{ bgcolor: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(10px)', border: '1px solid rgba(56,189,248,0.3)', borderRadius: 2 }}>
-            <CardContent sx={{ py: 2 }}>
-              <Typography variant="caption" sx={{ color: '#38bdf8', fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+          <Box sx={{ p: 2, bgcolor: '#111625', border: '1px solid rgba(255, 255, 255, 0.07)', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: 1.8, height: '100%' }}>
+            <Box sx={{ width: 44, height: 44, borderRadius: '10px', bgcolor: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <WalletIcon sx={{ fontSize: 22 }} />
+            </Box>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography sx={{ color: '#8c96a5', fontSize: '0.74rem', fontWeight: 600 }}>
                 Total Contract Value
               </Typography>
-              <Typography variant="h5" sx={{ fontWeight: 800, color: '#FFFFFF', mt: 0.5 }}>
+              <Typography noWrap sx={{ color: '#ffffff', fontWeight: 800, fontSize: '1.25rem', lineHeight: 1.2, my: 0.2 }}>
                 ₹ {totalContractVal.toLocaleString('en-IN')}
               </Typography>
-            </CardContent>
-          </Card>
+              <Typography sx={{ color: '#22c55e', fontSize: '0.72rem', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 0.3 }}>
+                Across {clients.length} project{clients.length === 1 ? '' : 's'}
+              </Typography>
+            </Box>
+          </Box>
         </Grid>
+
+        {/* Total Received */}
         <Grid item xs={12} sm={6} md={2.4}>
-          <Card sx={{ bgcolor: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(10px)', border: '1px solid rgba(74,222,128,0.3)', borderRadius: 2 }}>
-            <CardContent sx={{ py: 2 }}>
-              <Typography variant="caption" sx={{ color: '#4ade80', fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+          <Box sx={{ p: 2, bgcolor: '#111625', border: '1px solid rgba(255, 255, 255, 0.07)', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: 1.8, height: '100%' }}>
+            <Box sx={{ width: 44, height: 44, borderRadius: '10px', bgcolor: 'rgba(244, 63, 94, 0.15)', color: '#f43f5e', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <RupeeIcon sx={{ fontSize: 22 }} />
+            </Box>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography sx={{ color: '#8c96a5', fontSize: '0.74rem', fontWeight: 600 }}>
                 Total Received
               </Typography>
-              <Typography variant="h5" sx={{ fontWeight: 800, color: '#4ade80', mt: 0.5 }}>
+              <Typography noWrap sx={{ color: '#ffffff', fontWeight: 800, fontSize: '1.25rem', lineHeight: 1.2, my: 0.2 }}>
                 ₹ {totalCollected.toLocaleString('en-IN')}
               </Typography>
-            </CardContent>
-          </Card>
+              <Typography sx={{ color: '#22c55e', fontSize: '0.72rem', fontWeight: 600 }}>
+                {receivedPct}% collected
+              </Typography>
+            </Box>
+          </Box>
         </Grid>
+
+        {/* Total Balance Due */}
         <Grid item xs={12} sm={6} md={2.4}>
-          <Card sx={{ bgcolor: 'rgba(255,255,255,0.04)', backdropFilter: 'blur(10px)', border: '1px solid rgba(248,113,113,0.3)', borderRadius: 2 }}>
-            <CardContent sx={{ py: 2 }}>
-              <Typography variant="caption" sx={{ color: '#f87171', fontWeight: 800, textTransform: 'uppercase', letterSpacing: 0.5 }}>
+          <Box sx={{ p: 2, bgcolor: '#111625', border: '1px solid rgba(255, 255, 255, 0.07)', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: 1.8, height: '100%' }}>
+            <Box sx={{ width: 44, height: 44, borderRadius: '10px', bgcolor: 'rgba(239, 68, 68, 0.15)', color: '#ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <ClockIcon sx={{ fontSize: 22 }} />
+            </Box>
+            <Box sx={{ minWidth: 0 }}>
+              <Typography sx={{ color: '#8c96a5', fontSize: '0.74rem', fontWeight: 600 }}>
                 Total Balance Due
               </Typography>
-              <Typography variant="h5" sx={{ fontWeight: 800, color: totalBalanceDue > 0 ? '#f87171' : '#4ade80', mt: 0.5 }}>
+              <Typography noWrap sx={{ color: '#ffffff', fontWeight: 800, fontSize: '1.25rem', lineHeight: 1.2, my: 0.2 }}>
                 ₹ {totalBalanceDue.toLocaleString('en-IN')}
               </Typography>
-            </CardContent>
-          </Card>
+              <Typography sx={{ color: totalBalanceDue > 0 ? '#f87171' : '#22c55e', fontSize: '0.72rem', fontWeight: 600 }}>
+                {balancePct}% pending
+              </Typography>
+            </Box>
+          </Box>
         </Grid>
       </Grid>
 
-      {/* Search and Filter Bar */}
-      <Paper sx={{ p: 2, mb: 3, borderRadius: 2, bgcolor: 'rgba(255, 255, 255, 0.04)', backdropFilter: 'blur(10px)', border: '1px solid rgba(212,175,55,0.2)' }}>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={12} md={6}>
-            <Box component="form" onSubmit={handleSearchSubmit}>
-              <TextField
-                fullWidth
-                size="small"
-                placeholder="Search by client name, mobile, location, or Aadhar card..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+      {/* Filter & Search Toolbar */}
+      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', lg: 'row' }, alignItems: { xs: 'stretch', lg: 'center' }, justifyContent: 'space-between', gap: 2, mb: 3 }}>
+        {/* Left: Search input */}
+        <Box 
+          component="form" 
+          onSubmit={handleSearchSubmit}
+          sx={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            bgcolor: '#0e1422', 
+            border: '1px solid rgba(255, 255, 255, 0.08)', 
+            borderRadius: '9px', 
+            px: 1.5, 
+            py: 0.6, 
+            width: { xs: '100%', lg: 380 },
+            gap: 1
+          }}
+        >
+          <SearchIcon sx={{ color: '#6e7681', fontSize: 19 }} />
+          <TextField
+            variant="standard"
+            placeholder="Search by client name, phone, Aadhaar, service..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            InputProps={{
+              disableUnderline: true,
+              sx: { 
+                color: '#ffffff', 
+                fontSize: '0.84rem', 
+                flex: 1,
+                '& ::placeholder': { color: '#6e7681', opacity: 1 } 
+              }
+            }}
+            fullWidth
+          />
+          {search && (
+            <IconButton size="small" onClick={() => { setSearch(''); fetchClients(); }} sx={{ color: '#8b949e', p: 0.2 }}>
+              <ClearIcon sx={{ fontSize: 16 }} />
+            </IconButton>
+          )}
+        </Box>
+
+        {/* Middle: Status Filter Tabs */}
+        <Box sx={{ display: 'flex', gap: 1, overflowX: 'auto', py: 0.5, alignItems: 'center' }}>
+          {STATUS_OPTIONS.map((st) => {
+            const isSelected = statusFilter === st.value;
+            const count = statusCounts[st.value] ?? 0;
+            return (
+              <Chip
+                key={st.value}
+                label={`${st.label} (${count})`}
+                clickable
+                onClick={() => setStatusFilter(st.value)}
                 sx={{
-                  '& .MuiOutlinedInput-root': {
-                    color: '#fff',
-                    bgcolor: 'rgba(0,0,0,0.4)',
-                    borderRadius: 1.5,
-                    '& fieldset': { borderColor: 'rgba(255,255,255,0.2)' },
-                    '&:hover fieldset': { borderColor: '#D4AF37' },
-                    '&.Mui-focused fieldset': { borderColor: '#D4AF37' }
+                  fontWeight: isSelected ? 800 : 600,
+                  fontSize: '0.78rem',
+                  borderRadius: '8px',
+                  px: 0.5,
+                  py: 1.8,
+                  bgcolor: isSelected ? '#f5b72e' : '#111625',
+                  color: isSelected ? '#0a0d14' : '#8b949e',
+                  border: isSelected ? '1px solid #f5b72e' : '1px solid rgba(255, 255, 255, 0.08)',
+                  boxShadow: isSelected ? '0 2px 8px rgba(245, 183, 46, 0.25)' : 'none',
+                  '&:hover': {
+                    bgcolor: isSelected ? '#e5a924' : '#172033',
+                    color: isSelected ? '#0a0d14' : '#ffffff'
                   }
                 }}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <SearchIcon sx={{ color: '#D4AF37' }} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <Button size="small" type="submit" sx={{ minWidth: 'auto', color: '#D4AF37', fontWeight: 800 }}>
-                      Search
-                    </Button>
-                  )
-                }}
               />
-            </Box>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Box sx={{ display: 'flex', gap: 1, overflowX: 'auto', py: 0.5, justifyContent: { xs: 'flex-start', md: 'flex-end' } }}>
-              {STATUS_OPTIONS.map((st) => {
-                const isSelected = statusFilter === st.value;
-                return (
-                  <Chip
-                    key={st.value}
-                    label={st.label}
-                    clickable
-                    onClick={() => setStatusFilter(st.value)}
-                    sx={{
-                      fontWeight: 700,
-                      bgcolor: isSelected ? '#D4AF37' : 'rgba(255, 255, 255, 0.05)',
-                      color: isSelected ? '#000' : 'rgba(255, 255, 255, 0.75)',
-                      border: isSelected ? '1px solid #D4AF37' : '1px solid rgba(255, 255, 255, 0.1)',
-                      '&:hover': {
-                        bgcolor: isSelected ? '#e5c158' : 'rgba(255, 255, 255, 0.12)'
-                      }
-                    }}
-                  />
-                );
-              })}
-            </Box>
-          </Grid>
-        </Grid>
-      </Paper>
+            );
+          })}
+        </Box>
 
-      {/* Clients Table */}
-      <TableContainer component={Paper} sx={{ borderRadius: 2, bgcolor: 'rgba(15, 23, 42, 0.75)', backdropFilter: 'blur(12px)', border: '1px solid rgba(212, 175, 55, 0.25)', overflow: 'hidden' }}>
+        {/* Right: Sort by Dropdown */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, alignSelf: { xs: 'flex-start', lg: 'center' } }}>
+          <Typography sx={{ color: '#6e7681', fontSize: '0.82rem', whiteSpace: 'nowrap' }}>
+            Sort by
+          </Typography>
+          <FormControl size="small">
+            <Select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              sx={{
+                bgcolor: '#111625',
+                color: '#ffffff',
+                borderRadius: '8px',
+                fontSize: '0.82rem',
+                fontWeight: 600,
+                border: '1px solid rgba(255, 255, 255, 0.08)',
+                '& .MuiOutlinedInput-notchedOutline': { border: 'none' },
+                '& .MuiSvgIcon-root': { color: '#8b949e' },
+                py: 0.2
+              }}
+            >
+              <MenuItem value="newest" sx={{ fontSize: '0.82rem' }}>Newest</MenuItem>
+              <MenuItem value="oldest" sx={{ fontSize: '0.82rem' }}>Oldest</MenuItem>
+              <MenuItem value="name" sx={{ fontSize: '0.82rem' }}>Name (A-Z)</MenuItem>
+              <MenuItem value="budget" sx={{ fontSize: '0.82rem' }}>Budget (High to Low)</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+      </Box>
+
+      {/* Clients Table matching reference mockup */}
+      <TableContainer 
+        component={Paper} 
+        sx={{ 
+          borderRadius: '14px', 
+          bgcolor: '#0d121f', 
+          border: '1px solid rgba(245, 183, 46, 0.25)', 
+          overflow: 'hidden',
+          boxShadow: '0 10px 30px rgba(0,0,0,0.5)'
+        }}
+      >
         <Table>
-          <TableHead sx={{ bgcolor: 'rgba(0, 0, 0, 0.7)', borderBottom: '2px solid rgba(212, 175, 55, 0.3)' }}>
+          <TableHead sx={{ bgcolor: '#0e1422', borderBottom: '1px solid rgba(255, 255, 255, 0.08)' }}>
             <TableRow>
-              <TableCell sx={{ color: '#D4AF37', fontWeight: 800, fontSize: '0.88rem' }}>Client & Credentials</TableCell>
-              <TableCell sx={{ color: '#D4AF37', fontWeight: 800, fontSize: '0.88rem' }}>Aadhar No</TableCell>
-              <TableCell sx={{ color: '#D4AF37', fontWeight: 800, fontSize: '0.88rem' }}>Categories & Services</TableCell>
-              <TableCell sx={{ color: '#D4AF37', fontWeight: 800, fontSize: '0.88rem' }}>Rate & Budget (₹)</TableCell>
-              <TableCell sx={{ color: '#D4AF37', fontWeight: 800, fontSize: '0.88rem' }}>Payment Status</TableCell>
-              <TableCell sx={{ color: '#D4AF37', fontWeight: 800, fontSize: '0.88rem' }}>Progress</TableCell>
-              <TableCell sx={{ color: '#D4AF37', fontWeight: 800, fontSize: '0.88rem' }}>Status</TableCell>
-              <TableCell align="right" sx={{ color: '#D4AF37', fontWeight: 800, fontSize: '0.88rem' }}>Workspace & Login</TableCell>
+              <TableCell sx={{ color: '#f5b72e', fontWeight: 800, fontSize: '0.82rem', py: 1.6 }}>Client & Credentials</TableCell>
+              <TableCell sx={{ color: '#ffffff', fontWeight: 600, fontSize: '0.82rem', py: 1.6 }}>Aadhaar No</TableCell>
+              <TableCell sx={{ color: '#ffffff', fontWeight: 600, fontSize: '0.82rem', py: 1.6 }}>Categories & Services</TableCell>
+              <TableCell sx={{ color: '#ffffff', fontWeight: 600, fontSize: '0.82rem', py: 1.6 }}>Rate & Budget</TableCell>
+              <TableCell sx={{ color: '#ffffff', fontWeight: 600, fontSize: '0.82rem', py: 1.6 }}>Payment Status</TableCell>
+              <TableCell sx={{ color: '#ffffff', fontWeight: 600, fontSize: '0.82rem', py: 1.6 }}>Progress</TableCell>
+              <TableCell sx={{ color: '#ffffff', fontWeight: 600, fontSize: '0.82rem', py: 1.6 }}>Status</TableCell>
+              <TableCell sx={{ color: '#ffffff', fontWeight: 600, fontSize: '0.82rem', py: 1.6 }}>Workspace</TableCell>
+              <TableCell align="right" sx={{ color: '#ffffff', fontWeight: 600, fontSize: '0.82rem', py: 1.6 }}>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={8} align="center" sx={{ py: 6 }}>
-                  <CircularProgress sx={{ color: '#D4AF37' }} />
-                  <Typography variant="body2" sx={{ mt: 1, color: 'rgba(255, 255, 255, 0.7)' }}>
-                    Loading clients...
+                <TableCell colSpan={9} align="center" sx={{ py: 8 }}>
+                  <CircularProgress sx={{ color: '#f5b72e' }} />
+                  <Typography variant="body2" sx={{ mt: 1.5, color: '#8b949e' }}>
+                    Loading clients & construction projects...
                   </Typography>
                 </TableCell>
               </TableRow>
-            ) : clients.length === 0 ? (
+            ) : sortedClients.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={8} align="center" sx={{ py: 6 }}>
-                  <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.7)', fontWeight: 600 }}>
-                    No clients found.
+                <TableCell colSpan={9} align="center" sx={{ py: 8 }}>
+                  <Typography variant="body1" sx={{ color: '#ffffff', fontWeight: 600 }}>
+                    No clients found matching your filters.
                   </Typography>
                   <Button
                     variant="contained"
@@ -1283,286 +1498,416 @@ const ClientsManagement = () => {
                     onClick={handleOpenAdd}
                     sx={{
                       mt: 2,
-                      background: 'linear-gradient(135deg, #D4AF37 0%, #B8860B 100%)',
-                      color: '#000',
-                      fontWeight: 800
+                      bgcolor: '#f5b72e',
+                      color: '#0a0d14',
+                      fontWeight: 800,
+                      borderRadius: '8px',
+                      textTransform: 'none',
+                      '&:hover': { bgcolor: '#e5a924' }
                     }}
                   >
-                    Create First Client
+                    Add First Client
                   </Button>
                 </TableCell>
               </TableRow>
             ) : (
-              clients.map((c) => {
+              sortedClients.map((c, idx) => {
                 const statusBadge = getStatusBadge(c.status);
                 const contractAmt = Number(c.contractAmount || 0);
                 const paidAmt = Number(c.totalPaid || 0);
                 const balanceAmt = Number(c.remainingBalance || 0);
                 const progressPct = c.progressPercentage || 0;
-                const paidPct = contractAmt > 0 ? Math.min(100, Math.round((paidAmt / contractAmt) * 100)) : 0;
+                const paidPct = contractAmt > 0 ? Math.min(100, Math.round((paidAmt / contractAmt) * 100)) : (paidAmt > 0 ? 100 : 0);
                 const clientPass = c.loginPassword || `${(c.name || 'Client').trim().split(/\s+/)[0]}@123`;
+                const avatar = getAvatarConfig(idx, c.name);
 
                 return (
                   <TableRow
                     key={c._id}
                     hover
                     sx={{
-                      borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
-                      '&:hover': { bgcolor: 'rgba(212,175,55,0.08)' }
+                      borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                      '&:hover': { bgcolor: 'rgba(245, 183, 46, 0.02)' }
                     }}
                   >
-                    {/* Client & Contact & Credentials */}
-                    <TableCell sx={{ minWidth: 200 }}>
-                      <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#FFFFFF', fontSize: '0.98rem' }}>
-                        {c.name}
-                      </Typography>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: '#E2C044', fontSize: '0.8rem', mt: 0.5 }}>
-                        <PhoneIcon sx={{ fontSize: 14, color: '#D4AF37' }} />
-                        <span>+91 {c.phone}</span>
-                      </Box>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: 'rgba(255, 255, 255, 0.7)', fontSize: '0.8rem', mt: 0.3 }}>
-                        <LocationIcon sx={{ fontSize: 14, color: '#aaa' }} />
-                        <span>{c.location}</span>
-                      </Box>
-                      {c.email && (
-                        <Box sx={{ mt: 1, p: 0.8, bgcolor: 'rgba(212,175,55,0.08)', borderRadius: 1.5, border: '1px dashed rgba(212,175,55,0.35)' }}>
-                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, color: '#38bdf8', fontSize: '0.74rem', fontWeight: 600 }}>
-                            <EmailIcon sx={{ fontSize: 13 }} />
-                            <span>{c.email}</span>
-                          </Box>
-                          <Typography variant="caption" sx={{ color: '#FACC15', fontWeight: 700, display: 'block', mt: 0.2, fontSize: '0.73rem' }}>
-                            🔑 Pass: {clientPass}
+                    {/* 1. Client & Credentials */}
+                    <TableCell sx={{ minWidth: 230, py: 2.2 }}>
+                      <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1.5 }}>
+                        <Avatar 
+                          sx={{ 
+                            width: 40, 
+                            height: 40, 
+                            bgcolor: avatar.bg, 
+                            color: '#ffffff', 
+                            fontWeight: 800, 
+                            fontSize: '1rem',
+                            flexShrink: 0
+                          }}
+                        >
+                          {avatar.initial}
+                        </Avatar>
+                        <Box sx={{ minWidth: 0 }}>
+                          <Typography sx={{ fontWeight: 800, color: '#ffffff', fontSize: '0.96rem', textTransform: 'capitalize' }}>
+                            {c.name}
                           </Typography>
+                          <Typography sx={{ display: 'flex', alignItems: 'center', gap: 0.6, color: '#8b949e', fontSize: '0.78rem', mt: 0.4 }}>
+                            📞 +91 {c.phone}
+                          </Typography>
+                          <Typography 
+                            noWrap 
+                            sx={{ 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              gap: 0.6, 
+                              color: '#8b949e', 
+                              fontSize: '0.78rem', 
+                              mt: 0.2, 
+                              maxWidth: 240 
+                            }} 
+                            title={c.location}
+                          >
+                            📍 {c.location}
+                          </Typography>
+                        </Box>
+                      </Box>
+
+                      {/* Credentials Pill Box */}
+                      {c.email && (
+                        <Box 
+                          sx={{ 
+                            mt: 1.4, 
+                            p: '6px 10px', 
+                            bgcolor: '#131a2a', 
+                            borderRadius: '8px', 
+                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                            display: 'inline-block'
+                          }}
+                        >
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.6, color: '#38bdf8', fontSize: '0.75rem', fontWeight: 600 }}>
+                            ✉️ {c.email}
+                          </Box>
+                          <Tooltip title={copiedPassId === c._id ? "Copied!" : "Click to copy password"}>
+                            <Box 
+                              onClick={(e) => handleCopyPassword(e, c)}
+                              sx={{ 
+                                display: 'flex', 
+                                alignItems: 'center', 
+                                gap: 0.6, 
+                                color: '#f5b72e', 
+                                fontSize: '0.75rem', 
+                                fontWeight: 700, 
+                                mt: 0.3,
+                                cursor: 'pointer',
+                                '&:hover': { textDecoration: 'underline' }
+                              }}
+                            >
+                              🔑 Pass: {clientPass}
+                              {copiedPassId === c._id && <CheckIcon sx={{ fontSize: 13, color: '#22c55e' }} />}
+                            </Box>
+                          </Tooltip>
                         </Box>
                       )}
                     </TableCell>
 
-                    {/* Aadhar */}
-                    <TableCell sx={{ color: 'rgba(255, 255, 255, 0.8)', fontWeight: 600, fontSize: '0.85rem' }}>
+                    {/* 2. Aadhaar No */}
+                    <TableCell sx={{ py: 2.2 }}>
                       {c.aadharNo ? (
                         <Chip
                           label={c.aadharNo}
                           size="small"
                           sx={{
                             fontWeight: 600,
-                            bgcolor: 'rgba(255, 255, 255, 0.08)',
-                            color: '#FFFFFF',
-                            border: '1px solid rgba(255, 255, 255, 0.15)'
+                            fontFamily: 'monospace',
+                            bgcolor: '#1a2233',
+                            color: '#ffffff',
+                            border: '1px solid rgba(255, 255, 255, 0.1)',
+                            borderRadius: '6px',
+                            fontSize: '0.78rem'
                           }}
                         />
                       ) : (
-                        '—'
+                        <Typography sx={{ color: '#6e7681', fontSize: '0.85rem' }}>—</Typography>
                       )}
                     </TableCell>
 
-                    {/* Categories & Services */}
-                    <TableCell sx={{ maxWidth: 260 }}>
+                    {/* 3. Categories & Services */}
+                    <TableCell sx={{ minWidth: 220, maxWidth: 260, py: 2.2 }}>
                       {c.categories && c.categories.length > 0 && (
-                        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mb: 0.5 }}>
-                          {c.categories.map((cat, idx) => (
+                        <Box sx={{ mb: 0.8 }}>
+                          {c.categories.slice(0, 1).map((cat, catIdx) => (
                             <Chip
-                              key={idx}
-                              label={`${typeof cat === 'object' ? (cat.emoji || '📦') : ''} ${typeof cat === 'object' ? cat.name : 'Category'}`}
+                              key={catIdx}
+                              label={`${typeof cat === 'object' ? (cat.emoji || '🏗️') : '🏗️'} ${typeof cat === 'object' ? cat.name : 'Construction Services'}`}
                               size="small"
                               sx={{
-                                fontSize: '0.72rem',
-                                bgcolor: 'rgba(212,175,55,0.15)',
-                                color: '#D4AF37',
-                                fontWeight: 800,
-                                border: '1px solid rgba(212,175,55,0.4)'
+                                fontSize: '0.74rem',
+                                bgcolor: 'rgba(245, 183, 46, 0.12)',
+                                color: '#f5b72e',
+                                fontWeight: 700,
+                                border: '1px solid rgba(245, 183, 46, 0.35)',
+                                borderRadius: '6px'
                               }}
                             />
                           ))}
                         </Box>
                       )}
 
-                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.6 }}>
                         {c.services && c.services.length > 0 ? (
-                          c.services.slice(0, 3).map((s, idx) => (
+                          c.services.slice(0, 3).map((s, sIdx) => (
                             <Chip
-                              key={idx}
+                              key={sIdx}
                               label={typeof s === 'object' ? (s.name || s.title) : 'Service'}
                               size="small"
                               sx={{
                                 fontSize: '0.7rem',
-                                bgcolor: 'rgba(255,255,255,0.08)',
-                                color: 'rgba(255,255,255,0.9)',
-                                border: '1px solid rgba(255,255,255,0.1)'
+                                bgcolor: '#1a2233',
+                                color: '#cbd5e1',
+                                border: '1px solid rgba(255, 255, 255, 0.08)',
+                                borderRadius: '6px'
                               }}
                             />
                           ))
                         ) : (
-                          <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.5)' }}>None selected</Typography>
+                          <Typography variant="caption" sx={{ color: '#6e7681' }}>None selected</Typography>
                         )}
                         {c.services && c.services.length > 3 && (
-                          <Chip
-                            label={`+${c.services.length - 3} more`}
-                            size="small"
-                            sx={{ fontSize: '0.7rem', bgcolor: 'rgba(255,255,255,0.06)', color: '#aaa' }}
-                          />
+                          <Tooltip 
+                            title={
+                              <Box sx={{ p: 0.5 }}>
+                                {c.services.slice(3).map((ex, exIdx) => (
+                                  <Typography key={exIdx} variant="caption" sx={{ display: 'block', color: '#fff' }}>
+                                    • {typeof ex === 'object' ? (ex.name || ex.title) : 'Service'}
+                                  </Typography>
+                                ))}
+                              </Box>
+                            }
+                          >
+                            <Chip
+                              label={`+${c.services.length - 3} more`}
+                              size="small"
+                              sx={{
+                                fontSize: '0.7rem',
+                                bgcolor: '#1a2233',
+                                color: '#8b949e',
+                                border: '1px solid rgba(255, 255, 255, 0.08)',
+                                borderRadius: '6px',
+                                cursor: 'pointer'
+                              }}
+                            />
+                          </Tooltip>
                         )}
                       </Box>
                     </TableCell>
 
-                    {/* Rate & Total Expected Work Budget */}
-                    <TableCell sx={{ minWidth: 160 }}>
-                      <Typography variant="body2" sx={{ fontWeight: 800, color: '#FFFFFF', fontSize: '0.95rem' }}>
+                    {/* 4. Rate & Budget */}
+                    <TableCell sx={{ minWidth: 160, py: 2.2 }}>
+                      <Typography sx={{ fontWeight: 800, color: '#ffffff', fontSize: '0.96rem' }}>
                         ₹ {contractAmt.toLocaleString('en-IN')}
                       </Typography>
-                      <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.6)', fontWeight: 600, display: 'block' }}>
+                      <Typography sx={{ color: '#8b949e', fontSize: '0.74rem', mt: 0.2 }}>
                         Total Work Budget
                       </Typography>
                       {Number(c.serviceRate) > 0 ? (
-                        <Typography
-                          variant="caption"
+                        <Box
                           sx={{
                             display: 'inline-block',
-                            mt: 0.5,
-                            bgcolor: 'rgba(212,175,55,0.15)',
-                            color: '#FACC15',
+                            mt: 0.6,
+                            bgcolor: 'rgba(245, 183, 46, 0.12)',
+                            color: '#f5b72e',
                             fontWeight: 700,
-                            px: 0.8,
-                            py: 0.2,
-                            borderRadius: 1,
-                            border: '1px solid rgba(212,175,55,0.35)'
+                            px: 0.9,
+                            py: 0.25,
+                            borderRadius: '6px',
+                            border: '1px solid rgba(245, 183, 46, 0.3)',
+                            fontSize: '0.72rem'
                           }}
                         >
-                          Rate: ₹{Number(c.serviceRate).toLocaleString('en-IN')} ({c.serviceRateUnit || 'Sq.Ft'})
-                        </Typography>
+                          Rate: ₹{Number(c.serviceRate).toLocaleString('en-IN')} ({c.serviceRateUnit || 'Per Sq.Ft'})
+                        </Box>
                       ) : null}
                     </TableCell>
 
-                    {/* Payment Status & Balance */}
-                    <TableCell sx={{ minWidth: 160 }}>
-                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                        <Typography variant="caption" sx={{ fontWeight: 800, color: '#4ade80' }}>
-                          ₹ {paidAmt.toLocaleString('en-IN')} Paid
-                        </Typography>
-                        <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 700 }}>
-                          {paidPct}%
-                        </Typography>
-                      </Box>
-                      <LinearProgress
-                        variant="determinate"
-                        value={paidPct}
-                        sx={{
-                          height: 6,
-                          borderRadius: 3,
-                          bgcolor: 'rgba(255,255,255,0.1)',
-                          '& .MuiLinearProgress-bar': { bgcolor: '#4ade80' }
-                        }}
-                      />
-                      <Typography
-                        variant="caption"
-                        sx={{
-                          color: balanceAmt > 0 ? '#f87171' : '#4ade80',
-                          fontWeight: 700,
-                          display: 'block',
-                          mt: 0.5
-                        }}
-                      >
-                        Due: ₹ {balanceAmt.toLocaleString('en-IN')}
-                      </Typography>
-                    </TableCell>
-
-                    {/* Progress % */}
-                    <TableCell sx={{ minWidth: 120 }}>
-                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Box sx={{ width: '100%' }}>
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                            <Typography variant="caption" sx={{ fontWeight: 800, color: '#FFFFFF' }}>
-                              {progressPct}%
+                    {/* 5. Payment Status */}
+                    <TableCell sx={{ minWidth: 160, py: 2.2 }}>
+                      {paidAmt === 0 ? (
+                        <Box>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.6 }}>
+                            <Box 
+                              sx={{ 
+                                bgcolor: '#0e2a1d', 
+                                color: '#22c55e', 
+                                border: '1px solid rgba(34, 197, 94, 0.3)', 
+                                px: 1, 
+                                py: 0.2, 
+                                borderRadius: '6px', 
+                                fontSize: '0.74rem', 
+                                fontWeight: 800 
+                              }}
+                            >
+                              ₹ 0 Paid
+                            </Box>
+                            <Typography sx={{ color: '#ffffff', fontWeight: 700, fontSize: '0.74rem' }}>
+                              0%
+                            </Typography>
+                          </Box>
+                          <Typography sx={{ color: '#ef4444', fontWeight: 700, fontSize: '0.74rem' }}>
+                            Due: ₹ {balanceAmt.toLocaleString('en-IN')}
+                          </Typography>
+                        </Box>
+                      ) : (
+                        <Box>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 0.4 }}>
+                            <Typography noWrap sx={{ color: '#22c55e', fontWeight: 800, fontSize: '0.78rem' }}>
+                              ₹ {paidAmt.toLocaleString('en-IN')} Paid
+                            </Typography>
+                            <Typography sx={{ color: '#ffffff', fontWeight: 700, fontSize: '0.74rem' }}>
+                              {paidPct}%
                             </Typography>
                           </Box>
                           <LinearProgress
                             variant="determinate"
-                            value={progressPct}
+                            value={paidPct}
                             sx={{
-                              height: 6,
+                              height: 5,
                               borderRadius: 3,
-                              bgcolor: 'rgba(255,255,255,0.1)',
-                              '& .MuiLinearProgress-bar': {
-                                background: 'linear-gradient(90deg, #D4AF37 0%, #F59E0B 100%)'
-                              }
+                              bgcolor: 'rgba(255, 255, 255, 0.08)',
+                              '& .MuiLinearProgress-bar': { bgcolor: '#22c55e', borderRadius: 3 },
+                              mb: 0.5
                             }}
                           />
+                          <Typography sx={{ color: balanceAmt > 0 ? '#ef4444' : '#22c55e', fontWeight: 700, fontSize: '0.74rem' }}>
+                            Due: ₹ {balanceAmt.toLocaleString('en-IN')}
+                          </Typography>
                         </Box>
-                      </Box>
+                      )}
                     </TableCell>
 
-                    {/* Status */}
-                    <TableCell>
-                      <Chip
-                        label={statusBadge.label}
-                        size="small"
+                    {/* 6. Progress */}
+                    <TableCell sx={{ minWidth: 100, py: 2.2 }}>
+                      <Typography sx={{ fontWeight: 800, color: '#ffffff', fontSize: '0.84rem', mb: 0.4 }}>
+                        {progressPct}%
+                      </Typography>
+                      <LinearProgress
+                        variant="determinate"
+                        value={progressPct}
                         sx={{
-                          bgcolor: statusBadge.bg,
-                          color: statusBadge.text,
-                          border: `1px solid ${statusBadge.border}`,
-                          fontWeight: 800,
-                          fontSize: '0.75rem'
+                          height: 5,
+                          borderRadius: 3,
+                          bgcolor: 'rgba(255, 255, 255, 0.08)',
+                          '& .MuiLinearProgress-bar': {
+                            background: 'linear-gradient(90deg, #f5b72e 0%, #e5a924 100%)',
+                            borderRadius: 3
+                          }
                         }}
                       />
                     </TableCell>
 
-                    {/* Project Workspace Actions */}
-                    <TableCell align="right">
-                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 1 }}>
-                        <Button
-                          size="small"
-                          variant="contained"
-                          endIcon={<ArrowForwardIcon />}
-                          onClick={() => navigate(`/admin/clients/${c._id}`)}
-                          sx={{
-                            background: 'linear-gradient(135deg, #111111 0%, #1e293b 100%)',
-                            color: '#D4AF37',
-                            fontWeight: 800,
-                            textTransform: 'none',
-                            fontSize: '0.8rem',
-                            py: 0.5,
-                            px: 1.5,
-                            border: '1px solid #D4AF37',
-                            '&:hover': { background: '#222', borderColor: '#F3E5AB' }
-                          }}
-                        >
-                          Workspace
-                        </Button>
-                        {c.email && (
-                          <Tooltip title="Send / Resend Client Login Credentials Email">
+                    {/* 7. Status */}
+                    <TableCell sx={{ py: 2.2 }}>
+                      <Box
+                        sx={{
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: 0.8,
+                          px: 1.2,
+                          py: 0.4,
+                          borderRadius: '20px',
+                          bgcolor: statusBadge.bg,
+                          color: statusBadge.text,
+                          border: `1px solid ${statusBadge.border}`,
+                          fontSize: '0.74rem',
+                          fontWeight: 700,
+                          whiteSpace: 'nowrap'
+                        }}
+                      >
+                        <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: statusBadge.dot }} />
+                        <span>{statusBadge.label}</span>
+                      </Box>
+                    </TableCell>
+
+                    {/* 8. Workspace */}
+                    <TableCell sx={{ py: 2.2 }}>
+                      <Button
+                        size="small"
+                        onClick={() => navigate(`/admin/clients/${c._id}`)}
+                        endIcon={<ArrowForwardIcon sx={{ fontSize: 16 }} />}
+                        sx={{
+                          bgcolor: 'transparent',
+                          border: '1px solid #f5b72e',
+                          color: '#f5b72e',
+                          borderRadius: '6px',
+                          fontSize: '0.8rem',
+                          fontWeight: 700,
+                          textTransform: 'none',
+                          py: 0.4,
+                          px: 1.8,
+                          whiteSpace: 'nowrap',
+                          '&:hover': {
+                            bgcolor: 'rgba(245, 183, 46, 0.15)',
+                            borderColor: '#ffd166'
+                          }
+                        }}
+                      >
+                        Open
+                      </Button>
+                    </TableCell>
+
+                    {/* 9. Actions */}
+                    <TableCell align="right" sx={{ py: 2.2 }}>
+                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 0.8 }}>
+                        {/* View / Send credentials button */}
+                        <Tooltip title={c.email ? "Send / Resend Client Login Credentials Email" : "No email available"}>
+                          <span>
                             <IconButton
                               size="small"
-                              disabled={resendingId === c._id}
+                              disabled={resendingId === c._id || !c.email}
                               onClick={() => handleResendCredentials(c)}
                               sx={{
-                                color: '#D4AF37',
-                                bgcolor: 'rgba(212,175,55,0.1)',
-                                border: '1px solid rgba(212,175,55,0.3)',
-                                '&:hover': { bgcolor: 'rgba(212,175,55,0.25)' }
+                                color: '#8b949e',
+                                bgcolor: '#1a2333',
+                                border: '1px solid rgba(255, 255, 255, 0.08)',
+                                width: 34,
+                                height: 34,
+                                '&:hover': {
+                                  color: '#38bdf8',
+                                  bgcolor: '#243046'
+                                },
+                                '&.Mui-disabled': {
+                                  color: '#475569',
+                                  bgcolor: '#111625'
+                                }
                               }}
                             >
                               {resendingId === c._id ? (
-                                <CircularProgress size={16} sx={{ color: '#D4AF37' }} />
+                                <CircularProgress size={14} sx={{ color: '#f5b72e' }} />
                               ) : (
-                                <KeyIcon fontSize="small" />
+                                <ViewIcon sx={{ fontSize: 17 }} />
                               )}
                             </IconButton>
-                          </Tooltip>
-                        )}
+                          </span>
+                        </Tooltip>
+
+                        {/* Edit button */}
                         <Tooltip title="Edit Client, Categories & Steps">
                           <IconButton
                             size="small"
                             onClick={() => handleOpenEdit(c)}
                             sx={{
                               color: '#38bdf8',
-                              bgcolor: 'rgba(56,189,248,0.1)',
-                              border: '1px solid rgba(56,189,248,0.3)',
-                              '&:hover': { bgcolor: 'rgba(56,189,248,0.2)' }
+                              bgcolor: '#1a2333',
+                              border: '1px solid rgba(56, 189, 248, 0.2)',
+                              width: 34,
+                              height: 34,
+                              '&:hover': { bgcolor: '#243046' }
                             }}
                           >
-                            <EditIcon fontSize="small" />
+                            <EditIcon sx={{ fontSize: 17 }} />
                           </IconButton>
                         </Tooltip>
-                        <Tooltip title="Delete Client">
+
+                        {/* Delete button */}
+                        <Tooltip title="Delete Client Project">
                           <IconButton
                             size="small"
                             onClick={() => {
@@ -1570,13 +1915,15 @@ const ClientsManagement = () => {
                               setDeleteConfirmOpen(true);
                             }}
                             sx={{
-                              color: '#f87171',
-                              bgcolor: 'rgba(248,113,113,0.1)',
-                              border: '1px solid rgba(248,113,113,0.3)',
-                              '&:hover': { bgcolor: 'rgba(248,113,113,0.2)' }
+                              color: '#ef4444',
+                              bgcolor: '#2d1519',
+                              border: '1px solid rgba(239, 68, 68, 0.25)',
+                              width: 34,
+                              height: 34,
+                              '&:hover': { bgcolor: '#3d1c22' }
                             }}
                           >
-                            <DeleteIcon fontSize="small" />
+                            <DeleteIcon sx={{ fontSize: 17 }} />
                           </IconButton>
                         </Tooltip>
                       </Box>
@@ -1588,6 +1935,7 @@ const ClientsManagement = () => {
           </TableBody>
         </Table>
       </TableContainer>
+
 
       {/* Add Client Dialog */}
       <Dialog open={addDialogOpen} onClose={() => setAddDialogOpen(false)} maxWidth="md" fullWidth>
@@ -1805,11 +2153,25 @@ const ClientsManagement = () => {
                 )}
                 {agreementPreview && (
                   <Box sx={{ mt: 2 }}>
-                    <img
-                      src={agreementPreview}
-                      alt="Agreement Preview"
-                      style={{ maxHeight: 120, borderRadius: 6, border: '1px solid #ddd' }}
-                    />
+                    {/\.pdf(\?.*)?$/i.test(agreementPreview) || (agreementFile && agreementFile.type === 'application/pdf') ? (
+                      <Box sx={{ p: 1.5, bgcolor: '#fdf8e2', borderRadius: 1.5, border: '1px solid #d4af37', display: 'inline-flex', alignItems: 'center', gap: 1 }}>
+                        <Typography variant="body2" sx={{ fontWeight: 700, color: '#8c6b00' }}>
+                          📄 PDF Agreement Document Selected
+                        </Typography>
+                      </Box>
+                    ) : (
+                      <img
+                        src={agreementPreview.startsWith('blob:') || agreementPreview.startsWith('data:') ? agreementPreview : getStaticAssetUrl(agreementPreview)}
+                        alt="Agreement Preview"
+                        onError={(e) => {
+                          const fallback = getFallbackAssetUrl(agreementPreview);
+                          if (fallback && e.target.src !== fallback) {
+                            e.target.src = fallback;
+                          }
+                        }}
+                        style={{ maxHeight: 120, borderRadius: 6, border: '1px solid #ddd', objectFit: 'contain' }}
+                      />
+                    )}
                   </Box>
                 )}
               </Box>

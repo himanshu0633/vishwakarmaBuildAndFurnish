@@ -82,7 +82,28 @@ export default function UserDashboardLayout() {
           { value: 'project', label: 'My Construction Project (मेरा प्रोजेक्ट)', icon: <EngineeringIcon />, highlight: true },
           { value: 'profile', label: 'My Profile & Details', icon: <AccountCircleIcon /> },
         ]
-      : dashboardItems;
+      : [
+          { value: 'profile', label: 'My Profile & Details', icon: <AccountCircleIcon /> },
+          { value: 'wallet', label: 'Wallet & Referrals', icon: <AccountBalanceWalletIcon /> },
+          { value: 'bills', label: 'Bills & Quotations', icon: <ReceiptLongIcon /> },
+          { value: 'likes', label: 'Liked Designs', icon: <FavoriteIcon /> },
+          { value: 'partners', label: 'Partner Opportunities', icon: <StorefrontIcon /> },
+          { value: 'reviews', label: 'My Reviews', icon: <ReviewsIcon /> }
+        ];
+
+    if (activeSection === 'project' || (isClient && activeSection === 'profile')) {
+      return (
+        <DashboardProvider value={{ user, partners, likes, bills, wallet, referrals, reviews, message, setMessage, error, setError, loadDashboard }}>
+          <Box sx={{ bgcolor: '#0a0d14', color: '#F5F5F5', minHeight: '85vh', py: { xs: 1.5, md: 3.5 } }}>
+            <Container maxWidth="xl" sx={{ maxWidth: '1480px !important', px: { xs: 1.5, sm: 3 } }}>
+              {message && <Alert severity="success" sx={{ mb: 2 }}>{message}</Alert>}
+              {error && <Alert severity="error" onClose={() => setError('')} sx={{ mb: 2 }}>{error}</Alert>}
+              <Outlet />
+            </Container>
+          </Box>
+        </DashboardProvider>
+      );
+    }
 
     return (
     <DashboardProvider value={{ user, partners, likes, bills, wallet, referrals, reviews, message, setMessage, error, setError, loadDashboard }}>
@@ -145,13 +166,14 @@ export default function UserDashboardLayout() {
 
             <Paper sx={{
               p: { xs: 1.5, md: 2.5 },
-              bgcolor: activeSection === 'project' ? '#0B1120' : '#F8FAFC',
-              color: activeSection === 'project' ? '#F5F5F5' : '#111827',
-              border: activeSection === 'project' ? '1px solid rgba(212,175,55,0.3)' : '1px solid #E2E8F0',
+              bgcolor: '#0D1527',
+              color: '#F5F5F5',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: 2,
               minWidth: 0,
-              '& .MuiPaper-root': { color: activeSection === 'project' ? '#F5F5F5' : '#111827' }
+              '& .MuiPaper-root': { color: '#F5F5F5' }
             }}>
-              <Typography variant="h5" fontWeight={900} mb={2} sx={{ color: activeSection === 'project' ? '#D4AF37' : 'inherit' }}>
+              <Typography variant="h5" fontWeight={900} mb={2} sx={{ color: '#D4AF37' }}>
                 {dashboardItems.find(item => item.value === activeSection)?.label || 'Profile'}
               </Typography>
               <Outlet />

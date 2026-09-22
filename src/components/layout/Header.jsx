@@ -130,7 +130,7 @@ const Header = () => {
           bgcolor: colors.primary,
           borderBottom: `1px solid ${colors.secondary}4D`,
           boxShadow: "0 8px 28px rgba(0,0,0,0.35)",
-          zIndex: 1100
+          zIndex: 1300
         }}
       >
         <Toolbar sx={{
@@ -342,6 +342,7 @@ const Header = () => {
                 anchorEl={accountAnchor}
                 open={Boolean(accountAnchor)}
                 onClose={() => setAccountAnchor(null)}
+                sx={{ zIndex: 1400 }}
                 PaperProps={{
                   sx: {
                     mt: 1,

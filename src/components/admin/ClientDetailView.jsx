@@ -304,6 +304,8 @@ const ClientDetailView = () => {
     url: ''
   });
   const [mediaFilter, setMediaFilter] = useState('all'); // 'all', 'image', 'video'
+  const [mediaFiles, setMediaFiles] = useState([]);
+  const [uploadingAgreement, setUploadingAgreement] = useState(false);
 
   // Edit Steps & Milestones Modal state
   const [stepsDialogOpen, setStepsDialogOpen] = useState(false);
@@ -1311,14 +1313,18 @@ _श्री विश्वकर्मा बिल्ड एंड फर्
   const handleUploadMedia = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
     if (uploadingMedia) return;
-    if (!mediaForm.mediaFile && !mediaForm.url.trim()) {
+    if (!mediaForm.mediaFile && (!mediaFiles || mediaFiles.length === 0) && !mediaForm.url.trim()) {
       setSnackbar({ open: true, message: 'Please choose an image/video file or enter a media URL', severity: 'warning' });
       return;
     }
     setUploadingMedia(true);
     try {
       const formData = new FormData();
-      if (mediaForm.mediaFile) {
+      if (mediaFiles && mediaFiles.length > 1) {
+        mediaFiles.forEach((f) => {
+          formData.append('mediaFiles', f);
+        });
+      } else if (mediaForm.mediaFile) {
         formData.append('mediaFile', mediaForm.mediaFile);
       }
       formData.append('mediaType', mediaForm.mediaType);
@@ -1333,8 +1339,9 @@ _श्री विश्वकर्मा बिल्ड एंड फर्
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
-      setSnackbar({ open: true, message: 'Site media uploaded successfully!', severity: 'success' });
+      setSnackbar({ open: true, message: 'Site media uploaded successfully! It is now visible in client login.', severity: 'success' });
       setMediaDialogOpen(false);
+      setMediaFiles([]);
       setMediaForm({ mediaType: 'image', title: '', stepTitle: '', caption: '', mediaFile: null, url: '' });
       fetchClientDetails(selectedMaterialFilter);
     } catch (err) {
@@ -1342,6 +1349,26 @@ _श्री विश्वकर्मा बिल्ड एंड फर्
       setSnackbar({ open: true, message: err.response?.data?.message || 'Failed to upload site media', severity: 'error' });
     } finally {
       setUploadingMedia(false);
+    }
+  };
+
+  const handleUploadAgreement = async (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    try {
+      setUploadingAgreement(true);
+      const formData = new FormData();
+      formData.append('agreementImage', file);
+      await axiosInstance.put(`/clients/${id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setSnackbar({ open: true, message: 'Agreement document uploaded successfully! It is now visible in client login.', severity: 'success' });
+      fetchClientDetails(selectedMaterialFilter);
+    } catch (err) {
+      console.error('Error uploading agreement:', err);
+      setSnackbar({ open: true, message: err.response?.data?.message || 'Failed to upload agreement', severity: 'error' });
+    } finally {
+      setUploadingAgreement(false);
     }
   };
 
@@ -3831,25 +3858,38 @@ _श्री विश्वकर्मा बिल्ड एंड फर्
                 </Typography>
                 {clientData.agreementImage ? (
                   <Box>
-                    <Box
-                      component="img"
-                      src={getStaticAssetUrl(clientData.agreementImage)}
-                      alt="Agreement"
-                      sx={{
-                        width: '100%',
-                        maxHeight: 450,
-                        objectFit: 'contain',
-                        borderRadius: 2,
-                        border: '1px solid #eee',
-                        bgcolor: '#fafafa',
-                        cursor: 'pointer'
-                      }}
-                      onClick={() => {
-                        setPreviewImageUrl(getStaticAssetUrl(clientData.agreementImage));
-                        setImageModalOpen(true);
-                      }}
-                    />
-                    <Box sx={{ mt: 2, display: 'flex', gap: 2 }}>
+                    {/\.pdf(\?.*)?$/i.test(clientData.agreementImage) ? (
+                      <Box sx={{ p: 2, textAlign: 'center', bgcolor: '#fdfbf7', borderRadius: 2, border: '1px solid #d4af37' }}>
+                        <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#8c6b00', mb: 1 }}>
+                          📄 Signed Agreement Document (PDF)
+                        </Typography>
+                        <iframe
+                          src={getStaticAssetUrl(clientData.agreementImage)}
+                          title="Agreement PDF Preview"
+                          style={{ width: '100%', height: '360px', border: 'none', borderRadius: '8px' }}
+                        />
+                      </Box>
+                    ) : (
+                      <Box
+                        component="img"
+                        src={getStaticAssetUrl(clientData.agreementImage)}
+                        alt="Agreement"
+                        sx={{
+                          width: '100%',
+                          maxHeight: 450,
+                          objectFit: 'contain',
+                          borderRadius: 2,
+                          border: '1px solid #eee',
+                          bgcolor: '#fafafa',
+                          cursor: 'pointer'
+                        }}
+                        onClick={() => {
+                          setPreviewImageUrl(getStaticAssetUrl(clientData.agreementImage));
+                          setImageModalOpen(true);
+                        }}
+                      />
+                    )}
+                    <Box sx={{ mt: 2, display: 'flex', gap: 2, flexWrap: 'wrap' }}>
                       <Button
                         variant="outlined"
                         size="small"
@@ -3860,13 +3900,51 @@ _श्री विश्वकर्मा बिल्ड एंड फर्
                       >
                         Open Full Size in New Tab
                       </Button>
+                      <label htmlFor="replace-agreement-input">
+                        <input
+                          type="file"
+                          id="replace-agreement-input"
+                          accept="image/*,.pdf"
+                          style={{ display: 'none' }}
+                          onChange={handleUploadAgreement}
+                          disabled={uploadingAgreement}
+                        />
+                        <Button
+                          variant="contained"
+                          component="span"
+                          size="small"
+                          disabled={uploadingAgreement}
+                          sx={{ bgcolor: '#D4AF37', color: '#000', fontWeight: 700, '&:hover': { bgcolor: '#b89628' } }}
+                        >
+                          {uploadingAgreement ? 'Uploading...' : 'Replace Agreement'}
+                        </Button>
+                      </label>
                     </Box>
                   </Box>
                 ) : (
-                  <Box sx={{ p: 4, textAlign: 'center', bgcolor: '#fafafa', borderRadius: 2 }}>
-                    <Typography variant="body2" sx={{ color: '#888' }}>
-                      No agreement document uploaded yet.
+                  <Box sx={{ p: 4, textAlign: 'center', bgcolor: '#fafafa', borderRadius: 2, border: '2px dashed #ddd' }}>
+                    <Typography variant="body2" sx={{ color: '#888', mb: 2 }}>
+                      No agreement document uploaded yet. Upload signed contract photo or PDF.
                     </Typography>
+                    <label htmlFor="upload-new-agreement-input">
+                      <input
+                        type="file"
+                        id="upload-new-agreement-input"
+                        accept="image/*,.pdf"
+                        style={{ display: 'none' }}
+                        onChange={handleUploadAgreement}
+                        disabled={uploadingAgreement}
+                      />
+                      <Button
+                        variant="contained"
+                        component="span"
+                        size="small"
+                        disabled={uploadingAgreement}
+                        sx={{ bgcolor: '#D4AF37', color: '#000', fontWeight: 700, '&:hover': { bgcolor: '#b89628' } }}
+                      >
+                        {uploadingAgreement ? 'Uploading...' : 'Upload Agreement (Photo / PDF)'}
+                      </Button>
+                    </label>
                   </Box>
                 )}
               </Paper>
@@ -4204,17 +4282,20 @@ _श्री विश्वकर्मा बिल्ड एंड फर्
                 <input
                   type="file"
                   id="site-media-file-input"
+                  multiple
                   accept={mediaForm.mediaType === 'video' ? 'video/*' : 'image/*'}
                   style={{ display: 'none' }}
                   onChange={(e) => {
-                    const file = e.target.files && e.target.files[0];
-                    if (file) {
-                      const isVid = file.type.startsWith('video/');
+                    const files = Array.from(e.target.files || []);
+                    if (files.length > 0) {
+                      const first = files[0];
+                      const isVid = first.type.startsWith('video/');
+                      setMediaFiles(files);
                       setMediaForm((prev) => ({
                         ...prev,
-                        mediaFile: file,
+                        mediaFile: first,
                         mediaType: isVid ? 'video' : prev.mediaType,
-                        title: prev.title || file.name.replace(/\.[^/.]+$/, '')
+                        title: prev.title || first.name.replace(/\.[^/.]+$/, '')
                       }));
                     }
                   }}
@@ -4222,10 +4303,18 @@ _श्री विश्वकर्मा बिल्ड एंड फर्
                 <label htmlFor="site-media-file-input" style={{ cursor: 'pointer', display: 'block' }}>
                   <UploadIcon sx={{ fontSize: 40, color: '#D4AF37', mb: 0.5 }} />
                   <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#111' }}>
-                    {mediaForm.mediaFile ? mediaForm.mediaFile.name : `Click here to choose ${mediaForm.mediaType === 'video' ? 'video' : 'photo'} file`}
+                    {mediaFiles && mediaFiles.length > 1
+                      ? `${mediaFiles.length} files selected (${mediaFiles.map((f) => f.name).slice(0, 2).join(', ')}${mediaFiles.length > 2 ? '...' : ''})`
+                      : mediaForm.mediaFile
+                      ? mediaForm.mediaFile.name
+                      : `Click here to choose ${mediaForm.mediaType === 'video' ? 'video' : 'photo(s)'}`}
                   </Typography>
                   <Typography variant="caption" sx={{ color: '#888', display: 'block' }}>
-                    {mediaForm.mediaFile ? `${(mediaForm.mediaFile.size / (1024 * 1024)).toFixed(2)} MB selected` : 'Supports JPG, PNG, WEBP, MP4, MOV up to 100MB'}
+                    {mediaFiles && mediaFiles.length > 1
+                      ? `${(mediaFiles.reduce((acc, f) => acc + f.size, 0) / (1024 * 1024)).toFixed(2)} MB total across ${mediaFiles.length} files`
+                      : mediaForm.mediaFile
+                      ? `${(mediaForm.mediaFile.size / (1024 * 1024)).toFixed(2)} MB selected`
+                      : 'Supports JPG, PNG, WEBP, MP4, MOV. You can select multiple photos at once!'}
                   </Typography>
                 </label>
               </Box>
