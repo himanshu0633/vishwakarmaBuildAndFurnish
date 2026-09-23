@@ -1936,6 +1936,9 @@ const ClientProjectReportPage = () => {
           payment={selectedPayment}
           client={client}
           financials={financials}
+          payments={payments || []}
+          totalPaid={financials?.totalPaid}
+          remainingBalance={financials?.remainingBalance}
         />
       )}
 

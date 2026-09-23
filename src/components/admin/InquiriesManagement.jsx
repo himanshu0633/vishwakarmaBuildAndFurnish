@@ -37,6 +37,7 @@ import {
   ContactPhone as ContactPhoneIcon,
   Cancel as CancelIcon
 } from '@mui/icons-material';
+import { motion } from 'framer-motion';
 import axiosInstance from '../../../utils/axiosConfig';
 import { getCategoryName } from '../../utils/catalogSchema';
 

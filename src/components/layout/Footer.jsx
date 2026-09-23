@@ -16,6 +16,7 @@ import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import StorefrontIcon from "@mui/icons-material/Storefront";
 import FacebookIcon from "@mui/icons-material/Facebook";
 import InstagramIcon from "@mui/icons-material/Instagram";
+import PolicyIcon from "@mui/icons-material/Policy";
 import { colors, branding, socialLinks } from "../../data/constants";
 import { serviceAreas } from "../../data/localSeo";
 import iesLogo from "../../assets/logo.png";
@@ -42,6 +43,7 @@ const Footer = () => {
     { name: "Blog", icon: <ArticleIcon />, link: "/blogs" },
     // { name: "Partners", icon: <StorefrontIcon />, link: "/partners" },
     // { name: "Become a Partner", icon: <StorefrontIcon />, link: "/partner/register" },
+    { name: "Privacy Policy", icon: <PolicyIcon />, link: "/privacy-policy" },
     { name: "Contact", icon: <PhoneIcon />, link: "/contact" }
   ];
 
@@ -183,9 +185,26 @@ const Footer = () => {
         <Divider sx={{ my: 4, bgcolor: "rgba(212,175,55,0.16)" }} />
 
         <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "space-between", alignItems: "center", gap: 2 }}>
-          <Typography sx={{ color: "rgba(248,250,252,0.58)", fontSize: "0.82rem", textAlign: "center" }}>
-            © 2026 Vishwakarma Build & Furnish. All rights reserved.
-          </Typography>
+          <Stack direction={{ xs: "column", sm: "row" }} alignItems="center" spacing={{ xs: 0.5, sm: 1.5 }}>
+            <Typography sx={{ color: "rgba(248,250,252,0.58)", fontSize: "0.82rem", textAlign: "center" }}>
+              © 2026 Vishwakarma Build & Furnish. All rights reserved.
+            </Typography>
+            <Box sx={{ display: { xs: "none", sm: "inline" }, color: "rgba(248,250,252,0.3)" }}>•</Box>
+            <Link
+              component={RouterLink}
+              to="/privacy-policy"
+              title="Privacy Policy"
+              underline="hover"
+              sx={{
+                color: "#D4AF37",
+                fontSize: "0.82rem",
+                fontWeight: 700,
+                "&:hover": { color: "#F8FAFC" }
+              }}
+            >
+              Privacy Policy
+            </Link>
+          </Stack>
           <Link
             component={RouterLink}
             to="/website-info"

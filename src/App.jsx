@@ -57,6 +57,7 @@ import CategoryPage from './pages/CategoryPage';
 import ServiceDetailPage from './pages/ServiceDetailPage';
 import CatalogSlugPage from './pages/CatalogSlugPage';
 import WebsiteInfo from './pages/WebsiteInfo';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
 import LoginPage from './pages/LoginPage';
 import PartnerRegisterPage from './pages/PartnerRegisterPage';
 import PartnerDashboard from './pages/PartnerDashboard';
@@ -215,6 +216,8 @@ function App() {
                     <Route path="/services/:slug" element={<CatalogSlugPage />} />
                     <Route path="/services/:categorySlug/:serviceSlug" element={<ServiceDetailPage />} />
                     <Route path="/website-info" element={<WebsiteInfo />} />
+                    <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
+                    <Route path="/privacy" element={<PrivacyPolicyPage />} />
                     <Route path="/partners" element={<PartnersPage />} />
                     <Route path="/partners/:id" element={<PartnerDetailPage />} />
                     <Route path="/dashboard" element={<ProtectedRoute roles={['user', 'admin', 'client']}><UserDashboardLayout /></ProtectedRoute>}>

@@ -5440,6 +5440,8 @@ _श्री विश्वकर्मा बिल्ड एंड फर्
         onClose={() => setSlipModalOpen(false)}
         payment={selectedPaymentForSlip}
         client={clientData}
+        financials={financials}
+        payments={payments || []}
         totalPaid={totalPaid}
         remainingBalance={balanceDue}
       />

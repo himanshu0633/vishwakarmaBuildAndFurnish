@@ -14,7 +14,8 @@ import {
   Print as PrintIcon,
   Close as CloseIcon,
   CheckCircle as CheckCircleIcon,
-  Email as EmailIcon
+  Email as EmailIcon,
+  History as HistoryIcon
 } from '@mui/icons-material';
 import logoImg from '../../assets/logo.png';
 
@@ -59,17 +60,97 @@ const numberToWords = (num) => {
   return res.trim() + ' Rupees Only';
 };
 
-const PaymentSlipModal = ({ open, onClose, payment, client, totalPaid = 0, remainingBalance = 0 }) => {
-  if (!payment || !client) return null;
-
+const PaymentSlipModal = ({
+  open,
+  onClose,
+  payment,
+  client,
+  financials,
+  payments = [],
+  totalPaid: totalPaidProp,
+  remainingBalance: remainingBalanceProp
+}) => {
   const handlePrint = () => {
     window.print();
   };
 
-  const formattedAmount = Number(payment.amount || 0).toLocaleString('en-IN');
-  const formattedContract = Number(client.contractAmount || 0).toLocaleString('en-IN');
-  const formattedTotalPaid = Number(totalPaid || 0).toLocaleString('en-IN');
-  const formattedBalance = Number(remainingBalance || 0).toLocaleString('en-IN');
+  // 1. All payments chronologically
+  const allPayments = React.useMemo(() => {
+    let list = Array.isArray(payments) ? [...payments] : [];
+    if (payment) {
+      const exists = list.some(
+        (p) =>
+          (payment._id && p._id === payment._id) ||
+          (payment.receiptNo && p.receiptNo === payment.receiptNo)
+      );
+      if (!exists) {
+        list.push(payment);
+      }
+    }
+    list = list.filter((p) => p && !p.isDeleted);
+    return list.sort((a, b) => {
+      const timeA = new Date(a.date || a.createdAt || 0).getTime();
+      const timeB = new Date(b.date || b.createdAt || 0).getTime();
+      return timeA - timeB;
+    });
+  }, [payments, payment]);
+
+  // 2. Index of current payment
+  const currentPaymentIndex = React.useMemo(() => {
+    if (!payment) return -1;
+    return allPayments.findIndex(
+      (p) =>
+        (payment._id && p._id === payment._id) ||
+        (payment.receiptNo && p.receiptNo === payment.receiptNo)
+    );
+  }, [allPayments, payment]);
+
+  // 3. Prior payments
+  const priorPayments = React.useMemo(() => {
+    if (currentPaymentIndex > 0) {
+      return allPayments.slice(0, currentPaymentIndex);
+    }
+    if (!payment) return [];
+    const currentTime = new Date(payment.date || payment.createdAt || 0).getTime();
+    return allPayments.filter(
+      (p) =>
+        ((payment._id && p._id !== payment._id) ||
+          (payment.receiptNo && p.receiptNo !== payment.receiptNo)) &&
+        new Date(p.date || p.createdAt || 0).getTime() < currentTime
+    );
+  }, [allPayments, currentPaymentIndex, payment]);
+
+  const priorTotal = React.useMemo(() => {
+    return priorPayments.reduce((sum, p) => sum + (Number(p.amount) || 0), 0);
+  }, [priorPayments]);
+
+  const currentAmount = Number(payment?.amount || 0);
+
+  const effectiveTotalPaid = React.useMemo(() => {
+    const sumCalculated = priorTotal + currentAmount;
+    const propTotal = Number(totalPaidProp ?? financials?.totalPaid ?? client?.totalPaid);
+    if (!isNaN(propTotal) && propTotal > sumCalculated) {
+      return propTotal;
+    }
+    return sumCalculated;
+  }, [priorTotal, currentAmount, totalPaidProp, financials, client]);
+
+  const effectiveContractAmount = React.useMemo(() => {
+    return Number(client?.contractAmount ?? financials?.contractAmount ?? 0);
+  }, [client, financials]);
+
+  const effectiveRemainingBalance = React.useMemo(() => {
+    if (effectiveContractAmount > 0) {
+      return Math.max(0, effectiveContractAmount - effectiveTotalPaid);
+    }
+    return Number(remainingBalanceProp ?? financials?.remainingBalance ?? 0);
+  }, [effectiveContractAmount, effectiveTotalPaid, remainingBalanceProp, financials]);
+
+  const formattedAmount = currentAmount.toLocaleString('en-IN');
+  const formattedContract = effectiveContractAmount.toLocaleString('en-IN');
+  const formattedTotalPaid = effectiveTotalPaid.toLocaleString('en-IN');
+  const formattedBalance = effectiveRemainingBalance.toLocaleString('en-IN');
+  if (!open || !payment || !client) return null;
 
   return (
     <Dialog
@@ -238,27 +319,106 @@ const PaymentSlipModal = ({ open, onClose, payment, client, totalPaid = 0, remai
           </Box>
         </Box>
 
+        {/* Previous Payments History Box */}
+        <Box sx={{ border: '1px solid #e0e0e0', borderRadius: 2, overflow: 'hidden', mb: 3, bgcolor: '#fafafa' }}>
+          <Box sx={{ bgcolor: '#f5f5f5', px: 2, py: 1, borderBottom: '1px solid #e0e0e0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <HistoryIcon sx={{ fontSize: 18, color: '#b8860b' }} />
+              <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#333' }}>
+                Previous Payments Record (पिछला भुगतान विवरण)
+              </Typography>
+            </Box>
+            <Chip
+              label={`${priorPayments.length} Previous`}
+              size="small"
+              sx={{ bgcolor: '#fef3c7', color: '#b8860b', fontWeight: 700, fontSize: '0.75rem' }}
+            />
+          </Box>
+
+          {priorPayments.length === 0 ? (
+            <Box sx={{ p: 1.5, textAlign: 'center', color: '#059669', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1 }}>
+              <CheckCircleIcon sx={{ fontSize: 16 }} />
+              <Typography variant="body2" sx={{ fontWeight: 600 }}>
+                Initial Installment / पहली किश्त (No previous payments recorded)
+              </Typography>
+            </Box>
+          ) : (
+            <Box sx={{ p: 1.5 }}>
+              {priorPayments.map((p, idx) => {
+                const pDate = p.date
+                  ? new Date(p.date).toLocaleDateString('en-IN', {
+                      day: '2-digit',
+                      month: 'short',
+                      year: 'numeric'
+                    })
+                  : '—';
+                return (
+                  <Box
+                    key={p._id || `prev-${idx}`}
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      py: 0.8,
+                      borderBottom: idx === priorPayments.length - 1 ? 'none' : '1px solid #eee'
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                      <Typography variant="caption" sx={{ fontWeight: 700, color: '#888' }}>
+                        #{idx + 1}
+                      </Typography>
+                      <Typography variant="body2" sx={{ fontWeight: 600, color: '#222' }}>
+                        {pDate}
+                      </Typography>
+                      <Chip
+                        label={p.paymentMode || 'Cash'}
+                        size="small"
+                        sx={{ height: 20, fontSize: '0.7rem', bgcolor: '#e2e8f0', color: '#475569', fontWeight: 600 }}
+                      />
+                      <Typography variant="caption" sx={{ color: '#666' }}>
+                        {p.stepTitle || p.notes || p.receiptNo || 'Payment'}
+                      </Typography>
+                    </Box>
+                    <Typography variant="body2" sx={{ fontWeight: 700, color: '#111' }}>
+                      ₹ {Number(p.amount || 0).toLocaleString('en-IN')}
+                    </Typography>
+                  </Box>
+                );
+              })}
+
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', pt: 1, mt: 0.5, borderTop: '1px dashed #ccc' }}>
+                <Typography variant="caption" sx={{ fontWeight: 700, color: '#555' }}>
+                  Total Previous Paid (पिछला कुल):
+                </Typography>
+                <Typography variant="body2" sx={{ fontWeight: 700, color: '#b8860b' }}>
+                  ₹ {priorTotal.toLocaleString('en-IN')}
+                </Typography>
+              </Box>
+            </Box>
+          )}
+        </Box>
+
         {/* Account Statement Summary Table */}
         <Box sx={{ border: '1px solid #e0e0e0', borderRadius: 2, overflow: 'hidden', mb: 3 }}>
           <Box sx={{ bgcolor: '#f5f5f5', px: 2, py: 1, borderBottom: '1px solid #e0e0e0' }}>
             <Typography variant="subtitle2" sx={{ fontWeight: 700, color: '#333' }}>
-              Project Financial Balance Overview
+              Project Financial Balance Overview (खाता स्थिति / लेजर)
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'space-around', p: 2, textAlign: 'center' }}>
             <Box>
-              <Typography variant="caption" sx={{ color: '#666', display: 'block' }}>Total Contract Value</Typography>
+              <Typography variant="caption" sx={{ color: '#666', display: 'block' }}>Total Contract Value (कुल तय बजट)</Typography>
               <Typography variant="body1" sx={{ fontWeight: 700, color: '#111' }}>₹ {formattedContract}</Typography>
             </Box>
             <Divider orientation="vertical" flexItem />
             <Box>
-              <Typography variant="caption" sx={{ color: '#666', display: 'block' }}>Total Paid Till Date</Typography>
+              <Typography variant="caption" sx={{ color: '#666', display: 'block' }}>Total Paid Till Date (अब तक कुल प्राप्त)</Typography>
               <Typography variant="body1" sx={{ fontWeight: 700, color: '#2e7d32' }}>₹ {formattedTotalPaid}</Typography>
             </Box>
             <Divider orientation="vertical" flexItem />
             <Box>
-              <Typography variant="caption" sx={{ color: '#666', display: 'block' }}>Current Balance Due</Typography>
-              <Typography variant="body1" sx={{ fontWeight: 700, color: remainingBalance > 0 ? '#d32f2f' : '#2e7d32' }}>
+              <Typography variant="caption" sx={{ color: '#666', display: 'block' }}>Current Balance Due (शेष बकाया)</Typography>
+              <Typography variant="body1" sx={{ fontWeight: 700, color: effectiveRemainingBalance > 0 ? '#d32f2f' : '#2e7d32' }}>
                 ₹ {formattedBalance}
               </Typography>
             </Box>
