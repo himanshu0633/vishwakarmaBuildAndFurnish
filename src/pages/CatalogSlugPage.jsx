@@ -1193,8 +1193,17 @@ const CatalogSlugPage = () => {
   const [mediaLoading, setMediaLoading] = useState(false);
 
   useEffect(() => {
-    if (slug === "furniture-services") {
-      navigate("/services/wooden-work-services", { replace: true });
+    const CATALOG_SLUG_ALIASES = {
+      "furniture-services": "/services/wooden-work-services",
+      "plywood-doors-charkhi-dadri": "/services/wooden-work-services/ply-board-door-charkhi-dadri",
+      "office-furniture-charkhi-dadri": "/services/wooden-work-services/customized-furniture-charkhi-dadri",
+      "reception-counter-charkhi-dadri": "/services/wooden-work-services/customized-furniture-charkhi-dadri",
+      "wall-panels-charkhi-dadri": "/services/interior-services/tv-panel-design-charkhi-dadri",
+      "curtains-and-blinds-charkhi-dadri": "/services/interior-services/living-room-interior-charkhi-dadri"
+    };
+
+    if (slug && CATALOG_SLUG_ALIASES[slug]) {
+      navigate(CATALOG_SLUG_ALIASES[slug], { replace: true });
       return;
     }
 
@@ -1801,7 +1810,7 @@ const CatalogSlugPage = () => {
                   return (
                     <Paper
                       key={service._id}
-                      onClick={() => navigate(`/services/${service.slug}`)}
+                      onClick={() => navigate(`/services/${service.categoryId?.slug || "wooden-work-services"}/${service.slug}`)}
                       sx={{
                         minHeight: 250,
                         p: 3,

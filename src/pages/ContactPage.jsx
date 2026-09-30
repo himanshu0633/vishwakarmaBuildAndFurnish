@@ -24,7 +24,14 @@ import { socialLinks } from "../data/constants";
 
 const phone = "9416856468";
 const googleMapsEmbedUrl = "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3503.219096391534!2d76.28924219999999!3d28.593203299999992!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x391285dbfc386d4b%3A0xefc5900fb3ffdd3b!2sVishwakarma%20Build%20and%20Furnish!5e0!3m2!1sen!2sin!4v1778664056745!5m2!1sen!2sin";
-const quickServices = ["Wooden Doors", "Plywood Doors", "Wooden Windows", "Sofa Set", "Wardrobe"];
+const quickServices = [
+  { label: "Wooden Doors", path: "/services/wooden-work-services/wooden-doors-charkhi-dadri" },
+  { label: "Plywood Doors", path: "/services/wooden-work-services/ply-board-door-charkhi-dadri" },
+  { label: "Wooden Windows", path: "/services/wooden-work-services/wooden-windows-charkhi-dadri" },
+  { label: "Sofa Set", path: "/services/wooden-work-services/sofa-set-charkhi-dadri" },
+  { label: "Wardrobe", path: "/services/wooden-work-services/wardrobe-charkhi-dadri" },
+  { label: "Modular Kitchen", path: "/services/wooden-work-services/modular-kitchen-charkhi-dadri" }
+];
 const trustItems = ["Free Consultation", "Custom Designs", "Premium Quality", "Affordable Pricing"];
 
 const createCaptcha = () => {
@@ -284,7 +291,17 @@ const ContactPage = () => {
           <Paper sx={panelSx}>
             <Typography variant="h5" sx={panelTitleSx}>Services Quick Links</Typography>
             <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
-              {quickServices.map(service => <Chip key={service} label={service} component="a" href={`/services/${service.toLowerCase().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-")}-charkhi-dadri`} title={service} clickable sx={chipSx} />)}
+              {quickServices.map(service => (
+                <Chip
+                  key={service.label}
+                  label={service.label}
+                  component="a"
+                  href={service.path}
+                  title={service.label}
+                  clickable
+                  sx={chipSx}
+                />
+              ))}
             </Box>
           </Paper>
           <Paper sx={panelSx}>

@@ -48,12 +48,12 @@ const Footer = () => {
   ];
 
   const services = [
-    { name: "Wooden Doors", link: "/services/wooden-doors-charkhi-dadri" },
-    { name: "Wooden Windows", link: "/services/wooden-windows-charkhi-dadri" },
-    { name: "Ply Board Door", link: "/services/ply-board-door-charkhi-dadri" },
-    { name: "Wooden Jali Doors", link: "/services/wooden-jali-single-double-doors-charkhi-dadri" },
-    { name: "Double Bed", link: "/services/double-bed-charkhi-dadri" },
-    { name: "Modular Kitchen", link: "/services/modular-kitchen-charkhi-dadri" },
+    { name: "Wooden Doors", link: "/services/wooden-work-services/wooden-doors-charkhi-dadri" },
+    { name: "Wooden Windows", link: "/services/wooden-work-services/wooden-windows-charkhi-dadri" },
+    { name: "Ply Board Door", link: "/services/wooden-work-services/ply-board-door-charkhi-dadri" },
+    { name: "Wooden Jali Doors", link: "/services/wooden-work-services/wooden-jali-single-double-doors-charkhi-dadri" },
+    { name: "Double Bed", link: "/services/wooden-work-services/double-bed-charkhi-dadri" },
+    { name: "Modular Kitchen", link: "/services/wooden-work-services/modular-kitchen-charkhi-dadri" },
   ];
 
   return (

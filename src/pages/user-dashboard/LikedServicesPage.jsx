@@ -13,7 +13,8 @@ export default function LikedServicesPage() {
   const { likes, setMessage } = useDashboard();
 
   const shareService = async (service) => {
-    const url = `${window.location.origin}/services/${service.slug}`;
+    const categorySlug = service.categoryId?.slug || "wooden-work-services";
+    const url = `${window.location.origin}/services/${categorySlug}/${service.slug}`;
     if (navigator.share) {
       await navigator.share({ title: service.name, text: `Check this service: ${service.name}`, url });
       return;

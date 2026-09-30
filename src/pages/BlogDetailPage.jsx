@@ -238,7 +238,8 @@ const BLOG_ALIASES = {
   "custom-office-furniture-designs-in-charkhi-dadri": "custom-furniture-designs-in-charkhi-dadri",
   "custom-reception-counter-designs-in-charkhi-dadri": "custom-furniture-designs-in-charkhi-dadri",
   "custom-wall-panels-designs-in-charkhi-dadri": "latest-tv-panel-designs-in-charkhi-dadri",
-  "custom-curtains-and-blinds-designs-in-charkhi-dadri": null
+  "custom-curtains-and-blinds-designs-in-charkhi-dadri": null,
+  "custom-turnkey-projects-designs-in-charkhi-dadri": "professional-house-construction-services-in-charkhi-dadri"
 };
 
   useEffect(() => {

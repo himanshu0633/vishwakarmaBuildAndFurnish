@@ -3,6 +3,7 @@ import { Box, Button, Chip, CircularProgress, Container, Paper, Typography, Icon
 import CloseIcon from "@mui/icons-material/Close";
 import KeyboardArrowLeftIcon from "@mui/icons-material/KeyboardArrowLeft";
 import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
+import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import ShareIcon from "@mui/icons-material/Share";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { useNavigate, useParams } from "react-router-dom";
@@ -13,6 +14,10 @@ import { serviceAreas } from "../data/localSeo";
 import { buildServiceSeo, simpleBusinessStructuredData, buildPageUrl, useSeo, getImageAlt } from "../utils/seo";
 
 const SERVICE_ALIASES = {
+  "plywood-doors-charkhi-dadri": {
+    categorySlug: "wooden-work-services",
+    serviceSlug: "ply-board-door-charkhi-dadri"
+  },
   "office-furniture-charkhi-dadri": {
     categorySlug: "wooden-work-services",
     serviceSlug: "customized-furniture-charkhi-dadri"
