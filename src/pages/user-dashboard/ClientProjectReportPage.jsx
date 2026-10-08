@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Box,
@@ -32,7 +32,15 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
-  Collapse
+  Collapse,
+  TextField,
+  MenuItem,
+  Radio,
+  RadioGroup,
+  FormControlLabel,
+  FormControl,
+  Tooltip,
+  Badge
 } from '@mui/material';
 import {
   Menu as MenuIcon,
@@ -64,7 +72,21 @@ import {
   Person as PersonIcon,
   Home as HomeIcon,
   Logout as LogoutIcon,
-  CurrencyRupee as CurrencyRupeeIcon
+  CurrencyRupee as CurrencyRupeeIcon,
+  PostAdd as PostAddIcon,
+  FactCheck as FactCheckIcon,
+  Mic as MicIcon,
+  Stop as StopIcon,
+  PhotoCamera as PhotoCameraIcon,
+  Collections as CollectionsIcon,
+  ThumbUp as ThumbUpIcon,
+  ThumbDown as ThumbDownIcon,
+  CameraAlt as CameraAltIcon,
+  Add as AddIcon,
+  Check as CheckIcon,
+  Delete as DeleteIcon,
+  VolumeUp as VolumeUpIcon,
+  RestartAlt as RestartAltIcon
 } from '@mui/icons-material';
 import api, { getStaticAssetUrl, getFallbackAssetUrl } from '../../../utils/axiosConfig';
 import { useAuth } from '../../contexts/AuthContext';
@@ -102,6 +124,203 @@ const ClientProjectReportPage = () => {
   // Agreement Lightbox state
   const [agreementModalOpen, setAgreementModalOpen] = useState(false);
   const [imageError, setImageError] = useState(false);
+
+  // Extra Work response state
+  const [extraWorkNotes, setExtraWorkNotes] = useState({});
+  const [submittingExtraWorkId, setSubmittingExtraWorkId] = useState(null);
+
+  const handleRespondExtraWork = async (workId, status) => {
+    try {
+      setSubmittingExtraWorkId(workId);
+      const note = extraWorkNotes[workId] || '';
+      const clientId = projectData?.client?._id;
+      await api.put(`/clients/${clientId}/extra-work/${workId}/respond`, {
+        status,
+        clientResponseNote: note
+      });
+      await fetchProjectReport();
+    } catch (err) {
+      console.error('Error responding to extra work:', err);
+      alert(err.response?.data?.message || 'Failed to submit response');
+    } finally {
+      setSubmittingExtraWorkId(null);
+    }
+  };
+
+  // Snag List & Audio Note state
+  const [reportSnagModalOpen, setReportSnagModalOpen] = useState(false);
+  const [snagFilter, setSnagFilter] = useState('all'); // 'all', 'pending', 'resolved'
+  const [selectedSnagPhotoForModal, setSelectedSnagPhotoForModal] = useState(null);
+
+  // Snag form state
+  const [snagTitle, setSnagTitle] = useState('');
+  const [snagStepTitle, setSnagStepTitle] = useState('');
+  const [snagDescription, setSnagDescription] = useState('');
+  const [snagImageSource, setSnagImageSource] = useState('gallery_upload'); // 'existing_site_media' | 'gallery_upload' | 'camera_capture'
+  const [selectedExistingImageUrl, setSelectedExistingImageUrl] = useState('');
+  const [uploadedImageFile, setUploadedImageFile] = useState(null);
+  const [uploadedImagePreview, setUploadedImagePreview] = useState('');
+
+  // Voice recording state
+  const [isRecording, setIsRecording] = useState(false);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const [snagAudioBlob, setSnagAudioBlob] = useState(null);
+  const [snagAudioUrl, setSnagAudioUrl] = useState('');
+  const [submittingSnag, setSubmittingSnag] = useState(false);
+
+  const mediaRecorderRef = useRef(null);
+  const audioChunksRef = useRef([]);
+  const timerRef = useRef(null);
+  const streamRef = useRef(null);
+  const galleryInputRef = useRef(null);
+  const cameraInputRef = useRef(null);
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      streamRef.current = stream;
+      audioChunksRef.current = [];
+
+      let mimeType = '';
+      if (typeof MediaRecorder !== 'undefined') {
+        if (MediaRecorder.isTypeSupported('audio/webm')) mimeType = 'audio/webm';
+        else if (MediaRecorder.isTypeSupported('audio/mp4')) mimeType = 'audio/mp4';
+        else if (MediaRecorder.isTypeSupported('audio/ogg')) mimeType = 'audio/ogg';
+      }
+
+      const mediaRecorder = mimeType ? new MediaRecorder(stream, { mimeType }) : new MediaRecorder(stream);
+      mediaRecorderRef.current = mediaRecorder;
+
+      mediaRecorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+          audioChunksRef.current.push(event.data);
+        }
+      };
+
+      mediaRecorder.onstop = () => {
+        const audioBlob = new Blob(audioChunksRef.current, { type: mediaRecorder.mimeType || 'audio/webm' });
+        setSnagAudioBlob(audioBlob);
+        const url = URL.createObjectURL(audioBlob);
+        setSnagAudioUrl(url);
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach((track) => track.stop());
+        }
+      };
+
+      mediaRecorder.start();
+      setIsRecording(true);
+      setRecordingSeconds(0);
+
+      timerRef.current = setInterval(() => {
+        setRecordingSeconds((prev) => prev + 1);
+      }, 1000);
+    } catch (err) {
+      console.error('Mic access error:', err);
+      alert('Microphone permission is required to record audio. Please allow microphone access in your browser settings.');
+    }
+  };
+
+  const stopRecording = () => {
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
+      setIsRecording(false);
+      if (timerRef.current) clearInterval(timerRef.current);
+    }
+  };
+
+  const discardRecording = () => {
+    if (isRecording) {
+      stopRecording();
+    }
+    setSnagAudioBlob(null);
+    setSnagAudioUrl('');
+    setRecordingSeconds(0);
+  };
+
+  const formatAudioTime = (sec) => {
+    const m = Math.floor(sec / 60);
+    const s = sec % 60;
+    return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  };
+
+  const handleGalleryFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploadedImageFile(file);
+      setUploadedImagePreview(URL.createObjectURL(file));
+      setSelectedExistingImageUrl('');
+    }
+  };
+
+  const handleCameraFileSelect = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setUploadedImageFile(file);
+      setUploadedImagePreview(URL.createObjectURL(file));
+      setSelectedExistingImageUrl('');
+    }
+  };
+
+  const handleSelectExistingPhoto = (url) => {
+    setSelectedExistingImageUrl(url);
+    setUploadedImageFile(null);
+    setUploadedImagePreview('');
+  };
+
+  const resetSnagForm = () => {
+    setSnagTitle('');
+    setSnagStepTitle('');
+    setSnagDescription('');
+    setSnagImageSource('gallery_upload');
+    setSelectedExistingImageUrl('');
+    setUploadedImageFile(null);
+    setUploadedImagePreview('');
+    discardRecording();
+  };
+
+  const handleSubmitSnag = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!snagTitle.trim()) {
+      alert('Please enter an issue title (समस्या का नाम लिखें)');
+      return;
+    }
+    setSubmittingSnag(true);
+    try {
+      const clientId = projectData?.client?._id;
+      const formData = new FormData();
+      formData.append('title', snagTitle.trim());
+      formData.append('description', snagDescription.trim());
+      formData.append('stepTitle', snagStepTitle.trim());
+      formData.append('imageSource', snagImageSource);
+
+      if (snagImageSource === 'existing_site_media' && selectedExistingImageUrl) {
+        formData.append('imageUrl', selectedExistingImageUrl);
+      } else if (uploadedImageFile) {
+        formData.append('image', uploadedImageFile);
+      }
+
+      if (snagAudioBlob) {
+        formData.append('voiceNote', snagAudioBlob, 'voiceNote.webm');
+        formData.append('voiceDurationSeconds', recordingSeconds);
+      }
+
+      formData.append('createdBy', 'client');
+
+      await api.post(`/clients/${clientId}/snags`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      setReportSnagModalOpen(false);
+      resetSnagForm();
+      await fetchProjectReport();
+      alert('Issue reported successfully! Our site engineers will inspect and resolve it.');
+    } catch (err) {
+      console.error('Error reporting snag:', err);
+      alert(err.response?.data?.message || 'Failed to submit issue report');
+    } finally {
+      setSubmittingSnag(false);
+    }
+  };
 
   const fetchProjectReport = async () => {
     try {
@@ -183,6 +402,20 @@ const ClientProjectReportPage = () => {
   }
 
   const { client, financials, steps, payments } = projectData;
+  const extraWorks = client.extraWorks || projectData.extraWorks || [];
+  const snags = client.snags || projectData.snags || [];
+  const totalApprovedExtraCost = Number(financials?.totalApprovedExtraCost || 0);
+  const contractAmount = Number(financials?.contractAmount || client.contractAmount || 0);
+  const revisedContractAmount = Number(financials?.revisedContractAmount || (contractAmount + totalApprovedExtraCost));
+  const totalPaid = Number(financials?.totalPaid || 0);
+  const paidPct = revisedContractAmount > 0 ? Math.round((totalPaid / revisedContractAmount) * 100) : 0;
+  const remainingBalance = Number(financials?.remainingBalance ?? Math.max(0, revisedContractAmount - totalPaid));
+  const serviceRate = financials?.serviceRate || client.serviceRate;
+  const serviceRateUnit = financials?.serviceRateUnit || client.serviceRateUnit || (Number(serviceRate) > 0 ? 'Agreed rate unit' : 'Included in Total Budget');
+
+  const pendingExtraWorkCount = extraWorks.filter((w) => w.status === 'pending_approval').length;
+  const openSnagsCount = snags.filter((s) => s.status !== 'resolved').length;
+
   const siteMedia = client.siteMedia || [];
   const imagesCount = siteMedia.filter((m) => m.mediaType === 'image').length;
   const videosCount = siteMedia.filter((m) => m.mediaType === 'video').length;
@@ -228,13 +461,6 @@ const ClientProjectReportPage = () => {
 
   const startDateFormatted = formatSiteDate(client.startDate || client.createdAt);
   const endDateFormatted = formatSiteDate(client.expectedEndDate || client.completionDate || client.targetDate);
-
-  const contractAmount = Number(financials?.contractAmount || client.contractAmount || 0);
-  const totalPaid = Number(financials?.totalPaid || 0);
-  const paidPct = contractAmount > 0 ? Math.round((totalPaid / contractAmount) * 100) : 0;
-  const remainingBalance = Number(financials?.remainingBalance ?? (contractAmount - totalPaid));
-  const serviceRate = financials?.serviceRate || client.serviceRate;
-  const serviceRateUnit = financials?.serviceRateUnit || client.serviceRateUnit || (Number(serviceRate) > 0 ? 'Agreed rate unit' : 'Included in Total Budget');
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
@@ -818,10 +1044,12 @@ const ClientProjectReportPage = () => {
             </Box>
           </Box>
           <Typography sx={{ fontWeight: 900, color: '#FFFFFF', fontSize: { xs: '1.15rem', sm: '1.5rem' }, mb: 0.3, letterSpacing: '-0.3px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', lineHeight: 1.2 }}>
-            ₹ {Number(contractAmount).toLocaleString('en-IN')}
+            ₹ {Number(revisedContractAmount).toLocaleString('en-IN')}
           </Typography>
-          <Typography sx={{ color: '#94A3B8', fontSize: { xs: '0.68rem', sm: '0.72rem' }, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-            Agreed contract value
+          <Typography sx={{ color: totalApprovedExtraCost > 0 ? '#F5B72E' : '#94A3B8', fontSize: { xs: '0.64rem', sm: '0.7rem' }, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontWeight: totalApprovedExtraCost > 0 ? 700 : 400 }}>
+            {totalApprovedExtraCost > 0
+              ? `Base: ₹ ${Number(contractAmount).toLocaleString('en-IN')} + Extra: ₹ ${Number(totalApprovedExtraCost).toLocaleString('en-IN')}`
+              : 'Agreed contract value'}
           </Typography>
         </Card>
 
@@ -1046,6 +1274,60 @@ const ClientProjectReportPage = () => {
           }}
         >
           Agreement (एग्रीमेंट)
+        </Button>
+
+        {/* Tab 4: Extra Work / Variations */}
+        <Button
+          onClick={() => setActiveTab(4)}
+          startIcon={<PostAddIcon sx={{ fontSize: '17px !important', color: activeTab === 4 ? '#111827' : '#F5B72E' }} />}
+          sx={{
+            bgcolor: activeTab === 4 ? '#F5B72E' : '#0D1527',
+            color: activeTab === 4 ? '#111827' : '#CBD5E1',
+            border: activeTab === 4 ? 'none' : '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '30px',
+            px: { xs: 1.8, sm: 2.2 },
+            py: { xs: 0.7, sm: 0.85 },
+            fontWeight: 800,
+            fontSize: { xs: '0.76rem', sm: '0.82rem' },
+            textTransform: 'none',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+            boxShadow: activeTab === 4 ? '0 4px 15px rgba(245, 183, 46, 0.35)' : 'none',
+            transition: 'all 0.2s ease',
+            '&:hover': {
+              bgcolor: activeTab === 4 ? '#EAB308' : 'rgba(30, 41, 59, 0.8)',
+              color: activeTab === 4 ? '#000000' : '#FFFFFF'
+            }
+          }}
+        >
+          Extra Work (एक्स्ट्रा काम) {pendingExtraWorkCount > 0 ? `(${pendingExtraWorkCount} Pending)` : ''}
+        </Button>
+
+        {/* Tab 5: Snag List / Deficiency Feedback */}
+        <Button
+          onClick={() => setActiveTab(5)}
+          startIcon={<FactCheckIcon sx={{ fontSize: '17px !important', color: activeTab === 5 ? '#111827' : '#F5B72E' }} />}
+          sx={{
+            bgcolor: activeTab === 5 ? '#F5B72E' : '#0D1527',
+            color: activeTab === 5 ? '#111827' : '#CBD5E1',
+            border: activeTab === 5 ? 'none' : '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '30px',
+            px: { xs: 1.8, sm: 2.2 },
+            py: { xs: 0.7, sm: 0.85 },
+            fontWeight: 800,
+            fontSize: { xs: '0.76rem', sm: '0.82rem' },
+            textTransform: 'none',
+            whiteSpace: 'nowrap',
+            flexShrink: 0,
+            boxShadow: activeTab === 5 ? '0 4px 15px rgba(245, 183, 46, 0.35)' : 'none',
+            transition: 'all 0.2s ease',
+            '&:hover': {
+              bgcolor: activeTab === 5 ? '#EAB308' : 'rgba(30, 41, 59, 0.8)',
+              color: activeTab === 5 ? '#000000' : '#FFFFFF'
+            }
+          }}
+        >
+          Snag List (कमी-सुधार) {openSnagsCount > 0 ? `(${openSnagsCount})` : ''}
         </Button>
       </Box>
 
@@ -1923,6 +2205,493 @@ const ClientProjectReportPage = () => {
             )}
           </Paper>
         )}
+
+        {/* ========================================================================= */}
+        {/* TAB 4: EXTRA WORK & VARIATIONS APPROVALS */}
+        {/* ========================================================================= */}
+        {activeTab === 4 && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 1 }}>
+              <Box>
+                <Typography variant="h6" sx={{ fontWeight: 800, color: '#FFFFFF', fontSize: { xs: '1.05rem', sm: '1.25rem' }, lineHeight: 1.2 }}>
+                  Extra Work & Change Orders (एक्स्ट्रा काम एवं बदलाव)
+                </Typography>
+                <Typography sx={{ color: '#F5B72E', fontSize: '0.78rem', fontWeight: 600 }}>
+                  (अतिरिक्त कार्यों की स्वीकृति एवं लागत ट्रैकर)
+                </Typography>
+              </Box>
+              <Chip
+                icon={<PostAddIcon sx={{ fontSize: '16px !important', color: '#F5B72E !important' }} />}
+                label={`${extraWorks.length} Total Extra Work(s)`}
+                sx={{ bgcolor: 'rgba(245, 183, 46, 0.12)', color: '#F5B72E', border: '1px solid rgba(245, 183, 46, 0.3)', fontWeight: 800 }}
+              />
+            </Box>
+
+            {/* Information Banner */}
+            <Alert
+              severity="info"
+              sx={{
+                bgcolor: 'rgba(2, 132, 199, 0.1)',
+                color: '#E0F2FE',
+                border: '1px solid rgba(56, 189, 248, 0.3)',
+                '& .MuiAlert-icon': { color: '#38BDF8' }
+              }}
+            >
+              मकान निर्माण या फिनिशिंग के दौरान जो अतिरिक्त काम जुड़वाए जाते हैं, उनकी अनुमानित लागत यहाँ दिखाई देती है। आप यहाँ से सहमति <strong>(Approve)</strong> या असहमति <strong>(Decline)</strong> दे सकते हैं। स्वीकृत कार्य ही अंतिम बिल में जुड़ेंगे।
+            </Alert>
+
+            {/* PENDING APPROVAL SECTION (HIGHEST PRIORITY) */}
+            {pendingExtraWorkCount > 0 && (
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography sx={{ color: '#F59E0B', fontWeight: 900, fontSize: '0.95rem', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    ⚠️ Action Required: Pending Approvals ({pendingExtraWorkCount})
+                  </Typography>
+                </Box>
+
+                {extraWorks
+                  .filter((w) => w.status === 'pending_approval')
+                  .map((work) => (
+                    <Paper
+                      key={work._id}
+                      sx={{
+                        p: { xs: 2, sm: 2.5 },
+                        bgcolor: '#0D1527',
+                        border: '1.5px solid #F59E0B',
+                        borderRadius: '16px',
+                        boxShadow: '0 4px 20px rgba(245, 158, 11, 0.15)'
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 1.5, mb: 1.5 }}>
+                        <Box>
+                          <Typography variant="h6" sx={{ fontWeight: 900, color: '#FFFFFF', fontSize: '1.1rem' }}>
+                            {work.title}
+                          </Typography>
+                          {work.stepTitle && (
+                            <Chip
+                              label={`Stage: ${work.stepTitle}`}
+                              size="small"
+                              sx={{ bgcolor: 'rgba(255, 255, 255, 0.08)', color: '#CBD5E1', fontSize: '0.72rem', mt: 0.5 }}
+                            />
+                          )}
+                        </Box>
+
+                        <Box sx={{ bgcolor: 'rgba(245, 183, 46, 0.12)', border: '1px solid rgba(245, 183, 46, 0.35)', px: 2, py: 0.8, borderRadius: 2 }}>
+                          <Typography sx={{ fontSize: '0.68rem', color: '#94A3B8', fontWeight: 700, textTransform: 'uppercase' }}>
+                            Extra Work Cost
+                          </Typography>
+                          <Typography sx={{ fontWeight: 900, color: '#F5B72E', fontSize: '1.25rem' }}>
+                            ₹ {Number(work.cost).toLocaleString('en-IN')}
+                          </Typography>
+                        </Box>
+                      </Box>
+
+                      {work.description && (
+                        <Typography sx={{ color: '#CBD5E1', fontSize: '0.88rem', bgcolor: 'rgba(255, 255, 255, 0.03)', p: 1.5, borderRadius: 2, mb: 2, border: '1px solid rgba(255, 255, 255, 0.06)' }}>
+                          {work.description}
+                        </Typography>
+                      )}
+
+                      {/* Optional Client Feedback Note */}
+                      <TextField
+                        fullWidth
+                        size="small"
+                        placeholder="Optional remarks / feedback (उदा: ठीक है, लेकिन लकड़ी सागवान की होनी चाहिए)"
+                        value={extraWorkNotes[work._id] || ''}
+                        onChange={(e) => setExtraWorkNotes({ ...extraWorkNotes, [work._id]: e.target.value })}
+                        sx={{
+                          mb: 2,
+                          bgcolor: 'rgba(15, 23, 42, 0.6)',
+                          borderRadius: 1.5,
+                          '& .MuiOutlinedInput-root': {
+                            color: '#fff',
+                            '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.12)' },
+                            '&:hover fieldset': { borderColor: 'rgba(245, 183, 46, 0.4)' }
+                          }
+                        }}
+                      />
+
+                      {/* Action Buttons: Approve or Decline */}
+                      <Box sx={{ display: 'flex', gap: 1.5, justifyContent: 'flex-end', flexWrap: 'wrap' }}>
+                        <Button
+                          variant="outlined"
+                          color="error"
+                          disabled={submittingExtraWorkId === work._id}
+                          onClick={() => handleRespondExtraWork(work._id, 'rejected')}
+                          startIcon={<CloseIcon />}
+                          sx={{
+                            textTransform: 'none',
+                            fontWeight: 800,
+                            borderRadius: '10px',
+                            px: 2.5,
+                            borderColor: '#EF4444',
+                            color: '#EF4444',
+                            '&:hover': { bgcolor: 'rgba(239, 68, 68, 0.1)', borderColor: '#EF4444' }
+                          }}
+                        >
+                          ✕ Decline (अस्वीकार करें)
+                        </Button>
+                        <Button
+                          variant="contained"
+                          disabled={submittingExtraWorkId === work._id}
+                          onClick={() => handleRespondExtraWork(work._id, 'approved')}
+                          startIcon={<CheckIcon />}
+                          sx={{
+                            bgcolor: '#22C55E',
+                            color: '#FFFFFF',
+                            textTransform: 'none',
+                            fontWeight: 800,
+                            borderRadius: '10px',
+                            px: 3,
+                            '&:hover': { bgcolor: '#16A34A' }
+                          }}
+                        >
+                          {submittingExtraWorkId === work._id ? <CircularProgress size={18} sx={{ color: '#fff', mr: 1 }} /> : null}
+                          ✓ Approve (स्वीकार करें)
+                        </Button>
+                      </Box>
+                    </Paper>
+                  ))}
+              </Box>
+            )}
+
+            {/* ALL EXTRA WORKS LIST (APPROVED & DECLINED) */}
+            <Box sx={{ mt: 1 }}>
+              <Typography sx={{ color: '#FFFFFF', fontWeight: 800, fontSize: '1rem', mb: 1.5 }}>
+                All Recorded Extra Work History (इतिहास)
+              </Typography>
+
+              {extraWorks.length === 0 ? (
+                <Paper sx={{ p: 5, textAlign: 'center', bgcolor: '#0D1527', border: '1px dashed rgba(255, 255, 255, 0.1)', borderRadius: 3 }}>
+                  <PostAddIcon sx={{ fontSize: 44, color: '#94A3B8', mb: 1.5 }} />
+                  <Typography sx={{ color: '#FFFFFF', fontWeight: 700 }}>
+                    No Extra Work Added Yet
+                  </Typography>
+                  <Typography sx={{ color: '#94A3B8', fontSize: '0.82rem', mt: 0.5 }}>
+                    When any additional customization or variation is planned by the contractor, it will appear here for your review.
+                  </Typography>
+                </Paper>
+              ) : (
+                <Grid container spacing={2}>
+                  {extraWorks.map((work) => {
+                    const isApproved = work.status === 'approved';
+                    const isRejected = work.status === 'rejected';
+                    const isPending = work.status === 'pending_approval';
+
+                    return (
+                      <Grid item xs={12} sm={6} key={work._id}>
+                        <Paper
+                          sx={{
+                            p: 2.2,
+                            bgcolor: '#0D1527',
+                            border: isApproved ? '1px solid rgba(34, 197, 94, 0.4)' : isRejected ? '1px solid rgba(239, 68, 68, 0.4)' : '1px solid rgba(245, 183, 46, 0.4)',
+                            borderRadius: '14px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 1.2
+                          }}
+                        >
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
+                            <Box>
+                              <Typography sx={{ fontWeight: 800, color: '#FFFFFF', fontSize: '0.95rem' }}>
+                                {work.title}
+                              </Typography>
+                              {work.stepTitle && (
+                                <Typography sx={{ color: '#94A3B8', fontSize: '0.72rem', mt: 0.2 }}>
+                                  {work.stepTitle}
+                                </Typography>
+                              )}
+                            </Box>
+                            {isApproved && (
+                              <Chip
+                                icon={<CheckCircleIcon sx={{ fontSize: '14px !important', color: '#22C55E !important' }} />}
+                                label="Approved ✓"
+                                size="small"
+                                sx={{ bgcolor: 'rgba(34, 197, 94, 0.15)', color: '#22C55E', fontWeight: 800, fontSize: '0.72rem' }}
+                              />
+                            )}
+                            {isRejected && (
+                              <Chip
+                                icon={<CloseIcon sx={{ fontSize: '14px !important', color: '#EF4444 !important' }} />}
+                                label="Declined ✕"
+                                size="small"
+                                sx={{ bgcolor: 'rgba(239, 68, 68, 0.15)', color: '#EF4444', fontWeight: 800, fontSize: '0.72rem' }}
+                              />
+                            )}
+                            {isPending && (
+                              <Chip
+                                label="Pending Approval"
+                                size="small"
+                                sx={{ bgcolor: 'rgba(245, 183, 46, 0.15)', color: '#F5B72E', fontWeight: 800, fontSize: '0.72rem' }}
+                              />
+                            )}
+                          </Box>
+
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', pt: 0.5 }}>
+                            <Typography sx={{ color: '#94A3B8', fontSize: '0.75rem' }}>
+                              Cost:
+                            </Typography>
+                            <Typography sx={{ fontWeight: 900, color: isApproved ? '#22C55E' : '#FFFFFF', fontSize: '1.15rem' }}>
+                              ₹ {Number(work.cost).toLocaleString('en-IN')}
+                            </Typography>
+                          </Box>
+
+                          {work.description && (
+                            <Typography sx={{ color: '#94A3B8', fontSize: '0.8rem', lineHeight: 1.4 }}>
+                              {work.description}
+                            </Typography>
+                          )}
+
+                          {work.clientResponseNote && (
+                            <Typography sx={{ color: '#E2E8F0', fontSize: '0.76rem', bgcolor: 'rgba(255, 255, 255, 0.04)', p: 0.8, borderRadius: 1 }}>
+                              Your Note: <em>"{work.clientResponseNote}"</em>
+                            </Typography>
+                          )}
+
+                          <Typography sx={{ color: '#64748B', fontSize: '0.68rem', mt: 'auto', textAlign: 'right' }}>
+                            {work.clientRespondedAt
+                              ? `Responded: ${new Date(work.clientRespondedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}`
+                              : `Recorded: ${new Date(work.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}`}
+                          </Typography>
+                        </Paper>
+                      </Grid>
+                    );
+                  })}
+                </Grid>
+              )}
+            </Box>
+          </Box>
+        )}
+
+        {/* ========================================================================= */}
+        {/* TAB 5: SNAG LIST / DEFECT & FEEDBACK TRACKER */}
+        {/* ========================================================================= */}
+        {activeTab === 5 && (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+            {/* Header + Report Issue Button */}
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 1.5 }}>
+              <Box>
+                <Typography variant="h6" sx={{ fontWeight: 800, color: '#FFFFFF', fontSize: { xs: '1.05rem', sm: '1.25rem' }, lineHeight: 1.2 }}>
+                  Snag List & Site Feedback (कमी-सुधार ट्रैकर)
+                </Typography>
+                <Typography sx={{ color: '#F5B72E', fontSize: '0.78rem', fontWeight: 600 }}>
+                  (फिनिशिंग या काम में कमी की फोटो व ऑडियो रिकॉर्डिंग भेजें)
+                </Typography>
+              </Box>
+
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={() => {
+                  resetSnagForm();
+                  setReportSnagModalOpen(true);
+                }}
+                sx={{
+                  bgcolor: '#E11D48',
+                  color: '#FFFFFF',
+                  fontWeight: 800,
+                  px: 2.5,
+                  py: 1,
+                  borderRadius: '24px',
+                  boxShadow: '0 4px 15px rgba(225, 29, 72, 0.4)',
+                  '&:hover': { bgcolor: '#BE123C' }
+                }}
+              >
+                + Report New Issue (कमी दर्ज करें)
+              </Button>
+            </Box>
+
+            {/* Filter Chips Bar */}
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              <Chip
+                label={`All Issues (${snags.length})`}
+                onClick={() => setSnagFilter('all')}
+                sx={{
+                  bgcolor: snagFilter === 'all' ? '#F5B72E' : '#0D1527',
+                  color: snagFilter === 'all' ? '#111827' : '#94A3B8',
+                  fontWeight: 800,
+                  cursor: 'pointer'
+                }}
+              />
+              <Chip
+                label={`Under Review (${snags.filter(s => s.status !== 'resolved').length})`}
+                onClick={() => setSnagFilter('pending')}
+                sx={{
+                  bgcolor: snagFilter === 'pending' ? '#E11D48' : '#0D1527',
+                  color: snagFilter === 'pending' ? '#FFFFFF' : '#94A3B8',
+                  fontWeight: 800,
+                  cursor: 'pointer'
+                }}
+              />
+              <Chip
+                label={`Resolved (${snags.filter(s => s.status === 'resolved').length})`}
+                onClick={() => setSnagFilter('resolved')}
+                sx={{
+                  bgcolor: snagFilter === 'resolved' ? '#22C55E' : '#0D1527',
+                  color: snagFilter === 'resolved' ? '#FFFFFF' : '#94A3B8',
+                  fontWeight: 800,
+                  cursor: 'pointer'
+                }}
+              />
+            </Box>
+
+            {/* Snag Items Cards */}
+            {snags.length === 0 ? (
+              <Paper sx={{ p: 6, textAlign: 'center', bgcolor: '#0D1527', border: '1px dashed rgba(255, 255, 255, 0.1)', borderRadius: 3 }}>
+                <FactCheckIcon sx={{ fontSize: 50, color: '#94A3B8', mb: 1.5 }} />
+                <Typography variant="h6" sx={{ color: '#FFFFFF', fontWeight: 800 }}>
+                  No Issues Reported Yet
+                </Typography>
+                <Typography sx={{ color: '#94A3B8', fontSize: '0.85rem', maxWidth: 450, mx: 'auto', mt: 0.5, mb: 2.5 }}>
+                  Notice a tile crack, switchboard alignment issue, or paint touchup requirement? Take a photo, record your voice, and our site engineer will fix it before final handover!
+                </Typography>
+                <Button
+                  variant="outlined"
+                  startIcon={<AddIcon />}
+                  onClick={() => {
+                    resetSnagForm();
+                    setReportSnagModalOpen(true);
+                  }}
+                  sx={{ color: '#E11D48', borderColor: '#E11D48', fontWeight: 800, borderRadius: '20px' }}
+                >
+                  Report First Issue Now
+                </Button>
+              </Paper>
+            ) : (
+              <Grid container spacing={2}>
+                {snags
+                  .filter((s) => {
+                    if (snagFilter === 'pending') return s.status !== 'resolved';
+                    if (snagFilter === 'resolved') return s.status === 'resolved';
+                    return true;
+                  })
+                  .map((snag) => {
+                    const isResolved = snag.status === 'resolved';
+                    const imageUrl = snag.imageUrl ? getStaticAssetUrl(snag.imageUrl) : '';
+                    const voiceUrl = snag.voiceNoteUrl ? getStaticAssetUrl(snag.voiceNoteUrl) : '';
+
+                    return (
+                      <Grid item xs={12} md={6} key={snag._id}>
+                        <Paper
+                          sx={{
+                            p: 2.5,
+                            bgcolor: '#0D1527',
+                            border: isResolved ? '1.5px solid #22C55E' : '1.5px solid rgba(225, 29, 72, 0.5)',
+                            borderRadius: '16px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: 1.5
+                          }}
+                        >
+                          {/* Top: Title & Status */}
+                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
+                            <Box>
+                              <Typography sx={{ fontWeight: 900, color: '#FFFFFF', fontSize: '1.05rem', lineHeight: 1.3 }}>
+                                {snag.title}
+                              </Typography>
+                              {snag.stepTitle && (
+                                <Chip
+                                  label={`Stage: ${snag.stepTitle}`}
+                                  size="small"
+                                  sx={{ bgcolor: 'rgba(255, 255, 255, 0.08)', color: '#CBD5E1', fontSize: '0.72rem', mt: 0.5 }}
+                                />
+                              )}
+                            </Box>
+                            <Box sx={{ textAlign: 'right', flexShrink: 0 }}>
+                              {isResolved ? (
+                                <Chip
+                                  icon={<CheckCircleIcon sx={{ fontSize: '15px !important', color: '#22C55E !important' }} />}
+                                  label="Resolved (ठीक हो गया ✓)"
+                                  size="small"
+                                  sx={{ bgcolor: 'rgba(34, 197, 94, 0.15)', color: '#22C55E', fontWeight: 800, fontSize: '0.75rem' }}
+                                />
+                              ) : (
+                                <Chip
+                                  label="Under Inspection (जाँच जारी)"
+                                  size="small"
+                                  sx={{ bgcolor: 'rgba(225, 29, 72, 0.15)', color: '#FB7185', fontWeight: 800, fontSize: '0.75rem' }}
+                                />
+                              )}
+                              <Typography sx={{ color: '#64748B', fontSize: '0.68rem', display: 'block', mt: 0.5 }}>
+                                {new Date(snag.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' })}
+                              </Typography>
+                            </Box>
+                          </Box>
+
+                          {/* Description */}
+                          {snag.description && (
+                            <Typography sx={{ color: '#CBD5E1', fontSize: '0.85rem', bgcolor: 'rgba(255, 255, 255, 0.03)', p: 1.2, borderRadius: 1.5 }}>
+                              {snag.description}
+                            </Typography>
+                          )}
+
+                          {/* Media: Image & Voice Note */}
+                          <Grid container spacing={1.5} alignItems="center">
+                            {imageUrl && (
+                              <Grid item xs={12} sm={imageUrl && voiceUrl ? 5 : 12}>
+                                <Box
+                                  onClick={() => setSelectedSnagPhotoForModal(imageUrl)}
+                                  sx={{
+                                    height: 140,
+                                    borderRadius: '12px',
+                                    overflow: 'hidden',
+                                    position: 'relative',
+                                    cursor: 'pointer',
+                                    border: '1px solid rgba(255, 255, 255, 0.12)',
+                                    bgcolor: '#000',
+                                    '&:hover img': { transform: 'scale(1.05)' }
+                                  }}
+                                >
+                                  <img
+                                    src={imageUrl}
+                                    alt={snag.title}
+                                    style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.2s ease' }}
+                                  />
+                                  <Box sx={{ position: 'absolute', bottom: 6, right: 6, bgcolor: 'rgba(0,0,0,0.7)', color: '#fff', px: 1, py: 0.2, borderRadius: 1, fontSize: '0.7rem', fontWeight: 700 }}>
+                                    🔍 Full Image
+                                  </Box>
+                                </Box>
+                              </Grid>
+                            )}
+
+                            {voiceUrl && (
+                              <Grid item xs={12} sm={imageUrl && voiceUrl ? 7 : 12}>
+                                <Box sx={{ bgcolor: 'rgba(255, 255, 255, 0.04)', p: 1.5, borderRadius: 2, border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                                  <Typography sx={{ color: '#FB7185', fontWeight: 700, fontSize: '0.74rem', display: 'flex', alignItems: 'center', gap: 0.5, mb: 0.8 }}>
+                                    <MicIcon sx={{ fontSize: 16 }} />
+                                    Your Voice Note (ऑडियो रिकॉर्डिंग)
+                                  </Typography>
+                                  <audio controls src={voiceUrl} style={{ width: '100%', height: 38 }} />
+                                </Box>
+                              </Grid>
+                            )}
+                          </Grid>
+
+                          {/* Resolution Status Box */}
+                          {isResolved && (
+                            <Box sx={{ bgcolor: 'rgba(34, 197, 94, 0.1)', p: 1.5, borderRadius: 2, border: '1px solid rgba(34, 197, 94, 0.3)' }}>
+                              <Typography sx={{ color: '#22C55E', fontWeight: 800, fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                                <CheckCircleIcon sx={{ fontSize: 16 }} />
+                                Contractor Resolution (ठेकेदार/एडमिन द्वारा समाधान):
+                              </Typography>
+                              <Typography sx={{ color: '#E2E8F0', fontSize: '0.82rem', mt: 0.4 }}>
+                                {snag.resolutionNote || 'The issue has been inspected and resolved on site.'}
+                              </Typography>
+                              {snag.resolvedAt && (
+                                <Typography sx={{ color: '#94A3B8', fontSize: '0.68rem', mt: 0.5 }}>
+                                  Resolved Date: {new Date(snag.resolvedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                </Typography>
+                              )}
+                            </Box>
+                          )}
+                        </Paper>
+                      </Grid>
+                    );
+                  })}
+              </Grid>
+            )}
+          </Box>
+        )}
       </Box>
 
       {/* Payment Slip Modal */}
@@ -2156,6 +2925,401 @@ const ClientProjectReportPage = () => {
           </DialogActions>
         </Dialog>
       )}
+
+      {/* ========================================================================= */}
+      {/* MODAL: REPORT SNAG DEFECT & VOICE NOTE */}
+      {/* ========================================================================= */}
+      <Dialog
+        open={reportSnagModalOpen}
+        onClose={() => !submittingSnag && setReportSnagModalOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{
+          sx: {
+            bgcolor: '#0B1120',
+            color: '#FFFFFF',
+            border: '1px solid rgba(225, 29, 72, 0.4)',
+            borderRadius: '16px'
+          }
+        }}
+      >
+        <DialogTitle sx={{ bgcolor: '#0D1527', borderBottom: '1px solid rgba(255, 255, 255, 0.08)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Box>
+            <Typography sx={{ fontWeight: 900, color: '#FFFFFF', fontSize: '1.1rem' }}>
+              Report a Defect / Snag (कमी या समस्या दर्ज करें)
+            </Typography>
+            <Typography sx={{ color: '#94A3B8', fontSize: '0.75rem' }}>
+              Attach photo & record audio message for the site team
+            </Typography>
+          </Box>
+          <IconButton size="small" onClick={() => setReportSnagModalOpen(false)} disabled={submittingSnag} sx={{ color: '#94A3B8' }}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+
+        <form onSubmit={handleSubmitSnag}>
+          <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2.2, pt: 2.5 }}>
+            {/* Issue Title */}
+            <TextField
+              label="Issue Title (समस्या का नाम) *"
+              required
+              fullWidth
+              value={snagTitle}
+              onChange={(e) => setSnagTitle(e.target.value)}
+              placeholder="e.g. बाथरूम में टाइल का कोना क्रैक है / स्विच बोर्ड टेढ़ा है"
+              sx={{
+                '& .MuiInputLabel-root': { color: '#94A3B8' },
+                '& .MuiOutlinedInput-root': {
+                  color: '#FFFFFF',
+                  bgcolor: 'rgba(255, 255, 255, 0.03)',
+                  '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.15)' },
+                  '&:hover fieldset': { borderColor: '#E11D48' }
+                }
+              }}
+            />
+
+            {/* Related Milestone Step */}
+            <TextField
+              select
+              label="Related Stage / Milestone (संबंधित चरण)"
+              fullWidth
+              value={snagStepTitle}
+              onChange={(e) => setSnagStepTitle(e.target.value)}
+              sx={{
+                '& .MuiInputLabel-root': { color: '#94A3B8' },
+                '& .MuiOutlinedInput-root': {
+                  color: '#FFFFFF',
+                  bgcolor: 'rgba(255, 255, 255, 0.03)',
+                  '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.15)' }
+                }
+              }}
+            >
+              <MenuItem value="">— General / Not Step Specific (सामान्य) —</MenuItem>
+              {(steps || []).map((step, idx) => (
+                <MenuItem key={idx} value={step.title}>
+                  {step.title}
+                </MenuItem>
+              ))}
+            </TextField>
+
+            {/* Description */}
+            <TextField
+              label="Additional Notes / Description (अतिरिक्त विवरण)"
+              multiline
+              rows={2}
+              fullWidth
+              value={snagDescription}
+              onChange={(e) => setSnagDescription(e.target.value)}
+              placeholder="e.g. मास्टर बेडरूम की बालकनी वाली दीवार पर पेंट की फिनिशिंग सही नहीं है।"
+              sx={{
+                '& .MuiInputLabel-root': { color: '#94A3B8' },
+                '& .MuiOutlinedInput-root': {
+                  color: '#FFFFFF',
+                  bgcolor: 'rgba(255, 255, 255, 0.03)',
+                  '& fieldset': { borderColor: 'rgba(255, 255, 255, 0.15)' }
+                }
+              }}
+            />
+
+            {/* ========================================================= */}
+            {/* 3 IMAGE OPTIONS: (1) Old Uploaded, (2) Gallery, (3) Camera */}
+            {/* ========================================================= */}
+            <Box sx={{ p: 2, bgcolor: 'rgba(255, 255, 255, 0.03)', borderRadius: 2.5, border: '1px solid rgba(255, 255, 255, 0.1)' }}>
+              <Typography sx={{ fontWeight: 800, color: '#FFFFFF', fontSize: '0.88rem', mb: 1.2 }}>
+                📸 Attach Photo (फोटो जोड़ें - 3 विकल्प उपलब्ध):
+              </Typography>
+
+              {/* Hidden file inputs */}
+              <input
+                type="file"
+                accept="image/*"
+                ref={galleryInputRef}
+                style={{ display: 'none' }}
+                onChange={handleGalleryFileSelect}
+              />
+              <input
+                type="file"
+                accept="image/*"
+                capture="environment"
+                ref={cameraInputRef}
+                style={{ display: 'none' }}
+                onChange={handleCameraFileSelect}
+              />
+
+              {/* 3 Option Buttons */}
+              <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' }, gap: 1, mb: 1.5 }}>
+                {/* Option A: Gallery */}
+                <Button
+                  variant="outlined"
+                  startIcon={<PhotoLibraryIcon />}
+                  onClick={() => {
+                    setSnagImageSource('gallery_upload');
+                    galleryInputRef.current?.click();
+                  }}
+                  sx={{
+                    borderColor: snagImageSource === 'gallery_upload' && uploadedImageFile ? '#22C55E' : 'rgba(255, 255, 255, 0.2)',
+                    color: '#FFFFFF',
+                    textTransform: 'none',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    bgcolor: snagImageSource === 'gallery_upload' && uploadedImageFile ? 'rgba(34, 197, 94, 0.1)' : 'transparent',
+                    '&:hover': { borderColor: '#E11D48' }
+                  }}
+                >
+                  फोन गैलरी (Gallery)
+                </Button>
+
+                {/* Option B: Direct Camera */}
+                <Button
+                  variant="outlined"
+                  startIcon={<CameraAltIcon />}
+                  onClick={() => {
+                    setSnagImageSource('camera_capture');
+                    cameraInputRef.current?.click();
+                  }}
+                  sx={{
+                    borderColor: snagImageSource === 'camera_capture' && uploadedImageFile ? '#22C55E' : 'rgba(255, 255, 255, 0.2)',
+                    color: '#FFFFFF',
+                    textTransform: 'none',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    bgcolor: snagImageSource === 'camera_capture' && uploadedImageFile ? 'rgba(34, 197, 94, 0.1)' : 'transparent',
+                    '&:hover': { borderColor: '#E11D48' }
+                  }}
+                >
+                  कैमरा (Camera)
+                </Button>
+
+                {/* Option C: Existing Site Media */}
+                <Button
+                  variant="outlined"
+                  startIcon={<CollectionsIcon />}
+                  onClick={() => setSnagImageSource('existing_site_media')}
+                  sx={{
+                    borderColor: snagImageSource === 'existing_site_media' ? '#F5B72E' : 'rgba(255, 255, 255, 0.2)',
+                    color: '#FFFFFF',
+                    textTransform: 'none',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    bgcolor: snagImageSource === 'existing_site_media' ? 'rgba(245, 183, 46, 0.1)' : 'transparent',
+                    '&:hover': { borderColor: '#F5B72E' }
+                  }}
+                >
+                  साइट मीडिया (Site Photos)
+                </Button>
+              </Box>
+
+              {/* If Option C: Show Site Media Grid to select from */}
+              {snagImageSource === 'existing_site_media' && (
+                <Box sx={{ mt: 1.5, p: 1.5, bgcolor: 'rgba(0,0,0,0.3)', borderRadius: 2, border: '1px solid rgba(245, 183, 46, 0.3)' }}>
+                  <Typography sx={{ color: '#F5B72E', fontSize: '0.75rem', fontWeight: 700, mb: 1 }}>
+                    👇 नीचे से कोई भी साइट फोटो चुनें (Tap photo to select):
+                  </Typography>
+                  {siteMedia.filter((m) => m.mediaType === 'image').length === 0 ? (
+                    <Typography sx={{ color: '#94A3B8', fontSize: '0.78rem', textAlign: 'center', py: 1 }}>
+                      साइट पर अभी कोई फोटो अपलोड नहीं है। कृपया गैलरी या कैमरे से अपलोड करें।
+                    </Typography>
+                  ) : (
+                    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 1, maxHeight: 180, overflowY: 'auto' }}>
+                      {siteMedia
+                        .filter((m) => m.mediaType === 'image')
+                        .map((media) => {
+                          const isSelected = selectedExistingImageUrl === media.url;
+                          const mediaUrl = getStaticAssetUrl(media.url);
+                          return (
+                            <Box
+                              key={media._id}
+                              onClick={() => handleSelectExistingPhoto(media.url)}
+                              sx={{
+                                height: 70,
+                                borderRadius: 1.5,
+                                overflow: 'hidden',
+                                cursor: 'pointer',
+                                border: isSelected ? '2.5px solid #22C55E' : '1px solid rgba(255,255,255,0.1)',
+                                position: 'relative'
+                              }}
+                            >
+                              <img src={mediaUrl} alt={media.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                              {isSelected && (
+                                <Box sx={{ position: 'absolute', top: 3, right: 3, bgcolor: '#22C55E', color: '#fff', borderRadius: '50%', width: 18, height: 18, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px' }}>
+                                  ✓
+                                </Box>
+                              )}
+                            </Box>
+                          );
+                        })}
+                    </Box>
+                  )}
+                </Box>
+              )}
+
+              {/* Image Preview if selected */}
+              {(uploadedImagePreview || selectedExistingImageUrl) && (
+                <Box sx={{ mt: 1.5, display: 'flex', alignItems: 'center', gap: 1.5, bgcolor: 'rgba(34, 197, 94, 0.08)', p: 1, borderRadius: 1.5, border: '1px solid rgba(34, 197, 94, 0.25)' }}>
+                  <Box sx={{ width: 50, height: 50, borderRadius: 1, overflow: 'hidden', bgcolor: '#000', flexShrink: 0 }}>
+                    <img
+                      src={uploadedImagePreview || getStaticAssetUrl(selectedExistingImageUrl)}
+                      alt="Selected preview"
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                    />
+                  </Box>
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography sx={{ color: '#22C55E', fontWeight: 800, fontSize: '0.8rem' }}>
+                      ✓ Photo Selected Successfully
+                    </Typography>
+                    <Typography sx={{ color: '#94A3B8', fontSize: '0.72rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {uploadedImageFile ? uploadedImageFile.name : 'From Site Gallery Media'}
+                    </Typography>
+                  </Box>
+                  <IconButton
+                    size="small"
+                    onClick={() => {
+                      setUploadedImageFile(null);
+                      setUploadedImagePreview('');
+                      setSelectedExistingImageUrl('');
+                    }}
+                    sx={{ color: '#EF4444' }}
+                  >
+                    <CloseIcon sx={{ fontSize: 18 }} />
+                  </IconButton>
+                </Box>
+              )}
+            </Box>
+
+            {/* ========================================================= */}
+            {/* VOICE RECORDER: Record audio message with live timer */}
+            {/* ========================================================= */}
+            <Box sx={{ p: 2, bgcolor: 'rgba(225, 29, 72, 0.06)', borderRadius: 2.5, border: '1px solid rgba(225, 29, 72, 0.25)' }}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
+                <Typography sx={{ fontWeight: 800, color: '#FB7185', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: 0.6 }}>
+                  <MicIcon sx={{ fontSize: 18 }} />
+                  Voice Note (ऑडियो रिकॉर्डिंग जोड़ें):
+                </Typography>
+                {recordingSeconds > 0 && (
+                  <Chip
+                    label={formatAudioTime(recordingSeconds)}
+                    size="small"
+                    sx={{ bgcolor: isRecording ? '#E11D48' : 'rgba(255, 255, 255, 0.1)', color: '#FFFFFF', fontWeight: 800, fontSize: '0.75rem' }}
+                  />
+                )}
+              </Box>
+
+              <Typography sx={{ color: '#94A3B8', fontSize: '0.74rem', mb: 1.5 }}>
+                यदि लिखना नहीं चाहते, तो बोलकर अपनी समस्या रिकॉर्ड कर सकते हैं।
+              </Typography>
+
+              {/* Recording Controls */}
+              {!isRecording && !snagAudioBlob && (
+                <Button
+                  variant="contained"
+                  startIcon={<MicIcon />}
+                  onClick={startRecording}
+                  sx={{
+                    bgcolor: '#E11D48',
+                    color: '#fff',
+                    fontWeight: 800,
+                    textTransform: 'none',
+                    borderRadius: '20px',
+                    '&:hover': { bgcolor: '#BE123C' }
+                  }}
+                >
+                  🎙️ रिकॉर्डिंग शुरू करें (Start Recording)
+                </Button>
+              )}
+
+              {isRecording && (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+                  <Button
+                    variant="contained"
+                    color="error"
+                    startIcon={<StopIcon />}
+                    onClick={stopRecording}
+                    sx={{
+                      bgcolor: '#EF4444',
+                      fontWeight: 800,
+                      borderRadius: '20px',
+                      animation: 'pulse 1.5s infinite',
+                      '@keyframes pulse': {
+                        '0%': { transform: 'scale(1)' },
+                        '50%': { transform: 'scale(1.04)' },
+                        '100%': { transform: 'scale(1)' }
+                      }
+                    }}
+                  >
+                    ⏹️ रोकें व सेव करें (Stop Recording)
+                  </Button>
+                  <Typography sx={{ color: '#FB7185', fontWeight: 700, fontSize: '0.85rem' }}>
+                    Recording... {formatAudioTime(recordingSeconds)}
+                  </Typography>
+                </Box>
+              )}
+
+              {/* Preview Recorded Audio Player */}
+              {snagAudioUrl && (
+                <Box sx={{ mt: 1.5, p: 1.2, bgcolor: 'rgba(0,0,0,0.3)', borderRadius: 2, display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <audio controls src={snagAudioUrl} style={{ width: '100%', height: 36 }} />
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <Typography sx={{ color: '#22C55E', fontSize: '0.74rem', fontWeight: 700 }}>
+                      ✓ Voice message ready to send
+                    </Typography>
+                    <Button
+                      size="small"
+                      startIcon={<RestartAltIcon />}
+                      onClick={discardRecording}
+                      sx={{ color: '#EF4444', textTransform: 'none', fontSize: '0.72rem', fontWeight: 700 }}
+                    >
+                      दोबारा रिकॉर्ड करें (Re-record)
+                    </Button>
+                  </Box>
+                </Box>
+              )}
+            </Box>
+          </DialogContent>
+
+          <DialogActions sx={{ p: 2, bgcolor: '#0D1527', borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+            <Button onClick={() => setReportSnagModalOpen(false)} disabled={submittingSnag} sx={{ color: '#94A3B8' }}>
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={submittingSnag || isRecording}
+              sx={{
+                bgcolor: '#E11D48',
+                color: '#FFFFFF',
+                fontWeight: 800,
+                px: 3,
+                borderRadius: '10px',
+                '&:hover': { bgcolor: '#BE123C' }
+              }}
+            >
+              {submittingSnag ? <CircularProgress size={20} sx={{ color: '#fff', mr: 1 }} /> : null}
+              Submit Defect Report (रिपोर्ट भेजें)
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+
+      {/* ========================================================================= */}
+      {/* LIGHTBOX: Snag Image Fullscreen Preview */}
+      {/* ========================================================================= */}
+      <Dialog open={Boolean(selectedSnagPhotoForModal)} onClose={() => setSelectedSnagPhotoForModal(null)} maxWidth="md" fullWidth>
+        <Box sx={{ position: 'relative', bgcolor: '#000', p: 1, textAlign: 'center' }}>
+          <IconButton
+            onClick={() => setSelectedSnagPhotoForModal(null)}
+            sx={{ position: 'absolute', top: 12, right: 12, color: '#fff', bgcolor: 'rgba(0,0,0,0.6)', '&:hover': { bgcolor: 'rgba(0,0,0,0.9)' } }}
+          >
+            <CloseIcon />
+          </IconButton>
+          {selectedSnagPhotoForModal && (
+            <img
+              src={selectedSnagPhotoForModal}
+              alt="Snag Defect Full"
+              style={{ maxWidth: '100%', maxHeight: '80vh', objectFit: 'contain', borderRadius: 8 }}
+            />
+          )}
+        </Box>
+      </Dialog>
     </Box>
   );
 };

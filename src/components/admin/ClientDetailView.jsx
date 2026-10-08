@@ -72,7 +72,15 @@ import {
   WhatsApp as WhatsAppIcon,
   CalendarMonth as CalendarMonthIcon,
   ArrowForward as ArrowForwardIcon,
-  Dashboard as DashboardIcon
+  Dashboard as DashboardIcon,
+  PostAdd as PostAddIcon,
+  FactCheck as FactCheckIcon,
+  Mic as MicIcon,
+  VolumeUp as VolumeUpIcon,
+  DoneAll as DoneAllIcon,
+  PendingActions as PendingActionsIcon,
+  ThumbUp as ThumbUpIcon,
+  ThumbDown as ThumbDownIcon
 } from '@mui/icons-material';
 import axiosInstance, { getStaticAssetUrl } from '../../../utils/axiosConfig';
 import PaymentSlipModal from './PaymentSlipModal';
@@ -103,7 +111,9 @@ export const SECTION_ID_TO_TAB = {
   expenses: 4,
   pnl: 5,
   agreement: 6,
-  media: 7
+  media: 7,
+  'extra-work': 8,
+  snags: 9
 };
 
 export const TAB_TO_SECTION_ID = {
@@ -114,7 +124,9 @@ export const TAB_TO_SECTION_ID = {
   4: 'expenses',
   5: 'pnl',
   6: 'agreement',
-  7: 'media'
+  7: 'media',
+  8: 'extra-work',
+  9: 'snags'
 };
 
 export const SECTION_CONFIG = [
@@ -213,6 +225,30 @@ export const SECTION_CONFIG = [
     bg: '#fdf2f8',
     borderColor: '#fbcfe8',
     desc: 'Upload progress images and inspection videos visible to client'
+  },
+  {
+    id: 'extra-work',
+    tabIndex: 8,
+    title: 'Extra Work & Variations',
+    subtitle: 'Change orders & client approval',
+    shortTitle: 'Extra Work (➕)',
+    icon: <PostAddIcon sx={{ fontSize: 24 }} />,
+    color: '#0284c7',
+    bg: '#f0f9ff',
+    borderColor: '#bae6fd',
+    desc: 'Record additional client-requested works, estimated costs, and track approval status'
+  },
+  {
+    id: 'snags',
+    tabIndex: 9,
+    title: 'Snag List & Feedback',
+    subtitle: 'Site defects & voice notes tracker',
+    shortTitle: 'Snag List (🔍)',
+    icon: <FactCheckIcon sx={{ fontSize: 24 }} />,
+    color: '#e11d48',
+    bg: '#fff1f2',
+    borderColor: '#fecdd3',
+    desc: 'Inspect client-reported snags with photos and audio voice recordings, mark resolved'
   }
 ];
 
@@ -317,6 +353,158 @@ const ClientDetailView = () => {
   const [savingPayment, setSavingPayment] = useState(false);
   const [savingMaterialExpense, setSavingMaterialExpense] = useState(false);
   const [savingOtherExpense, setSavingOtherExpense] = useState(false);
+
+  // Extra Work / Change Orders state
+  const [extraWorkDialogOpen, setExtraWorkDialogOpen] = useState(false);
+  const [editingExtraWork, setEditingExtraWork] = useState(null);
+  const [savingExtraWork, setSavingExtraWork] = useState(false);
+  const [extraWorkForm, setExtraWorkForm] = useState({
+    title: '',
+    description: '',
+    cost: '',
+    stepTitle: '',
+    sendToClient: true,
+    status: 'pending_approval'
+  });
+
+  // Snag List (Issues & Voice Notes) state
+  const [resolveSnagDialogOpen, setResolveSnagDialogOpen] = useState(false);
+  const [resolvingSnag, setResolvingSnag] = useState(null);
+  const [resolutionStatus, setResolutionStatus] = useState('resolved');
+  const [resolutionNote, setResolutionNote] = useState('');
+  const [savingSnagResolution, setSavingSnagResolution] = useState(false);
+  const [snagFilter, setSnagFilter] = useState('all'); // 'all', 'pending', 'resolved'
+  const [selectedSnagPhoto, setSelectedSnagPhoto] = useState(null);
+
+  // Extra Work Handlers
+  const handleOpenAddExtraWork = () => {
+    setEditingExtraWork(null);
+    setExtraWorkForm({
+      title: '',
+      description: '',
+      cost: '',
+      stepTitle: '',
+      sendToClient: true,
+      status: 'pending_approval'
+    });
+    setExtraWorkDialogOpen(true);
+  };
+
+  const handleOpenEditExtraWork = (work) => {
+    setEditingExtraWork(work);
+    setExtraWorkForm({
+      title: work.title || '',
+      description: work.description || '',
+      cost: work.cost || '',
+      stepTitle: work.stepTitle || '',
+      sendToClient: work.sendToClient !== false,
+      status: work.status || 'pending_approval'
+    });
+    setExtraWorkDialogOpen(true);
+  };
+
+  const handleSaveExtraWork = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!extraWorkForm.title || !extraWorkForm.cost) {
+      setSnackbar({ open: true, message: 'Please enter Title and Cost for extra work', severity: 'warning' });
+      return;
+    }
+    setSavingExtraWork(true);
+    try {
+      const payload = {
+        title: extraWorkForm.title,
+        description: extraWorkForm.description,
+        cost: Number(extraWorkForm.cost),
+        stepTitle: extraWorkForm.stepTitle,
+        sendToClient: extraWorkForm.sendToClient,
+        status: extraWorkForm.sendToClient ? (editingExtraWork ? extraWorkForm.status : 'pending_approval') : 'approved'
+      };
+
+      if (editingExtraWork) {
+        await axiosInstance.put(`/clients/${id}/extra-work/${editingExtraWork._id}`, payload);
+        setSnackbar({ open: true, message: 'Extra work updated successfully', severity: 'success' });
+      } else {
+        await axiosInstance.post(`/clients/${id}/extra-work`, payload);
+        setSnackbar({
+          open: true,
+          message: extraWorkForm.sendToClient
+            ? 'Extra work added and approval request sent to client!'
+            : 'Extra work added and recorded as approved.',
+          severity: 'success'
+        });
+      }
+      setExtraWorkDialogOpen(false);
+      fetchClientDetails(selectedMaterialFilter);
+    } catch (err) {
+      console.error('Error saving extra work:', err);
+      setSnackbar({ open: true, message: err.response?.data?.message || 'Failed to save extra work', severity: 'error' });
+    } finally {
+      setSavingExtraWork(false);
+    }
+  };
+
+  const handleDeleteExtraWork = async (workId) => {
+    if (!window.confirm('Are you sure you want to delete this extra work record?')) return;
+    try {
+      await axiosInstance.delete(`/clients/${id}/extra-work/${workId}`);
+      setSnackbar({ open: true, message: 'Extra work deleted successfully', severity: 'success' });
+      fetchClientDetails(selectedMaterialFilter);
+    } catch (err) {
+      console.error('Error deleting extra work:', err);
+      setSnackbar({ open: true, message: 'Failed to delete extra work', severity: 'error' });
+    }
+  };
+
+  const handleDirectChangeExtraWorkStatus = async (workId, newStatus) => {
+    try {
+      await axiosInstance.put(`/clients/${id}/extra-work/${workId}`, { status: newStatus });
+      setSnackbar({ open: true, message: `Status updated to ${newStatus}`, severity: 'success' });
+      fetchClientDetails(selectedMaterialFilter);
+    } catch (err) {
+      console.error('Error updating status:', err);
+      setSnackbar({ open: true, message: 'Failed to update status', severity: 'error' });
+    }
+  };
+
+  // Snag Resolution Handlers
+  const handleOpenResolveSnag = (snag) => {
+    setResolvingSnag(snag);
+    setResolutionStatus(snag.status === 'resolved' ? 'resolved' : 'resolved');
+    setResolutionNote(snag.resolutionNote || '');
+    setResolveSnagDialogOpen(true);
+  };
+
+  const handleSaveSnagResolution = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    if (!resolvingSnag) return;
+    setSavingSnagResolution(true);
+    try {
+      await axiosInstance.put(`/clients/${id}/snags/${resolvingSnag._id}/resolve`, {
+        status: resolutionStatus,
+        resolutionNote
+      });
+      setSnackbar({ open: true, message: `Issue marked as ${resolutionStatus}`, severity: 'success' });
+      setResolveSnagDialogOpen(false);
+      fetchClientDetails(selectedMaterialFilter);
+    } catch (err) {
+      console.error('Error updating snag status:', err);
+      setSnackbar({ open: true, message: 'Failed to update issue status', severity: 'error' });
+    } finally {
+      setSavingSnagResolution(false);
+    }
+  };
+
+  const handleDeleteSnag = async (snagId) => {
+    if (!window.confirm('Are you sure you want to delete this issue record?')) return;
+    try {
+      await axiosInstance.delete(`/clients/${id}/snags/${snagId}`);
+      setSnackbar({ open: true, message: 'Issue deleted successfully', severity: 'success' });
+      fetchClientDetails(selectedMaterialFilter);
+    } catch (err) {
+      console.error('Error deleting snag:', err);
+      setSnackbar({ open: true, message: 'Failed to delete issue', severity: 'error' });
+    }
+  };
 
   // Labour & Mistri States
   const [labourers, setLabourers] = useState([]);
@@ -1742,7 +1930,7 @@ _श्री विश्वकर्मा बिल्ड एंड फर्
                 </Typography>
               </Box>
               <Chip
-                label="8 Dedicated Pages Available"
+                label="10 Dedicated Pages Available"
                 variant="outlined"
                 sx={{ borderColor: '#D4AF37', color: '#b8860b', fontWeight: 800, bgcolor: 'rgba(212,175,55,0.08)' }}
               />
@@ -1778,6 +1966,18 @@ _श्री विश्वकर्मा बिल्ड एंड फर्
                 } else if (sec.id === 'media') {
                   primaryStat = `${(clientData.siteMedia || []).length} Photos & Videos`;
                   secondaryStat = 'Live site progress visual gallery';
+                } else if (sec.id === 'extra-work') {
+                  const approvedTotal = (clientData.extraWorks || [])
+                    .filter((w) => w.status === 'approved')
+                    .reduce((sum, w) => sum + (Number(w.cost) || 0), 0);
+                  const pendingCount = (clientData.extraWorks || []).filter((w) => w.status === 'pending_approval').length;
+                  primaryStat = `₹ ${Number(approvedTotal).toLocaleString('en-IN')} Approved Extra`;
+                  secondaryStat = `${pendingCount} pending approval | ${(clientData.extraWorks || []).length} total`;
+                } else if (sec.id === 'snags') {
+                  const resolvedCount = (clientData.snags || []).filter((s) => s.status === 'resolved').length;
+                  const openCount = (clientData.snags || []).filter((s) => s.status !== 'resolved').length;
+                  primaryStat = `${openCount} Open Issues / Snags`;
+                  secondaryStat = `${resolvedCount} resolved | ${(clientData.snags || []).length} total feedback`;
                 }
 
                 return (
@@ -4267,6 +4467,474 @@ _श्री विश्वकर्मा बिल्ड एंड फर्
           )}
         </Box>
       )}
+
+      {/* ========================================================================= */}
+      {/* TAB 8: Extra Work / Change Order Variations */}
+      {/* ========================================================================= */}
+      {activeTab === 8 && (
+        <Box>
+          {/* Header */}
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 1.5, mb: 2.5 }}>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 800, color: '#111', display: 'flex', alignItems: 'center', gap: 1 }}>
+                <PostAddIcon sx={{ color: '#0284c7' }} />
+                Extra Work & Variations (➕ एक्स्ट्रा काम एवं बदलाव ट्रैकर)
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#666' }}>
+                Add client-requested extra items (wardrobe, grill, design tweaks), set cost, and choose whether to send for Client Approval.
+              </Typography>
+            </Box>
+            <Button
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleOpenAddExtraWork}
+              sx={{
+                bgcolor: '#0284c7',
+                color: '#fff',
+                fontWeight: 800,
+                px: 2.5,
+                py: 1,
+                borderRadius: 2,
+                boxShadow: '0 4px 12px rgba(2, 132, 199, 0.25)',
+                '&:hover': { bgcolor: '#0369a1' }
+              }}
+            >
+              + Add Extra Work (एक्स्ट्रा काम जोड़ें)
+            </Button>
+          </Box>
+
+          {/* Financial Snapshot Cards for Extra Work */}
+          <Grid container spacing={2} sx={{ mb: 3 }}>
+            <Grid item xs={12} sm={4}>
+              <Card sx={{ bgcolor: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: 2 }}>
+                <CardContent sx={{ py: 1.8, px: 2.2 }}>
+                  <Typography variant="caption" sx={{ color: '#059669', fontWeight: 800, textTransform: 'uppercase' }}>
+                    Approved Extra Cost (स्वीकृत एक्स्ट्रा)
+                  </Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 900, color: '#059669', mt: 0.5 }}>
+                    ₹ {Number((clientData.extraWorks || []).filter(w => w.status === 'approved').reduce((sum, w) => sum + (Number(w.cost) || 0), 0)).toLocaleString('en-IN')}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#065f46', display: 'block', mt: 0.3 }}>
+                    Added to client's revised bill
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Card sx={{ bgcolor: '#fffbeb', border: '1px solid #fde68a', borderRadius: 2 }}>
+                <CardContent sx={{ py: 1.8, px: 2.2 }}>
+                  <Typography variant="caption" sx={{ color: '#b45309', fontWeight: 800, textTransform: 'uppercase' }}>
+                    Pending Client Approval (प्रतीक्षारत)
+                  </Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 900, color: '#d97706', mt: 0.5 }}>
+                    ₹ {Number((clientData.extraWorks || []).filter(w => w.status === 'pending_approval').reduce((sum, w) => sum + (Number(w.cost) || 0), 0)).toLocaleString('en-IN')}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#92400e', display: 'block', mt: 0.3 }}>
+                    {(clientData.extraWorks || []).filter(w => w.status === 'pending_approval').length} request(s) awaiting client's confirmation
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} sm={4}>
+              <Card sx={{ bgcolor: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: 2 }}>
+                <CardContent sx={{ py: 1.8, px: 2.2 }}>
+                  <Typography variant="caption" sx={{ color: '#0284c7', fontWeight: 800, textTransform: 'uppercase' }}>
+                    Revised Total Contract (संशोधित कुल बजट)
+                  </Typography>
+                  <Typography variant="h5" sx={{ fontWeight: 900, color: '#0369a1', mt: 0.5 }}>
+                    ₹ {Number((financials?.contractAmount || clientData.contractAmount || 0) + (clientData.extraWorks || []).filter(w => w.status === 'approved').reduce((sum, w) => sum + (Number(w.cost) || 0), 0)).toLocaleString('en-IN')}
+                  </Typography>
+                  <Typography variant="caption" sx={{ color: '#075985', display: 'block', mt: 0.3 }}>
+                    Original: ₹ {Number(financials?.contractAmount || clientData.contractAmount || 0).toLocaleString('en-IN')}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          </Grid>
+
+          {/* Table / List of Extra Works */}
+          {(!clientData.extraWorks || clientData.extraWorks.length === 0) ? (
+            <Paper sx={{ p: 6, textAlign: 'center', bgcolor: '#fafafa', borderRadius: 3, border: '2px dashed #ddd' }}>
+              <PostAddIcon sx={{ fontSize: 50, color: '#cbd5e1', mb: 1.5 }} />
+              <Typography variant="h6" sx={{ fontWeight: 700, color: '#64748b', mb: 0.5 }}>
+                No Extra Work Recorded
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#94a3b8', maxWidth: 460, mx: 'auto', mb: 2.5 }}>
+                If client requests any extra carpentry, metalwork, electrical or flooring changes during construction, record them here. You can decide whether to send an approval request to the client!
+              </Typography>
+              <Button variant="contained" startIcon={<AddIcon />} onClick={handleOpenAddExtraWork} sx={{ bgcolor: '#0284c7', '&:hover': { bgcolor: '#0369a1' } }}>
+                Add First Extra Work
+              </Button>
+            </Paper>
+          ) : (
+            <TableContainer component={Paper} sx={{ borderRadius: 2.5, boxShadow: '0 2px 8px rgba(0,0,0,0.04)', border: '1px solid #e5e7eb' }}>
+              <Table>
+                <TableHead sx={{ bgcolor: '#f8fafc' }}>
+                  <TableRow>
+                    <TableCell sx={{ fontWeight: 800, color: '#334155' }}>Extra Work Title & Scope</TableCell>
+                    <TableCell sx={{ fontWeight: 800, color: '#334155' }}>Milestone Stage</TableCell>
+                    <TableCell sx={{ fontWeight: 800, color: '#334155' }}>Cost (₹)</TableCell>
+                    <TableCell sx={{ fontWeight: 800, color: '#334155' }}>Client Request Sent?</TableCell>
+                    <TableCell sx={{ fontWeight: 800, color: '#334155' }}>Status & Feedback</TableCell>
+                    <TableCell align="right" sx={{ fontWeight: 800, color: '#334155' }}>Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {clientData.extraWorks.map((work) => {
+                    const isApproved = work.status === 'approved';
+                    const isPending = work.status === 'pending_approval';
+                    const isRejected = work.status === 'rejected';
+
+                    return (
+                      <TableRow key={work._id} hover sx={{ '&:last-child td, &:last-child th': { border: 0 } }}>
+                        <TableCell>
+                          <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#1e293b' }}>
+                            {work.title}
+                          </Typography>
+                          {work.description && (
+                            <Typography variant="body2" sx={{ color: '#64748b', fontSize: '0.8rem', mt: 0.3, maxWidth: 360 }}>
+                              {work.description}
+                            </Typography>
+                          )}
+                          <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block', mt: 0.5, fontSize: '0.72rem' }}>
+                            Added: {new Date(work.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          {work.stepTitle ? (
+                            <Chip label={work.stepTitle} size="small" sx={{ bgcolor: '#f1f5f9', color: '#475569', fontWeight: 600, fontSize: '0.75rem' }} />
+                          ) : (
+                            <Typography variant="caption" sx={{ color: '#94a3b8' }}>General Site Work</Typography>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Typography sx={{ fontWeight: 900, color: '#0f172a', fontSize: '0.95rem' }}>
+                            ₹ {Number(work.cost).toLocaleString('en-IN')}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          {work.sendToClient ? (
+                            <Chip
+                              label="Yes, Sent to Client"
+                              size="small"
+                              color="primary"
+                              variant="outlined"
+                              sx={{ fontWeight: 700, fontSize: '0.73rem' }}
+                            />
+                          ) : (
+                            <Chip
+                              label="No (Direct Internal)"
+                              size="small"
+                              sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontWeight: 700, fontSize: '0.73rem' }}
+                            />
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                            {isApproved && (
+                              <Chip
+                                icon={<CheckCircleIcon sx={{ fontSize: '15px !important', color: '#16a34a !important' }} />}
+                                label="Approved (स्वीकृत)"
+                                size="small"
+                                sx={{ bgcolor: '#dcfce7', color: '#15803d', fontWeight: 800, fontSize: '0.75rem', width: 'fit-content' }}
+                              />
+                            )}
+                            {isPending && (
+                              <Chip
+                                icon={<PendingActionsIcon sx={{ fontSize: '15px !important', color: '#d97706 !important' }} />}
+                                label="Pending Approval (प्रतीक्षारत)"
+                                size="small"
+                                sx={{ bgcolor: '#fef3c7', color: '#b45309', fontWeight: 800, fontSize: '0.75rem', width: 'fit-content' }}
+                              />
+                            )}
+                            {isRejected && (
+                              <Chip
+                                icon={<CloseIcon sx={{ fontSize: '15px !important', color: '#dc2626 !important' }} />}
+                                label="Declined (अस्वीकृत)"
+                                size="small"
+                                sx={{ bgcolor: '#fee2e2', color: '#b91c1c', fontWeight: 800, fontSize: '0.75rem', width: 'fit-content' }}
+                              />
+                            )}
+                            {work.status === 'draft' && (
+                              <Chip
+                                label="Draft (ड्राफ्ट)"
+                                size="small"
+                                sx={{ bgcolor: '#f1f5f9', color: '#64748b', fontWeight: 700, fontSize: '0.75rem', width: 'fit-content' }}
+                              />
+                            )}
+                            {work.clientResponseNote && (
+                              <Typography variant="caption" sx={{ color: '#475569', bgcolor: '#f8fafc', p: 0.6, borderRadius: 1, border: '1px solid #e2e8f0', mt: 0.4 }}>
+                                💬 Client Note: <em>"{work.clientResponseNote}"</em>
+                              </Typography>
+                            )}
+                            {work.clientRespondedAt && (
+                              <Typography variant="caption" sx={{ color: '#94a3b8', fontSize: '0.68rem' }}>
+                                Responded: {new Date(work.clientRespondedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' })}
+                              </Typography>
+                            )}
+                          </Box>
+                        </TableCell>
+                        <TableCell align="right">
+                          <Box sx={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', gap: 0.5 }}>
+                            {isPending && (
+                              <Tooltip title="Mark Approved directly">
+                                <IconButton
+                                  size="small"
+                                  color="success"
+                                  onClick={() => handleDirectChangeExtraWorkStatus(work._id, 'approved')}
+                                >
+                                  <ThumbUpIcon sx={{ fontSize: 18 }} />
+                                </IconButton>
+                              </Tooltip>
+                            )}
+                            <Tooltip title="Edit extra work">
+                              <IconButton size="small" onClick={() => handleOpenEditExtraWork(work)}>
+                                <EditIcon sx={{ fontSize: 18, color: '#64748b' }} />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title="Delete record">
+                              <IconButton size="small" color="error" onClick={() => handleDeleteExtraWork(work._id)}>
+                                <DeleteIcon sx={{ fontSize: 18 }} />
+                              </IconButton>
+                            </Tooltip>
+                          </Box>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </Box>
+      )}
+
+      {/* ========================================================================= */}
+      {/* TAB 9: Snag List / Site Defects & Feedback Tracker */}
+      {/* ========================================================================= */}
+      {activeTab === 9 && (
+        <Box>
+          {/* Header */}
+          <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'space-between', alignItems: { xs: 'flex-start', sm: 'center' }, gap: 1.5, mb: 2.5 }}>
+            <Box>
+              <Typography variant="h6" sx={{ fontWeight: 800, color: '#111', display: 'flex', alignItems: 'center', gap: 1 }}>
+                <FactCheckIcon sx={{ color: '#e11d48' }} />
+                Snag List & Client Feedback (🔍 कमी-सुधार ट्रैकर)
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#666' }}>
+                Issues reported by client during construction or finishing. Listen to voice notes, inspect photos, and mark resolved.
+              </Typography>
+            </Box>
+
+            {/* Filter Chips */}
+            <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+              <Chip
+                label={`All Issues (${(clientData.snags || []).length})`}
+                onClick={() => setSnagFilter('all')}
+                sx={{
+                  bgcolor: snagFilter === 'all' ? '#111' : '#f0f0f0',
+                  color: snagFilter === 'all' ? '#D4AF37' : '#555',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              />
+              <Chip
+                label={`Pending / Open (${(clientData.snags || []).filter(s => s.status !== 'resolved').length})`}
+                onClick={() => setSnagFilter('pending')}
+                sx={{
+                  bgcolor: snagFilter === 'pending' ? '#e11d48' : '#f0f0f0',
+                  color: snagFilter === 'pending' ? '#fff' : '#555',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              />
+              <Chip
+                label={`Resolved (${(clientData.snags || []).filter(s => s.status === 'resolved').length})`}
+                onClick={() => setSnagFilter('resolved')}
+                sx={{
+                  bgcolor: snagFilter === 'resolved' ? '#059669' : '#f0f0f0',
+                  color: snagFilter === 'resolved' ? '#fff' : '#555',
+                  fontWeight: 700,
+                  cursor: 'pointer'
+                }}
+              />
+            </Box>
+          </Box>
+
+          {/* Snag items list */}
+          {(!clientData.snags || clientData.snags.length === 0) ? (
+            <Paper sx={{ p: 6, textAlign: 'center', bgcolor: '#fafafa', borderRadius: 3, border: '2px dashed #ddd' }}>
+              <FactCheckIcon sx={{ fontSize: 50, color: '#cbd5e1', mb: 1.5 }} />
+              <Typography variant="h6" sx={{ fontWeight: 700, color: '#64748b', mb: 0.5 }}>
+                No Snag or Defect Reported
+              </Typography>
+              <Typography variant="body2" sx={{ color: '#94a3b8', maxWidth: 460, mx: 'auto' }}>
+                The client has not submitted any issue yet. When they report any defect (tile crack, switch alignment, paint touchup) from their app or portal, it will show here with their photo and voice note!
+              </Typography>
+            </Paper>
+          ) : (
+            <Grid container spacing={2.5}>
+              {clientData.snags
+                .filter((snag) => {
+                  if (snagFilter === 'pending') return snag.status !== 'resolved';
+                  if (snagFilter === 'resolved') return snag.status === 'resolved';
+                  return true;
+                })
+                .map((snag) => {
+                  const isResolved = snag.status === 'resolved';
+                  const imageUrl = snag.imageUrl ? getStaticAssetUrl(snag.imageUrl) : '';
+                  const voiceUrl = snag.voiceNoteUrl ? getStaticAssetUrl(snag.voiceNoteUrl) : '';
+
+                  return (
+                    <Grid item xs={12} md={6} key={snag._id}>
+                      <Paper
+                        sx={{
+                          p: 2.5,
+                          borderRadius: 2.5,
+                          border: isResolved ? '1px solid #86efac' : '1px solid #fca5a5',
+                          bgcolor: isResolved ? '#f0fdf4' : '#fff',
+                          boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: 1.5
+                        }}
+                      >
+                        {/* Top Bar: Title, Badge, Date */}
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 1 }}>
+                          <Box>
+                            <Typography variant="h6" sx={{ fontWeight: 800, color: '#0f172a', fontSize: '1rem', lineHeight: 1.3 }}>
+                              {snag.title}
+                            </Typography>
+                            {snag.stepTitle && (
+                              <Chip
+                                label={snag.stepTitle}
+                                size="small"
+                                sx={{ bgcolor: '#e2e8f0', color: '#334155', fontWeight: 600, fontSize: '0.72rem', mt: 0.5 }}
+                              />
+                            )}
+                          </Box>
+                          <Box sx={{ textAlign: 'right', flexShrink: 0 }}>
+                            {isResolved ? (
+                              <Chip
+                                icon={<CheckCircleIcon sx={{ fontSize: '15px !important', color: '#16a34a !important' }} />}
+                                label="Resolved (ठीक हो गया ✓)"
+                                size="small"
+                                sx={{ bgcolor: '#dcfce7', color: '#15803d', fontWeight: 800, fontSize: '0.75rem' }}
+                              />
+                            ) : (
+                              <Chip
+                                icon={<PendingActionsIcon sx={{ fontSize: '15px !important', color: '#dc2626 !important' }} />}
+                                label="Pending Inspection (कमी दर्ज)"
+                                size="small"
+                                sx={{ bgcolor: '#fee2e2', color: '#b91c1c', fontWeight: 800, fontSize: '0.75rem' }}
+                              />
+                            )}
+                            <Typography variant="caption" sx={{ color: '#94a3b8', display: 'block', mt: 0.5, fontSize: '0.7rem' }}>
+                              {new Date(snag.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                            </Typography>
+                          </Box>
+                        </Box>
+
+                        {/* Description */}
+                        {snag.description && (
+                          <Typography variant="body2" sx={{ color: '#475569', fontSize: '0.85rem', bgcolor: 'rgba(0,0,0,0.02)', p: 1, borderRadius: 1.5 }}>
+                            {snag.description}
+                          </Typography>
+                        )}
+
+                        {/* Media Content: Image and Audio */}
+                        <Grid container spacing={1.5} alignItems="center">
+                          {/* Image Thumbnail */}
+                          {imageUrl && (
+                            <Grid item xs={12} sm={imageUrl && voiceUrl ? 5 : 12}>
+                              <Box
+                                onClick={() => setSelectedSnagPhoto(imageUrl)}
+                                sx={{
+                                  height: 140,
+                                  borderRadius: 2,
+                                  overflow: 'hidden',
+                                  position: 'relative',
+                                  cursor: 'pointer',
+                                  border: '1px solid #e2e8f0',
+                                  bgcolor: '#000',
+                                  '&:hover img': { transform: 'scale(1.05)' }
+                                }}
+                              >
+                                <img
+                                  src={imageUrl}
+                                  alt={snag.title}
+                                  style={{ width: '100%', height: '100%', objectFit: 'cover', transition: 'transform 0.2s ease' }}
+                                />
+                                <Box sx={{ position: 'absolute', bottom: 6, right: 6, bgcolor: 'rgba(0,0,0,0.7)', color: '#fff', px: 1, py: 0.2, borderRadius: 1, fontSize: '0.7rem', fontWeight: 700 }}>
+                                  🔍 View Full
+                                </Box>
+                              </Box>
+                            </Grid>
+                          )}
+
+                          {/* Audio Voice Note Player */}
+                          {voiceUrl && (
+                            <Grid item xs={12} sm={imageUrl && voiceUrl ? 7 : 12}>
+                              <Box sx={{ bgcolor: '#f8fafc', p: 1.5, borderRadius: 2, border: '1px solid #e2e8f0' }}>
+                                <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 0.6, mb: 0.8 }}>
+                                  <MicIcon sx={{ fontSize: 16, color: '#e11d48' }} />
+                                  Client Voice Note (क्लाइंट की आवाज़)
+                                </Typography>
+                                <audio controls src={voiceUrl} style={{ width: '100%', height: 38 }} />
+                              </Box>
+                            </Grid>
+                          )}
+                        </Grid>
+
+                        {/* Resolution Notes Box */}
+                        {isResolved && (
+                          <Box sx={{ bgcolor: '#ecfdf5', p: 1.2, borderRadius: 1.5, border: '1px solid #a7f3d0' }}>
+                            <Typography variant="caption" sx={{ color: '#047857', fontWeight: 800, display: 'block' }}>
+                              ✓ Resolution Details (समाधान विवरण):
+                            </Typography>
+                            <Typography variant="body2" sx={{ color: '#065f46', fontSize: '0.82rem', mt: 0.3 }}>
+                              {snag.resolutionNote || 'Marked as resolved by Admin'}
+                            </Typography>
+                            {snag.resolvedAt && (
+                              <Typography variant="caption" sx={{ color: '#059669', display: 'block', mt: 0.5, fontSize: '0.7rem' }}>
+                                Resolved on: {new Date(snag.resolvedAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}
+                              </Typography>
+                            )}
+                          </Box>
+                        )}
+
+                        {/* Action Buttons */}
+                        <Divider sx={{ my: 0.5 }} />
+                        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                          <Button
+                            variant={isResolved ? "outlined" : "contained"}
+                            color={isResolved ? "success" : "primary"}
+                            size="small"
+                            startIcon={<CheckCircleIcon />}
+                            onClick={() => handleOpenResolveSnag(snag)}
+                            sx={{
+                              fontWeight: 700,
+                              textTransform: 'none',
+                              borderRadius: 1.5,
+                              fontSize: '0.8rem',
+                              bgcolor: !isResolved ? '#059669' : undefined,
+                              '&:hover': !isResolved ? { bgcolor: '#047857' } : undefined
+                            }}
+                          >
+                            {isResolved ? 'Update Resolution Note' : '✓ Mark as Resolved (ठीक हो गया)'}
+                          </Button>
+                          <IconButton size="small" color="error" onClick={() => handleDeleteSnag(snag._id)} title="Delete snag record">
+                            <DeleteIcon sx={{ fontSize: 18 }} />
+                          </IconButton>
+                        </Box>
+                      </Paper>
+                    </Grid>
+                  );
+                })}
+            </Grid>
+          )}
+        </Box>
+      )}
         </>
       )}
 
@@ -5500,6 +6168,210 @@ _श्री विश्वकर्मा बिल्ड एंड फर्
             भुगतान दर्ज करें {payLabourForm.sendWhatsApp ? '& WhatsApp भेजें' : ''}
           </Button>
         </DialogActions>
+      </Dialog>
+
+      {/* ========================================================================= */}
+      {/* DIALOG: Add / Edit Extra Work */}
+      {/* ========================================================================= */}
+      <Dialog open={extraWorkDialogOpen} onClose={() => !savingExtraWork && setExtraWorkDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ bgcolor: '#0f172a', color: '#fff', fontWeight: 800, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>{editingExtraWork ? 'Edit Extra Work (एक्स्ट्रा काम एडिट करें)' : 'Add Extra Work (एक्स्ट्रा काम जोड़ें)'}</span>
+          <IconButton size="small" onClick={() => setExtraWorkDialogOpen(false)} disabled={savingExtraWork} sx={{ color: '#fff' }}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <form onSubmit={handleSaveExtraWork}>
+          <DialogContent sx={{ pt: 3 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.2, mt: 1 }}>
+              <TextField
+                label="Extra Work Title (काम का शीर्षक) *"
+                fullWidth
+                required
+                value={extraWorkForm.title}
+                onChange={(e) => setExtraWorkForm({ ...extraWorkForm, title: e.target.value })}
+                placeholder="e.g. बालकनी में सेफ्टी ग्रिल लगाना / एक्स्ट्रा अलमारी"
+              />
+
+              <TextField
+                label="Estimated Cost (लागत राशि ₹) *"
+                type="number"
+                fullWidth
+                required
+                value={extraWorkForm.cost}
+                onChange={(e) => setExtraWorkForm({ ...extraWorkForm, cost: e.target.value })}
+                placeholder="e.g. 15000"
+                InputProps={{
+                  startAdornment: <InputAdornment position="start">₹</InputAdornment>
+                }}
+              />
+
+              <TextField
+                select
+                label="Related Construction Milestone (संबंधित चरण)"
+                fullWidth
+                value={extraWorkForm.stepTitle}
+                onChange={(e) => setExtraWorkForm({ ...extraWorkForm, stepTitle: e.target.value })}
+                helperText="काम किस चरण से जुड़ा हुआ है (वैकल्पिक)"
+              >
+                <MenuItem value="">— General / Not Step Specific (सामान्य) —</MenuItem>
+                {(clientData.steps || []).map((step, idx) => (
+                  <MenuItem key={idx} value={step.title}>
+                    {step.title}
+                  </MenuItem>
+                ))}
+              </TextField>
+
+              <TextField
+                label="Scope of Work / Description (विवरण)"
+                multiline
+                rows={3}
+                fullWidth
+                value={extraWorkForm.description}
+                onChange={(e) => setExtraWorkForm({ ...extraWorkForm, description: e.target.value })}
+                placeholder="e.g. 16 गेज स्टील पाइप ग्रिल, पेंटिंग सहित सामग्री व लेबर खर्च"
+              />
+
+              {/* Admin Selection: Send Request to Client for Approval */}
+              <Box sx={{ p: 2, bgcolor: '#f8fafc', borderRadius: 2, border: '1px solid #e2e8f0' }}>
+                <FormControlLabel
+                  control={
+                    <Switch
+                      checked={extraWorkForm.sendToClient}
+                      onChange={(e) => setExtraWorkForm({ ...extraWorkForm, sendToClient: e.target.checked })}
+                      color="primary"
+                    />
+                  }
+                  label={
+                    <Typography sx={{ fontWeight: 800, color: '#0f172a', fontSize: '0.9rem' }}>
+                      Send Approval Request to Client (क्लाइंट को स्वीकृति हेतु भेजें)
+                    </Typography>
+                  }
+                />
+                <Typography variant="caption" sx={{ color: '#64748b', display: 'block', mt: 0.5, lineHeight: 1.4 }}>
+                  {extraWorkForm.sendToClient
+                    ? "✓ Client will see this in their portal and can click 'Approve' or 'Decline'. Cost will be added to contract upon client's approval."
+                    : "✕ Direct internal addition. Will be recorded as 'Approved' immediately without sending an approval request to the client."}
+                </Typography>
+              </Box>
+
+              {editingExtraWork && (
+                <TextField
+                  select
+                  label="Direct Status Override (स्थिति)"
+                  fullWidth
+                  value={extraWorkForm.status}
+                  onChange={(e) => setExtraWorkForm({ ...extraWorkForm, status: e.target.value })}
+                >
+                  <MenuItem value="pending_approval">⏳ Pending Approval</MenuItem>
+                  <MenuItem value="approved">✓ Approved</MenuItem>
+                  <MenuItem value="rejected">✕ Rejected / Declined</MenuItem>
+                  <MenuItem value="draft">📝 Draft</MenuItem>
+                </TextField>
+              )}
+            </Box>
+          </DialogContent>
+          <DialogActions sx={{ p: 2, bgcolor: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
+            <Button onClick={() => setExtraWorkDialogOpen(false)} disabled={savingExtraWork} sx={{ color: '#64748b' }}>
+              Cancel (रद्द करें)
+            </Button>
+            <Button
+              type="submit"
+              variant="contained"
+              disabled={savingExtraWork}
+              sx={{ bgcolor: '#0284c7', color: '#fff', fontWeight: 800, '&:hover': { bgcolor: '#0369a1' } }}
+            >
+              {savingExtraWork ? <CircularProgress size={20} sx={{ color: '#fff', mr: 1 }} /> : null}
+              {editingExtraWork ? 'Update Extra Work' : 'Save Extra Work (दर्ज करें)'}
+            </Button>
+          </DialogActions>
+        </form>
+      </Dialog>
+
+      {/* ========================================================================= */}
+      {/* DIALOG: Resolve Snag Issue */}
+      {/* ========================================================================= */}
+      <Dialog open={resolveSnagDialogOpen} onClose={() => !savingSnagResolution && setResolveSnagDialogOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle sx={{ bgcolor: '#059669', color: '#fff', fontWeight: 800, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span>Resolve Defect / Issue (कमी सुधार समाधान)</span>
+          <IconButton size="small" onClick={() => setResolveSnagDialogOpen(false)} disabled={savingSnagResolution} sx={{ color: '#fff' }}>
+            <CloseIcon />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent sx={{ pt: 3 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.2, mt: 1 }}>
+            <Box sx={{ p: 1.5, bgcolor: '#f8fafc', borderRadius: 2, border: '1px solid #e2e8f0' }}>
+              <Typography variant="caption" sx={{ color: '#64748b', fontWeight: 700 }}>
+                REPORTED ISSUE:
+              </Typography>
+              <Typography variant="subtitle1" sx={{ fontWeight: 800, color: '#0f172a' }}>
+                {resolvingSnag?.title}
+              </Typography>
+              {resolvingSnag?.description && (
+                <Typography variant="body2" sx={{ color: '#475569', mt: 0.5 }}>
+                  {resolvingSnag.description}
+                </Typography>
+              )}
+            </Box>
+
+            <TextField
+              select
+              label="Resolution Status (स्थिति) *"
+              fullWidth
+              value={resolutionStatus}
+              onChange={(e) => setResolutionStatus(e.target.value)}
+            >
+              <MenuItem value="resolved">✓ Resolved (कमी ठीक हो गई - Complete)</MenuItem>
+              <MenuItem value="in_progress">⚙️ In Progress (काम जारी है - Under Review)</MenuItem>
+              <MenuItem value="pending">⏳ Pending (पुनः लंबित करें)</MenuItem>
+            </TextField>
+
+            <TextField
+              label="Resolution Remarks / Action Taken (समाधान विवरण) *"
+              multiline
+              rows={3}
+              fullWidth
+              value={resolutionNote}
+              onChange={(e) => setResolutionNote(e.target.value)}
+              placeholder="e.g. मिस्त्री भेजकर स्विच बोर्ड सीधा करवा दिया गया है और पेंट टचअप हो चुका है।"
+              helperText="यह विवरण क्लाइंट के पोर्टल पर दिखेगा जिससे उन्हें सुधार की पुष्टि हो सके।"
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2, bgcolor: '#f8fafc', borderTop: '1px solid #e2e8f0' }}>
+          <Button onClick={() => setResolveSnagDialogOpen(false)} disabled={savingSnagResolution} sx={{ color: '#64748b' }}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSaveSnagResolution}
+            variant="contained"
+            disabled={savingSnagResolution}
+            sx={{ bgcolor: '#059669', color: '#fff', fontWeight: 800, '&:hover': { bgcolor: '#047857' } }}
+          >
+            {savingSnagResolution ? <CircularProgress size={20} sx={{ color: '#fff', mr: 1 }} /> : null}
+            Save Resolution (सहेजें)
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ========================================================================= */}
+      {/* DIALOG: Full Preview Lightbox for Snag Photo */}
+      {/* ========================================================================= */}
+      <Dialog open={Boolean(selectedSnagPhoto)} onClose={() => setSelectedSnagPhoto(null)} maxWidth="md" fullWidth>
+        <Box sx={{ position: 'relative', bgcolor: '#000', p: 1, textAlign: 'center' }}>
+          <IconButton
+            onClick={() => setSelectedSnagPhoto(null)}
+            sx={{ position: 'absolute', top: 12, right: 12, color: '#fff', bgcolor: 'rgba(0,0,0,0.6)', '&:hover': { bgcolor: 'rgba(0,0,0,0.9)' } }}
+          >
+            <CloseIcon />
+          </IconButton>
+          {selectedSnagPhoto && (
+            <img
+              src={selectedSnagPhoto}
+              alt="Snag Detail"
+              style={{ maxWidth: '100%', maxHeight: '80vh', objectFit: 'contain', borderRadius: 8 }}
+            />
+          )}
+        </Box>
       </Dialog>
 
       {/* ========================================================================= */}
