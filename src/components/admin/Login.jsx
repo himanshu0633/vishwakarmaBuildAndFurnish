@@ -87,8 +87,8 @@ const Login = () => {
   };
 
   const handleDemoLogin = () => {
-    setEmail('admin@industrialsolutions.com');
-    setPassword('Admin@2026');
+    setEmail('Sunil@vfb.com');
+    setPassword('VBF@0633');
   };
 
   const togglePasswordVisibility = () => {
@@ -323,7 +323,7 @@ const Login = () => {
                   margin="normal"
                   required
                   autoComplete="email"
-                  placeholder="admin@industrialsolutions.com"
+                  placeholder="Sunil@vfb.com"
                   InputProps={{
                     startAdornment: (
                       <InputAdornment position="start">
@@ -528,13 +528,13 @@ const Login = () => {
                       <Box>
                         <Typography variant="caption" sx={{ color: '#666' }}>Email:</Typography>
                         <Typography variant="body2" sx={{ color: '#D4AF37', fontWeight: 500, fontFamily: 'monospace' }}>
-                          admin@industrialsolutions.com
+                          Sunil@vfb.com
                         </Typography>
                       </Box>
                       <Box>
                         <Typography variant="caption" sx={{ color: '#666' }}>Password:</Typography>
                         <Typography variant="body2" sx={{ color: '#D4AF37', fontWeight: 500, fontFamily: 'monospace' }}>
-                          Admin@2026
+                          VBF@0633
                         </Typography>
                       </Box>
                     </Box>

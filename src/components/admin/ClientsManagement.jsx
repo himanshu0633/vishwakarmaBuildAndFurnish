@@ -64,12 +64,14 @@ import {
   ContentCopy as CopyIcon,
   Clear as ClearIcon,
   NorthEast as TrendingUpIcon,
-  Check as CheckIcon
+  Check as CheckIcon,
+  Drafts as DraftsIcon
 } from '@mui/icons-material';
 import axiosInstance, { getStaticAssetUrl, getFallbackAssetUrl } from '../../../utils/axiosConfig';
 
 const STATUS_OPTIONS = [
   { value: 'All', label: 'All Statuses' },
+  { value: 'draft', label: 'Draft' },
   { value: 'planning', label: 'Planning & Prep' },
   { value: 'in_progress', label: 'In Progress' },
   { value: 'on_hold', label: 'On Hold' },
@@ -78,6 +80,8 @@ const STATUS_OPTIONS = [
 
 const getStatusBadge = (status) => {
   switch (status) {
+    case 'draft':
+      return { label: 'Draft', bg: '#292210', text: '#fbbf24', border: 'rgba(251, 191, 36, 0.4)', dot: '#f59e0b' };
     case 'in_progress':
       return { label: 'In Progress', bg: '#172554', text: '#60a5fa', border: 'rgba(96, 165, 250, 0.3)', dot: '#3b82f6' };
     case 'planning':
@@ -91,6 +95,11 @@ const getStatusBadge = (status) => {
   }
 };
 
+
+export const extractStepHeading = (rawTitle) => {
+  if (!rawTitle) return '';
+  return String(rawTitle).replace(/^(step\s*\d*[:\-–—\.]*|\d+[\.\)\-–—:]+)\s*/i, '');
+};
 
 const DEFAULT_STEPS = [
   {
@@ -323,6 +332,7 @@ const ClientsManagement = () => {
     setCustomSteps((prev) => [
       ...prev,
       {
+        tempId: `step_${Date.now()}_${Math.random()}`,
         title: `Step ${nextNum}: New Milestone Stage`,
         percentage: 0,
         amountExpected: '',
@@ -336,7 +346,16 @@ const ClientsManagement = () => {
       setSnackbar({ open: true, message: 'At least one step is required', severity: 'warning' });
       return;
     }
-    setCustomSteps((prev) => prev.filter((_, idx) => idx !== stepIndex));
+    setCustomSteps((prev) => {
+      const filtered = prev.filter((_, idx) => idx !== stepIndex);
+      return filtered.map((step, idx) => {
+        const cleanHeading = extractStepHeading(step.title).trim();
+        return {
+          ...step,
+          title: cleanHeading ? `Step ${idx + 1}: ${cleanHeading}` : `Step ${idx + 1}`
+        };
+      });
+    });
   };
 
   const handleUpdateStep = (stepIndex, field, value) => {
@@ -364,6 +383,12 @@ const ClientsManagement = () => {
       updated[stepIndex] = step;
       return updated;
     });
+  };
+
+  const handleUpdateStepHeading = (stepIndex, headingText) => {
+    const clean = extractStepHeading(headingText);
+    const newTitle = clean ? `Step ${stepIndex + 1}: ${clean}` : `Step ${stepIndex + 1}: `;
+    handleUpdateStep(stepIndex, 'title', newTitle);
   };
 
   const handleAddPoint = (stepIndex) => {
@@ -539,7 +564,7 @@ const ClientsManagement = () => {
       data.append('services', JSON.stringify(formData.services));
 
       // Steps formatted with percentage and points
-      const formattedSteps = customSteps.map((step) => {
+      const formattedSteps = customSteps.map((step, sIdx) => {
         const pct = Number(step.percentage) || 0;
         const amt = step.amountExpected
           ? Number(step.amountExpected)
@@ -547,8 +572,11 @@ const ClientsManagement = () => {
           ? Math.round((Number(formData.contractAmount) || 0) * (pct / 100))
           : 0;
 
+        const heading = extractStepHeading(step.title).trim();
+        const finalTitle = heading ? `Step ${sIdx + 1}: ${heading}` : (step.title || `Step ${sIdx + 1}`).trim();
+
         return {
-          title: step.title.trim(),
+          title: finalTitle,
           percentage: pct,
           amountExpected: amt,
           isPaid: step.isPaid || false,
@@ -586,6 +614,166 @@ const ClientsManagement = () => {
     } finally {
       setSavingClient(false);
     }
+  };
+
+  // Save client as Draft
+  const handleSaveDraftClient = async () => {
+    if (savingClient) return;
+    if (!formData.name.trim() || !formData.phone.trim()) {
+      setSnackbar({ open: true, message: 'Please enter at least Client Name and Phone number to save as Draft', severity: 'warning' });
+      return;
+    }
+
+    setSavingClient(true);
+    try {
+      const data = new FormData();
+      data.append('name', formData.name.trim());
+      data.append('phone', formData.phone.trim());
+      data.append('email', (formData.email || '').trim());
+      data.append('location', (formData.location || 'Pending Location').trim());
+      data.append('aadharNo', (formData.aadharNo || '').trim());
+      data.append('serviceRate', formData.serviceRate || 0);
+      data.append('serviceRateUnit', formData.serviceRateUnit || 'Per Sq.Ft');
+      data.append('contractAmount', formData.contractAmount || 0);
+      data.append('status', 'draft');
+      data.append('startDate', formData.startDate || '');
+      data.append('expectedEndDate', formData.expectedEndDate || '');
+      data.append('notes', (formData.notes || '').trim());
+
+      data.append('categories', JSON.stringify(formData.categories || []));
+      data.append('services', JSON.stringify(formData.services || []));
+
+      const formattedSteps = customSteps.map((step, sIdx) => {
+        const pct = Number(step.percentage) || 0;
+        const amt = step.amountExpected
+          ? Number(step.amountExpected)
+          : formData.contractAmount
+          ? Math.round((Number(formData.contractAmount) || 0) * (pct / 100))
+          : 0;
+
+        const heading = extractStepHeading(step.title).trim();
+        const finalTitle = heading ? `Step ${sIdx + 1}: ${heading}` : (step.title || `Step ${sIdx + 1}`).trim();
+
+        return {
+          title: finalTitle,
+          percentage: pct,
+          amountExpected: amt,
+          isPaid: step.isPaid || false,
+          completed: step.completed || false,
+          points: (step.points || [])
+            .map((p) => ({
+              title: typeof p === 'string' ? p.trim() : (p.title || '').trim(),
+              completed: p.completed || false
+            }))
+            .filter((p) => p.title)
+        };
+      });
+      data.append('steps', JSON.stringify(formattedSteps));
+
+      if (agreementFile) {
+        data.append('agreementImage', agreementFile);
+      }
+
+      await axiosInstance.post('/clients', data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+
+      setSnackbar({ open: true, message: 'Client project saved as Draft successfully!', severity: 'success' });
+      setAddDialogOpen(false);
+      fetchClients();
+    } catch (err) {
+      console.error('Error saving draft client:', err);
+      setSnackbar({ open: true, message: err.response?.data?.message || 'Failed to save draft', severity: 'error' });
+    } finally {
+      setSavingClient(false);
+    }
+  };
+
+  // Load draft details preset from screenshot
+  const handleLoadDraftPreset = () => {
+    const constructionCat = availableCategories.find((c) =>
+      c.name?.toLowerCase().includes('construction') || c.slug?.includes('construction')
+    );
+    const catId = constructionCat?._id || '69feca8177eac0cf9a599b77';
+
+    const houseService = availableServices.find((s) =>
+      (s.title || s.name)?.toLowerCase().includes('house construction')
+    );
+    const srvId = houseService?._id || '69fedd89570eba984d6e3eed';
+
+    setFormData({
+      name: 'Himanshu Dhillon',
+      phone: '8570097608',
+      email: 'dhillon_himanshu@outlook.com',
+      location: 'Dewarkhana, jhajjar',
+      aadharNo: '',
+      serviceRate: '1200',
+      serviceRateUnit: 'Per Sq.Ft',
+      contractAmount: '648000',
+      status: 'in_progress',
+      startDate: '2026-09-25',
+      expectedEndDate: '',
+      categories: [catId],
+      services: [srvId],
+      notes: 'RAM RAM JI DC'
+    });
+
+    setCustomSteps([
+      {
+        title: 'Step 1: Agreement',
+        percentage: 1,
+        amountExpected: '6480',
+        points: [
+          { title: 'Site Inspection & Demarcation' },
+          { title: 'Architectural / 2D Layout Finalization' },
+          { title: 'Excavation / Site Digging' }
+        ]
+      },
+      {
+        title: 'Step 2: Foundation & Plinth (Nim Bharna)',
+        percentage: 0,
+        amountExpected: '0',
+        points: [
+          { title: 'Footing & Column Base Casting' },
+          { title: 'Nim Bharna & Stone Masonry' },
+          { title: 'Plinth Beam Casting & Anti-Termite Treatment' },
+          { title: 'Soil Compaction & DPC Layer' }
+        ]
+      },
+      {
+        title: 'Step 3: Superstructure & RCC Slab Casting',
+        percentage: 25,
+        amountExpected: '162000',
+        points: [
+          { title: 'RCC Columns / Pillars Erection' },
+          { title: 'Shuttering & Steel (Saria) Binding' },
+          { title: 'Roof Slab RCC Casting & Curing' },
+          { title: 'Staircase RCC Construction' }
+        ]
+      },
+      {
+        title: 'Step 4: Brickwork, Plumbing & Water Tank',
+        percentage: 20,
+        amountExpected: '129600',
+        points: [
+          { title: 'Exterior & Interior Brickwork Walls' },
+          { title: 'Electrical Conduit & Pipe Fittings' },
+          { title: 'Sanitary & Water Supply Pipeline Setup' },
+          { title: 'Overhead Water Tank (Pani Ki Tanki) Installation' }
+        ]
+      },
+      {
+        title: 'Step 5: Plaster, Flooring & Final Finishing',
+        percentage: 10,
+        amountExpected: '64800',
+        points: [
+          { title: 'Internal & External Wall Plaster' },
+          { title: 'Flooring Tiles & Marble Fitting' }
+        ]
+      }
+    ]);
+
+    setSnackbar({ open: true, message: 'Draft details (Himanshu Dhillon) loaded into form!', severity: 'info' });
   };
 
   // Open Edit Dialog
@@ -638,7 +826,7 @@ const ClientsManagement = () => {
       data.append('categories', JSON.stringify(formData.categories));
       data.append('services', JSON.stringify(formData.services));
 
-      const formattedSteps = customSteps.map((step) => {
+      const formattedSteps = customSteps.map((step, sIdx) => {
         const pct = Number(step.percentage) || 0;
         const amt = step.amountExpected
           ? Number(step.amountExpected)
@@ -646,8 +834,11 @@ const ClientsManagement = () => {
           ? Math.round((Number(formData.contractAmount) || 0) * (pct / 100))
           : 0;
 
+        const heading = extractStepHeading(step.title).trim();
+        const finalTitle = heading ? `Step ${sIdx + 1}: ${heading}` : (step.title || `Step ${sIdx + 1}`).trim();
+
         return {
-          title: step.title.trim(),
+          title: finalTitle,
           percentage: pct,
           amountExpected: amt,
           isPaid: step.isPaid || false,
@@ -1005,7 +1196,7 @@ const ClientsManagement = () => {
       {/* Steps List */}
       {customSteps.map((step, sIdx) => (
         <Accordion
-          key={sIdx}
+          key={step._id || step.tempId || `step_${sIdx}`}
           defaultExpanded
           sx={{
             mb: 2,
@@ -1017,11 +1208,50 @@ const ClientsManagement = () => {
           }}
         >
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', pr: 1, gap: 1 }}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#111' }}>
-                {step.title || `Step ${sIdx + 1}`}
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', pr: 1, gap: 1, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
+              <Box
+                sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1, mr: 1, minWidth: { xs: '100%', sm: 260 } }}
+                onClick={(e) => e.stopPropagation()}
+                onFocus={(e) => e.stopPropagation()}
+              >
+                <Chip
+                  label={`Step ${sIdx + 1}`}
+                  size="small"
+                  sx={{ bgcolor: '#111', color: '#D4AF37', fontWeight: 800, fontSize: '0.8rem', flexShrink: 0 }}
+                />
+                <TextField
+                  size="small"
+                  placeholder="Step Heading / चरण शीर्षक..."
+                  value={extractStepHeading(step.title)}
+                  onChange={(e) => handleUpdateStepHeading(sIdx, e.target.value)}
+                  onClick={(e) => e.stopPropagation()}
+                  onFocus={(e) => e.stopPropagation()}
+                  onKeyDown={(e) => e.stopPropagation()}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start" sx={{ mr: 0.5 }}>
+                        <EditIcon sx={{ fontSize: 14, color: '#D4AF37' }} />
+                      </InputAdornment>
+                    )
+                  }}
+                  sx={{
+                    flex: 1,
+                    maxWidth: { xs: '100%', sm: 400 },
+                    bgcolor: '#fff',
+                    '& .MuiOutlinedInput-root': {
+                      height: 32,
+                      fontSize: '0.85rem',
+                      fontWeight: 700,
+                      bgcolor: '#fff',
+                      '& fieldset': { borderColor: '#dcdcdc' },
+                      '&:hover fieldset': { borderColor: '#D4AF37' },
+                      '&.Mui-focused fieldset': { borderColor: '#D4AF37', borderWidth: 2 }
+                    },
+                    '& .MuiInputBase-input': { py: 0.5, px: 0.5 }
+                  }}
+                />
+              </Box>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
                 <Chip
                   label={`${step.percentage || 0}% Payment`}
                   size="small"
@@ -1050,11 +1280,20 @@ const ClientsManagement = () => {
             <Grid container spacing={2} sx={{ mb: 2 }}>
               <Grid item xs={12} sm={6}>
                 <TextField
-                  label={`Step ${sIdx + 1} Name / Title *`}
+                  label={`Step ${sIdx + 1} Heading / Title *`}
                   fullWidth
                   size="small"
-                  value={step.title}
-                  onChange={(e) => handleUpdateStep(sIdx, 'title', e.target.value)}
+                  placeholder="e.g. Agreement, Foundation & Plinth (Nim Bharna), Superstructure..."
+                  value={extractStepHeading(step.title)}
+                  onChange={(e) => handleUpdateStepHeading(sIdx, e.target.value)}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start" sx={{ fontWeight: 800, color: '#111' }}>
+                        Step {sIdx + 1}:
+                      </InputAdornment>
+                    )
+                  }}
+                  helperText="Milestone stage heading (Step number auto-managed)"
                 />
               </Grid>
               <Grid item xs={6} sm={3}>
@@ -1939,8 +2178,28 @@ const ClientsManagement = () => {
 
       {/* Add Client Dialog */}
       <Dialog open={addDialogOpen} onClose={() => setAddDialogOpen(false)} maxWidth="md" fullWidth>
-        <DialogTitle sx={{ bgcolor: '#111', color: '#D4AF37', fontWeight: 800 }}>
-          Create New Client Construction Project
+        <DialogTitle sx={{ bgcolor: '#111', color: '#D4AF37', fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 1 }}>
+          <span>Create New Client Construction Project</span>
+          <Button
+            size="small"
+            variant="outlined"
+            onClick={handleLoadDraftPreset}
+            startIcon={<DraftsIcon sx={{ fontSize: 18 }} />}
+            sx={{
+              color: '#f59e0b',
+              borderColor: 'rgba(245, 158, 11, 0.5)',
+              textTransform: 'none',
+              fontWeight: 700,
+              fontSize: '0.8rem',
+              bgcolor: 'rgba(245, 158, 11, 0.1)',
+              '&:hover': {
+                borderColor: '#f59e0b',
+                bgcolor: 'rgba(245, 158, 11, 0.2)'
+              }
+            }}
+          >
+            Draft
+          </Button>
         </DialogTitle>
         <DialogContent sx={{ pt: 3 }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5, mt: 1 }}>
@@ -2188,31 +2447,51 @@ const ClientsManagement = () => {
             />
           </Box>
         </DialogContent>
-        <DialogActions sx={{ p: 2, bgcolor: '#f9f9f9', borderTop: '1px solid #e0e0e0' }}>
+        <DialogActions sx={{ p: 2, bgcolor: '#f9f9f9', borderTop: '1px solid #e0e0e0', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <Button onClick={() => setAddDialogOpen(false)} disabled={savingClient} sx={{ color: '#666' }}>
             Cancel
           </Button>
-          <Button
-            onClick={handleCreateClient}
-            variant="contained"
-            disabled={savingClient}
-            sx={{
-              bgcolor: '#111',
-              color: '#D4AF37',
-              fontWeight: 700,
-              '&:hover': { bgcolor: '#222' },
-              '&.Mui-disabled': { bgcolor: '#555', color: '#aaa' }
-            }}
-          >
-            {savingClient ? (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <CircularProgress size={16} sx={{ color: '#D4AF37' }} />
-                <span>Creating Project...</span>
-              </Box>
-            ) : (
-              'Create Client Project'
-            )}
-          </Button>
+          <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center' }}>
+            <Button
+              onClick={handleSaveDraftClient}
+              variant="outlined"
+              disabled={savingClient}
+              startIcon={<DraftsIcon />}
+              sx={{
+                borderColor: '#b45309',
+                color: '#b45309',
+                fontWeight: 700,
+                bgcolor: 'rgba(180, 83, 9, 0.05)',
+                '&:hover': {
+                  borderColor: '#92400e',
+                  bgcolor: 'rgba(180, 83, 9, 0.12)'
+                }
+              }}
+            >
+              Save as Draft
+            </Button>
+            <Button
+              onClick={handleCreateClient}
+              variant="contained"
+              disabled={savingClient}
+              sx={{
+                bgcolor: '#111',
+                color: '#D4AF37',
+                fontWeight: 700,
+                '&:hover': { bgcolor: '#222' },
+                '&.Mui-disabled': { bgcolor: '#555', color: '#aaa' }
+              }}
+            >
+              {savingClient ? (
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <CircularProgress size={16} sx={{ color: '#D4AF37' }} />
+                  <span>Creating Project...</span>
+                </Box>
+              ) : (
+                'Create Client Project'
+              )}
+            </Button>
+          </Box>
         </DialogActions>
       </Dialog>
 

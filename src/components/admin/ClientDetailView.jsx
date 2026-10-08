@@ -77,6 +77,7 @@ import {
 import axiosInstance, { getStaticAssetUrl } from '../../../utils/axiosConfig';
 import PaymentSlipModal from './PaymentSlipModal';
 import { UNITS, getUnitDisplay } from './MaterialsManagement';
+import { extractStepHeading } from './ClientsManagement';
 
 export const LABOUR_ROLES = [
   { id: 'mistri', label: 'मिस्त्री (Mistri / Mason)', color: '#b45309', bg: '#fef3c7' },
@@ -849,10 +850,12 @@ _श्री विश्वकर्मा बिल्ड एंड फर्
   };
 
   const handleAddStepInDialog = () => {
+    const nextNum = editableSteps.length + 1;
     setEditableSteps((prev) => [
       ...prev,
       {
-        title: `Step ${prev.length + 1}`,
+        tempId: `dialog_step_${Date.now()}_${Math.random()}`,
+        title: `Step ${nextNum}: New Milestone Stage`,
         percentage: 0,
         amountExpected: 0,
         completed: false,
@@ -862,7 +865,16 @@ _श्री विश्वकर्मा बिल्ड एंड फर्
   };
 
   const handleDeleteStepInDialog = (stepIdx) => {
-    setEditableSteps((prev) => prev.filter((_, idx) => idx !== stepIdx));
+    setEditableSteps((prev) => {
+      const filtered = prev.filter((_, idx) => idx !== stepIdx);
+      return filtered.map((step, idx) => {
+        const cleanHeading = extractStepHeading(step.title).trim();
+        return {
+          ...step,
+          title: cleanHeading ? `Step ${idx + 1}: ${cleanHeading}` : `Step ${idx + 1}`
+        };
+      });
+    });
   };
 
   const handleUpdateStepInDialog = (stepIdx, field, value) => {
@@ -888,6 +900,12 @@ _श्री विश्वकर्मा बिल्ड एंड फर्
 
     updated[stepIdx] = target;
     setEditableSteps(updated);
+  };
+
+  const handleUpdateStepHeadingInDialog = (stepIdx, headingText) => {
+    const clean = extractStepHeading(headingText);
+    const newTitle = clean ? `Step ${stepIdx + 1}: ${clean}` : `Step ${stepIdx + 1}: `;
+    handleUpdateStepInDialog(stepIdx, 'title', newTitle);
   };
 
   const handleAddPointInDialog = (stepIdx) => {
@@ -922,18 +940,22 @@ _श्री विश्वकर्मा बिल्ड एंड फर्
   const handleSaveSteps = async () => {
     try {
       setSavingSteps(true);
-      const cleanedSteps = editableSteps.map((s, idx) => ({
-        title: s.title?.trim() || `Step ${idx + 1}`,
-        percentage: Number(s.percentage) || 0,
-        amountExpected: Number(s.amountExpected) || 0,
-        completed: !!s.completed,
-        points: (s.points || [])
-          .filter((p) => (typeof p === 'string' ? p.trim() : p.title?.trim()))
-          .map((p) => ({
-            title: typeof p === 'string' ? p.trim() : p.title.trim(),
-            completed: !!p.completed
-          }))
-      }));
+      const cleanedSteps = editableSteps.map((s, idx) => {
+        const heading = extractStepHeading(s.title).trim();
+        const finalTitle = heading ? `Step ${idx + 1}: ${heading}` : (s.title?.trim() || `Step ${idx + 1}`);
+        return {
+          title: finalTitle,
+          percentage: Number(s.percentage) || 0,
+          amountExpected: Number(s.amountExpected) || 0,
+          completed: !!s.completed,
+          points: (s.points || [])
+            .filter((p) => (typeof p === 'string' ? p.trim() : p.title?.trim()))
+            .map((p) => ({
+              title: typeof p === 'string' ? p.trim() : p.title.trim(),
+              completed: !!p.completed
+            }))
+        };
+      });
 
       const res = await axiosInstance.put(`/clients/${id}/milestones`, {
         steps: cleanedSteps
@@ -5034,7 +5056,7 @@ _श्री विश्वकर्मा बिल्ड एंड फर्
           {/* Steps list */}
           {editableSteps.map((step, sIdx) => (
             <Accordion
-              key={sIdx}
+              key={step._id || step.tempId || `editable_step_${sIdx}`}
               defaultExpanded
               sx={{
                 mb: 2,
@@ -5046,11 +5068,50 @@ _श्री विश्वकर्मा बिल्ड एंड फर्
               }}
             >
               <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', pr: 1, gap: 1 }}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 800, color: '#111' }}>
-                    {step.title || `Step ${sIdx + 1}`}
-                  </Typography>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', pr: 1, gap: 1, flexWrap: { xs: 'wrap', sm: 'nowrap' } }}>
+                  <Box
+                    sx={{ display: 'flex', alignItems: 'center', gap: 1, flex: 1, mr: 1, minWidth: { xs: '100%', sm: 260 } }}
+                    onClick={(e) => e.stopPropagation()}
+                    onFocus={(e) => e.stopPropagation()}
+                  >
+                    <Chip
+                      label={`Step ${sIdx + 1}`}
+                      size="small"
+                      sx={{ bgcolor: '#111', color: '#D4AF37', fontWeight: 800, fontSize: '0.8rem', flexShrink: 0 }}
+                    />
+                    <TextField
+                      size="small"
+                      placeholder="Step Heading / चरण शीर्षक..."
+                      value={extractStepHeading(step.title)}
+                      onChange={(e) => handleUpdateStepHeadingInDialog(sIdx, e.target.value)}
+                      onClick={(e) => e.stopPropagation()}
+                      onFocus={(e) => e.stopPropagation()}
+                      onKeyDown={(e) => e.stopPropagation()}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start" sx={{ mr: 0.5 }}>
+                            <EditIcon sx={{ fontSize: 14, color: '#D4AF37' }} />
+                          </InputAdornment>
+                        )
+                      }}
+                      sx={{
+                        flex: 1,
+                        maxWidth: { xs: '100%', sm: 400 },
+                        bgcolor: '#fff',
+                        '& .MuiOutlinedInput-root': {
+                          height: 32,
+                          fontSize: '0.85rem',
+                          fontWeight: 700,
+                          bgcolor: '#fff',
+                          '& fieldset': { borderColor: '#dcdcdc' },
+                          '&:hover fieldset': { borderColor: '#D4AF37' },
+                          '&.Mui-focused fieldset': { borderColor: '#D4AF37', borderWidth: 2 }
+                        },
+                        '& .MuiInputBase-input': { py: 0.5, px: 0.5 }
+                      }}
+                    />
+                  </Box>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0 }}>
                     <Chip
                       label={`${step.percentage || 0}% Payment`}
                       size="small"
@@ -5079,11 +5140,20 @@ _श्री विश्वकर्मा बिल्ड एंड फर्
                 <Grid container spacing={2} sx={{ mb: 2 }}>
                   <Grid item xs={12} sm={6}>
                     <TextField
-                      label={`Step ${sIdx + 1} Name / Title *`}
+                      label={`Step ${sIdx + 1} Heading / Title *`}
                       fullWidth
                       size="small"
-                      value={step.title}
-                      onChange={(e) => handleUpdateStepInDialog(sIdx, 'title', e.target.value)}
+                      placeholder="e.g. Agreement, Foundation & Plinth (Nim Bharna), Superstructure..."
+                      value={extractStepHeading(step.title)}
+                      onChange={(e) => handleUpdateStepHeadingInDialog(sIdx, e.target.value)}
+                      InputProps={{
+                        startAdornment: (
+                          <InputAdornment position="start" sx={{ fontWeight: 800, color: '#111' }}>
+                            Step {sIdx + 1}:
+                          </InputAdornment>
+                        )
+                      }}
+                      helperText="Milestone stage heading (Step number auto-managed)"
                     />
                   </Grid>
                   <Grid item xs={6} sm={3}>

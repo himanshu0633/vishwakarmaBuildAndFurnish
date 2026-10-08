@@ -1153,7 +1153,7 @@ const ClientProjectReportPage = () => {
                         </Box>
                         <Box sx={{ minWidth: 0, flex: 1 }}>
                           <Typography sx={{ fontWeight: 800, color: '#FFFFFF', fontSize: '0.95rem', lineHeight: 1.3 }}>
-                            Step {idx + 1}: {step.title}
+                            Step {idx + 1}: {String(step.title || '').replace(/^(step\s*\d*[:\-–—\.]*|\d+[\.\)\-–—:]+)\s*/i, '').trim() || step.title || `Stage ${idx + 1}`}
                           </Typography>
                           <Typography sx={{ color: '#94A3B8', fontSize: '0.76rem', mt: 0.2 }}>
                             {completedPts} of {totalPts} checkpoints completed

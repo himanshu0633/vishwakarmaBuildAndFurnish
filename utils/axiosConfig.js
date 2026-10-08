@@ -53,7 +53,7 @@ export const getFallbackAssetUrl = (url = '') => {
   const uploadPath = cleanPath.startsWith('/uploads/') ? cleanPath : `/uploads/${cleanPath.replace(/^\/+/, '')}`;
 
   if (API_ORIGIN.includes('localhost') || API_ORIGIN.includes('127.0.0.1')) {
-    return `https://backend.vishwakarmabuildandfurnish.in${uploadPath}`;
+    return `https://vishwakarmabuildandfurnish.in${uploadPath}`;
   }
   return `http://localhost:4001${uploadPath}`;
 };
